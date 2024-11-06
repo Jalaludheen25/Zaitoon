@@ -2,6 +2,7 @@ import 'package:d4tales/constants/color_class.dart';
 import 'package:d4tales/constants/image_class.dart';
 import 'package:d4tales/helper/navigation_helper.dart';
 import 'package:d4tales/screens/aknowledge_screen/aknowledge_screen.dart';
+import 'package:d4tales/screens/language_selection/language_selection.dart';
 import 'package:flutter/material.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -58,7 +59,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       currentPage++;
                     } else {
                       navigateTo(
-                          context: context, route: const AknowledgeScreen());
+                          context: context, route: const LanguageSelection());
                       // Navigate to the home screen
                     }
                   });
