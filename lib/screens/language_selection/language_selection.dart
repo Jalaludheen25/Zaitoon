@@ -70,9 +70,10 @@ class LanguageSelection extends StatelessWidget {
                               },
                               style: ElevatedButton.styleFrom(
                                 minimumSize: const Size(double.infinity, 50),
-                                backgroundColor: snapshot.selectedLanguage == "en"
-                                    ? Colors.white
-                                    : Colors.black,
+                                backgroundColor:
+                                    snapshot.selectedLanguage == "en"
+                                        ? Colors.white
+                                        : Colors.black,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                   side: const BorderSide(
@@ -96,49 +97,50 @@ class LanguageSelection extends StatelessWidget {
                               ),
                             ),
                           ),
-                           const SizedBox(width: 8),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            snapshot.saveSelectedLanguage("ml");
-                          },
-                          style: ElevatedButton.styleFrom(
-                            minimumSize: const Size(double.infinity, 50),
-                            backgroundColor: snapshot.selectedLanguage == "ml"
-                                ? Colors.white
-                                : Colors.black,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              side: const BorderSide(
-                                  color: Colors.white,
-                                  width: 2), // Border color and width
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'മലയാളം',
-                                style: GoogleFonts.manjari(
-                                  color: snapshot.selectedLanguage == "ml"
-                                      ? Colors.black
-                                      : Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () {
+                                snapshot.saveSelectedLanguage("ml");
+                              },
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: const Size(double.infinity, 50),
+                                backgroundColor:
+                                    snapshot.selectedLanguage == "ml"
+                                        ? Colors.white
+                                        : Colors.black,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  side: const BorderSide(
+                                      color: Colors.white,
+                                      width: 2), // Border color and width
                                 ),
                               ),
-                            ],
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'മലയാളം',
+                                    style: GoogleFonts.manjari(
+                                      color: snapshot.selectedLanguage == "ml"
+                                          ? Colors.black
+                                          : Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
                         ],
                       ),
-                     
                       const SizedBox(height: 20),
                       ElevatedButton(
                         onPressed: () {
                           navigateTo(
-                              context: context, route: const StoryScreen());
+                              context: context,
+                              route: const AknowledgeScreen());
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,

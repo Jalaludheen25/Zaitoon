@@ -2,8 +2,8 @@ import 'package:d4tales/helper/navigation_helper.dart';
 import 'package:d4tales/screens/home_screen/home_screen.dart';
 import 'package:flutter/material.dart';
 
-class StoryScreen extends StatelessWidget {
-  const StoryScreen({super.key});
+class AknowledgeScreen extends StatelessWidget {
+  const AknowledgeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

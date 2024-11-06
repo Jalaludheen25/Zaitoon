@@ -1,7 +1,7 @@
 import 'package:d4tales/constants/color_class.dart';
 import 'package:d4tales/constants/image_class.dart';
 import 'package:d4tales/helper/navigation_helper.dart';
-import 'package:d4tales/screens/login_screen/login_screen.dart';
+import 'package:d4tales/screens/aknowledge_screen/aknowledge_screen.dart';
 import 'package:flutter/material.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -57,7 +57,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     if (currentPage < demoData.length - 1) {
                       currentPage++;
                     } else {
-                      navigateTo(context: context, route: const AuthScreen());
+                      navigateTo(
+                          context: context, route: const AknowledgeScreen());
                       // Navigate to the home screen
                     }
                   });
