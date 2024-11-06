@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
       child: isMobileDevice
           ? MaterialApp(
               debugShowCheckedModeBanner: false,
-              title: 'JIH Conference',
+              title: 'Zaitoon',
               theme: AppTheme.lightTheme(context),
               home: const SplashScreen(),
             )
@@ -59,7 +59,7 @@ class MyApp extends StatelessWidget {
                 locale: DevicePreview.locale(context),
                 builder: DevicePreview.appBuilder,
                 debugShowCheckedModeBanner: false,
-                title: 'JIH Conference',
+                title: 'Zaitoon',
               ),
             ),
     );
