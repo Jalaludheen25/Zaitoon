@@ -1,128 +1,188 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:d4tales/constants/app_urls.dart';
 import 'package:d4tales/constants/image_class.dart';
+import 'package:d4tales/helper/navigation_helper.dart';
+import 'package:d4tales/screens/home_screen/models/episode_model.dart';
+import 'package:d4tales/screens/home_screen/provider/home_provider.dart';
+import 'package:d4tales/screens/home_screen/story_reading_screen.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-class StoryItem {
-  final String title;
-  final String category;
-  final String subCategory;
-  final String imageUrl;
-  final int duration;
-  final int rating;
-  final bool hasAudio;
 
-  StoryItem({
-    required this.title,
-    required this.category,
-    required this.subCategory,
-    required this.imageUrl,
-    required this.duration,
-    required this.rating,
-    this.hasAudio = false,
-  });
-}
 
 class EpisodeScreen extends StatefulWidget {
-  const EpisodeScreen({super.key});
-
+  const EpisodeScreen({super.key, required this.id, required this.title});
+final String id;
+final String title;
   @override
   State<EpisodeScreen> createState() => _EpisodeScreenState();
 }
 
 class _EpisodeScreenState extends State<EpisodeScreen> {
-  String selectedFilter = 'All';
 
-  final List<StoryItem> stories = [
-    StoryItem(
-      title: 'The Sleepy Kitten',
-      category: 'Mindfulness',
-      subCategory: 'Sleep',
-      imageUrl: ImageClass.onboarding1,
-      duration: 7,
-      rating: 4,
-      hasAudio: true,
-    ),
-    StoryItem(
-      title: 'The Naughty Gnome',
-      category: 'Mindfulness',
-      subCategory: 'Sleep',
-      imageUrl: ImageClass.onboarding2,
-      duration: 6,
-      rating: 3,
-      hasAudio: true,
-    ),
-    StoryItem(
-      title: 'And Finally, To Sleep',
-      category: 'Mindfulness',
-      subCategory: 'Sleep',
-      imageUrl: ImageClass.onboarding3,
-      duration: 4,
-      rating: 3,
-    ),
-    StoryItem(
-      title: 'A Trip to Fantasy Land',
-      category: 'Creativity',
-      subCategory: '',
-      imageUrl: ImageClass.onboarding1,
-      duration: 7,
-      rating: 3,
-      hasAudio: true,
-    ),
-  ];
 
+  
+  @override
+  void initState() {
+    Future.microtask(() {
+      HomeProvider homeProvider =
+          Provider.of<HomeProvider>(context, listen: false);
+      homeProvider.fetchEpisodes(widget.id);
+      
+    });
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'Bedtime Stories',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+        child: Consumer<HomeProvider>(
+          builder: (context,snapshot,_)=>
+          snapshot.episodeModel==null?const Center(child: CupertinoActivityIndicator()):
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back, color: Colors.white),
+                      onPressed: () => Navigator.pop(context),
                     ),
+                    const SizedBox(width: 8),
+                      Text(
+                      widget.title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          
+              // Filter Chips
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    const SizedBox(width: 8),
+                    _buildFilterChip('Episodes-${snapshot.episodeModel!.data!.length}', icon: Icons.book_rounded),
+                  ],
+                ),
+              ),
+          
+              // Stories List
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: snapshot.episodeModel!.data!.length,
+                  itemBuilder: (context, index) {
+                    final story = snapshot.episodeModel!.data![index];
+                    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        children: [
+          // Story Image
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              width: 80,
+              height: 80,
+              color: Colors.grey[800],
+              child:  CachedNetworkImage(
+              imageUrl:ApiUrls.assetBaseUrl+story.coverImage!,
+              fit: BoxFit.cover,
+              placeholder: (context, url) => const CupertinoActivityIndicator(),
+              errorWidget: (context, url, error) => const Icon(Icons.error)
+            ),
+            ),
+          ),
+          const SizedBox(width: 16),
+
+          // Story Details
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  story.storyTile!,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${story.uploadDate} ',
+                  style: TextStyle(
+                    color: Colors.grey[400],
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Icon(Icons.access_time, size: 16, color: Colors.grey[400]),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${story.readMinutes} min',
+                      style: TextStyle(
+                        color: Colors.grey[400],
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                   
+                   
+                  ],
+                ),
+              ],
             ),
+          ),
 
-            // Filter Chips
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  const SizedBox(width: 8),
-                  _buildFilterChip('Episodes-4', icon: Icons.book_rounded),
-                ],
+          GestureDetector(
+            onTap: (){
+              navigatePRTo(context,  
+               PDFViewerScreen(
+                                        pdfUrl: ApiUrls.assetBaseUrl +
+                                            snapshot.episodeModel!.data![index]
+                                                .storyFile!,
+                                      ),);
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 8,
+                vertical: 4,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.grey[800],
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: const Text(
+                'Read',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                ),
               ),
             ),
-
-            // Stories List
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: stories.length,
-                itemBuilder: (context, index) {
-                  final story = stories[index];
-                  return _buildStoryCard(story);
-                },
+          ),
+        ],
+      ),
+    );
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -153,103 +213,5 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
     );
   }
 
-  Widget _buildStoryCard(StoryItem story) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      child: Row(
-        children: [
-          // Story Image
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              width: 80,
-              height: 80,
-              color: Colors.grey[800],
-              child: Image.asset(
-                story.imageUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: Colors.grey[800],
-                    child: const Icon(
-                      Icons.image,
-                      color: Colors.white54,
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
 
-          // Story Details
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  story.title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${story.category}${story.subCategory.isNotEmpty ? ", ${story.subCategory}" : ""}',
-                  style: TextStyle(
-                    color: Colors.grey[400],
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Icon(Icons.access_time, size: 16, color: Colors.grey[400]),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${story.duration} min',
-                      style: TextStyle(
-                        color: Colors.grey[400],
-                        fontSize: 14,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Icon(Icons.star, size: 16, color: Colors.grey[400]),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${story.rating}',
-                      style: TextStyle(
-                        color: Colors.grey[400],
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 8,
-              vertical: 4,
-            ),
-            decoration: BoxDecoration(
-              color: Colors.grey[800],
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: const Text(
-              'Read',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }

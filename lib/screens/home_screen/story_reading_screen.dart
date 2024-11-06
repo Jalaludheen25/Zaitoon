@@ -3,6 +3,8 @@
 import 'dart:developer';
 
 import 'package:d4tales/constants/color_class.dart';
+import 'package:d4tales/helper/navigation_helper.dart';
+import 'package:d4tales/screens/home_screen/home_screen.dart';
 import 'package:d4tales/screens/home_screen/provider/story_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -59,7 +61,7 @@ class _PDFViewerContentState extends State<PDFViewerContent> {
             color: Colors.white,
           ),
           onPressed: () {
-            Navigator.of(context).pop();
+           navigatePRTo(context, const HomeScreen());
           },
         ),
         actions: [
@@ -134,7 +136,7 @@ class _PDFViewerContentState extends State<PDFViewerContent> {
           return PDFView(
             filePath: state.pdfPath!,
             enableSwipe: true,
-            swipeHorizontal: true,
+            swipeHorizontal: false,
             autoSpacing: true,
             pageSnap: true,
             onRender: (pages) {

@@ -19,16 +19,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   // List of categories with their colors
-  final categories = [
-    {'name': 'Bedtime', 'color': Colors.indigo[400]},
-    {'name': 'Adventure', 'color': Colors.orange[400]},
-    {'name': 'Animals', 'color': Colors.green[400]},
-    {'name': 'Fantasy', 'color': Colors.purple[400]},
-    {'name': 'Educational', 'color': Colors.blue[400]},
-    {'name': 'Fairy Tales', 'color': Colors.pink[400]},
-    {'name': 'Friendship', 'color': Colors.teal[400]},
-    {'name': 'Mystery', 'color': Colors.amber[400]},
-  ];
+  
 
   @override
   void initState() {
@@ -36,6 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
       HomeProvider homeProvider =
           Provider.of<HomeProvider>(context, listen: false);
       homeProvider.fetchStories();
+      
     });
     super.initState();
   }
@@ -113,7 +105,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                 void onTapFunction() {
                                   navigateTo(
                                       context: context,
-                                      route: const EpisodeScreen()
+                                      route:   EpisodeScreen(
+                                        title:snapshot.storyModel!.data[index].name ,
+                                        id:snapshot.storyModel!.data[index].id.toString() ,
+                                      )
                                       // PDFViewerScreen(
                                       //   pdfUrl: ApiUrls.assetBaseUrl +
                                       //       snapshot.storyModel!.data[index]
@@ -125,6 +120,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 return
                                     // Story Card with Bow
                                     StoryCard(
+                                      name: snapshot.storyModel!.data[index].name,
+                                      discription: snapshot.storyModel!.data[index].description,
+                                      tag: snapshot.storyModel!.data[index].tag,
                                         imageUrl: ApiUrls.assetBaseUrl +
                                             snapshot.storyModel!.data[index]
                                                 .coverimage,

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
 class StoryCard extends StatefulWidget {
-  const StoryCard({super.key, this.imageUrl, required this.readTap});
+  const StoryCard({super.key, this.imageUrl, required this.readTap, this.tag, this.name, this.discription});
   final String? imageUrl;
+  final String? tag;
+  final String? name;
+  final String? discription;
   final VoidCallback readTap;
   @override
   State<StoryCard> createState() => _StoryCardState();
@@ -58,9 +61,9 @@ class _StoryCardState extends State<StoryCard> {
                 const SizedBox(height: 258),
 
                 // Main title
-                const Text(
-                  'Poocha Police',
-                  style: TextStyle(
+                  Text(
+                  widget.name.toString(),
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -70,9 +73,9 @@ class _StoryCardState extends State<StoryCard> {
                 const SizedBox(
                   height: 5,
                 ),
-                const Text(
-                  'Investigation',
-                  style: TextStyle(
+                  Text(
+                 widget.tag.toString(),
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 12,
                     fontWeight: FontWeight.normal,
@@ -86,13 +89,13 @@ class _StoryCardState extends State<StoryCard> {
 
                 Row(
                   children: [
-                    const Expanded(
+                      Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Poocha Police is a Malayalam animation series aimed at children, featuring the character Tiger. ",
-                            style: TextStyle(
+                           widget.discription.toString(),
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
