@@ -12,8 +12,8 @@ class _StoryCardState extends State<StoryCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      margin: const EdgeInsets.only(bottom: 20),
       width: double.infinity,
-      height: 400,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         gradient: const LinearGradient(
@@ -62,15 +62,18 @@ class _StoryCardState extends State<StoryCard> {
                   'Poocha Police',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 25,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                     height: 1.2,
                   ),
                 ),
+                const SizedBox(
+                  height: 5,
+                ),
                 const Text(
                   'Investigation',
                   style: TextStyle(
-                    color: Color.fromARGB(255, 30, 29, 29),
+                    color: Colors.white,
                     fontSize: 12,
                     fontWeight: FontWeight.normal,
                     // height: 1.5,
@@ -94,6 +97,7 @@ class _StoryCardState extends State<StoryCard> {
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
                             ),
+                            maxLines: 2,
                           ),
                         ],
                       ),
