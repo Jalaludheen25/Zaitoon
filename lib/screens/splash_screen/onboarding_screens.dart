@@ -1,4 +1,5 @@
 import 'package:d4tales/constants/color_class.dart';
+import 'package:d4tales/constants/image_class.dart';
 import 'package:d4tales/helper/navigation_helper.dart';
 import 'package:d4tales/screens/login_screen/login_screen.dart';
 import 'package:flutter/material.dart';
@@ -101,7 +102,7 @@ class OnboardContent extends StatelessWidget {
               aspectRatio: 1,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
-                child: Image.network(
+                child: Image.asset(
                   illustration!,
                   fit: BoxFit.cover,
                 ),
@@ -160,17 +161,17 @@ class DotIndicator extends StatelessWidget {
 // Demo data for our Onboarding screen
 List<Map<String, dynamic>> demoData = [
   {
-    "illustration": "https://jih-asset.netlify.app/assets/img/onboarding1.png",
+    "illustration": ImageClass.onboarding1,
     "title": "Magical Stories Every Day",
     "text": "Discover enchanting tales that spark your child's imagination",
   },
   {
-    "illustration": "https://jih-asset.netlify.app/assets/img/onboarding2.png",
+    "illustration": ImageClass.onboarding2,
     "title": "Read Together, Grow Together",
     "text": "Create precious bedtime moments with interactive storytelling",
   },
   {
-    "illustration": "https://jih-asset.netlify.app/assets/img/onboarding3.png",
+    "illustration": ImageClass.onboarding3,
     "title": "Learning Made Fun",
     "text": "Stories filled with values, morals and educational adventures",
   },

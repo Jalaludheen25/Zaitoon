@@ -1,10 +1,10 @@
 class ApiUrls {
   // ignore: constant_identifier_names
-  static const String baseUrl = "https://directus.jihkerala.org";
+  static const String baseUrl = "http://139.59.20.49:8055";
   static String wpBaseUrl =
       "https://wordpress-1197187-4979850.cloudwaysapps.com/wp-json/wp/v2";
 
-  static const String assetBaseUrl = "https://directus.jihkerala.org/assets/";
+  static const String assetBaseUrl = "http://139.59.20.49:8055/assets/";
 
   // wordpress
   static String getSpecificPost({required int postId}) {
@@ -15,5 +15,5 @@ class ApiUrls {
     return 'media/$imageId';
   }
 
-  static String stories = "$baseUrl/items/d4tales_story";
+  static String stories = "$baseUrl/items/zaitoon_stories";
 }

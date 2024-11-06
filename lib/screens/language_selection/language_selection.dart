@@ -61,70 +61,79 @@ class LanguageSelection extends StatelessWidget {
                 builder: (context, snapshot, child) {
                   return Column(
                     children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          snapshot.saveSelectedLanguage("en");
-                        },
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(double.infinity, 50),
-                          backgroundColor: snapshot.selectedLanguage == "en"
-                              ? Colors.white
-                              : Colors.black,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            side: const BorderSide(
-                                color: Colors.white,
-                                width: 2), // Border color and width
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'English',
-                              style: TextStyle(
-                                color: snapshot.selectedLanguage == "en"
-                                    ? Colors.black
-                                    : Colors.white,
-                                fontSize: 16,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () {
+                                snapshot.saveSelectedLanguage("en");
+                              },
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: const Size(double.infinity, 50),
+                                backgroundColor: snapshot.selectedLanguage == "en"
+                                    ? Colors.white
+                                    : Colors.black,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  side: const BorderSide(
+                                      color: Colors.white,
+                                      width: 2), // Border color and width
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'English',
+                                    style: TextStyle(
+                                      color: snapshot.selectedLanguage == "en"
+                                          ? Colors.black
+                                          : Colors.white,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      ElevatedButton(
-                        onPressed: () {
-                          snapshot.saveSelectedLanguage("ml");
-                        },
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(double.infinity, 50),
-                          backgroundColor: snapshot.selectedLanguage == "ml"
-                              ? Colors.white
-                              : Colors.black,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            side: const BorderSide(
-                                color: Colors.white,
-                                width: 2), // Border color and width
+                          ),
+                           const SizedBox(width: 8),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            snapshot.saveSelectedLanguage("ml");
+                          },
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: const Size(double.infinity, 50),
+                            backgroundColor: snapshot.selectedLanguage == "ml"
+                                ? Colors.white
+                                : Colors.black,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              side: const BorderSide(
+                                  color: Colors.white,
+                                  width: 2), // Border color and width
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'മലയാളം',
+                                style: GoogleFonts.manjari(
+                                  color: snapshot.selectedLanguage == "ml"
+                                      ? Colors.black
+                                      : Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'മലയാളം',
-                              style: GoogleFonts.manjari(
-                                color: snapshot.selectedLanguage == "ml"
-                                    ? Colors.black
-                                    : Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
                       ),
+                        ],
+                      ),
+                     
                       const SizedBox(height: 20),
                       ElevatedButton(
                         onPressed: () {
