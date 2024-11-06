@@ -48,7 +48,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
               // Headline text
               const Text(
-                'Welcome to D4Tales',
+                'Welcome to Zai Toon',
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
