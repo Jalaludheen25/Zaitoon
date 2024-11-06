@@ -28,28 +28,32 @@ class StoryModel {
 
 class StoryData {
   final int id;
-  final String title;
-  final String thumbnail;
-  final String storyFile;
+  final String coverimage;
+  final String description;
+  final String name;
+  final String tag;
 
   StoryData({
     required this.id,
-    required this.title,
-    required this.thumbnail,
-    required this.storyFile,
+    required this.coverimage,
+    required this.description,
+    required this.name,
+    required this.tag,
   });
 
   factory StoryData.fromJson(Map<String, dynamic> json) => StoryData(
         id: json["id"],
-        title: json["Title"],
-        thumbnail: json["thumbnail"],
-        storyFile: json["story_file"],
+        coverimage: json["coverimage"],
+        description: json["description"],
+        name: json["name"],
+        tag: json["tag"],
       );
 
   Map<String, dynamic> toJson() => {
         "id": id,
-        "Title": title,
-        "thumbnail": thumbnail,
-        "story_file": storyFile,
+        "coverimage": coverimage,
+        "description": description,
+        "name": name,
+        "tag": tag,
       };
 }

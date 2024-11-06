@@ -1,11 +1,9 @@
-import 'package:d4tales/constants/app_urls.dart';
 import 'package:flutter/material.dart';
 
 class StoryCard extends StatefulWidget {
-  
   const StoryCard({super.key, this.imageUrl, required this.readTap});
-final String? imageUrl;
-final VoidCallback readTap;
+  final String? imageUrl;
+  final VoidCallback readTap;
   @override
   State<StoryCard> createState() => _StoryCardState();
 }
@@ -17,7 +15,6 @@ class _StoryCardState extends State<StoryCard> {
       width: double.infinity,
       height: 400,
       decoration: BoxDecoration(
-        
         borderRadius: BorderRadius.circular(20),
         gradient: const LinearGradient(
           begin: Alignment.topCenter,
@@ -41,11 +38,9 @@ class _StoryCardState extends State<StoryCard> {
               decoration: BoxDecoration(
                 color: Colors.purple.withOpacity(0.3),
                 image: DecorationImage(
-                                        image: NetworkImage(
-                                        widget.imageUrl!
-                                        ),
-                                        fit: BoxFit.cover,
-                                      ),
+                  image: NetworkImage(widget.imageUrl!),
+                  fit: BoxFit.cover,
+                ),
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(20),
                   topRight: Radius.circular(20),
@@ -53,17 +48,17 @@ class _StoryCardState extends State<StoryCard> {
               ),
             ),
           ),
-          
+
           // Content Column
           Padding(
             padding: const EdgeInsets.all(18),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 258), 
-   
+                const SizedBox(height: 258),
+
                 // Main title
-                Text(
+                const Text(
                   'Poocha Police',
                   style: TextStyle(
                     color: Colors.white,
@@ -81,15 +76,13 @@ class _StoryCardState extends State<StoryCard> {
                     // height: 1.5,
                   ),
                 ),
-                
-                const SizedBox(height: 5,),
-                
-            
+
+                const SizedBox(
+                  height: 5,
+                ),
+
                 Row(
                   children: [
-                
-                    
-             
                     const Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -102,16 +95,13 @@ class _StoryCardState extends State<StoryCard> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                        
                         ],
                       ),
                     ),
-                    
+
                     // Get button
                     InkWell(
-                       onTap: 
-                        widget.readTap,
-                      
+                      onTap: widget.readTap,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,

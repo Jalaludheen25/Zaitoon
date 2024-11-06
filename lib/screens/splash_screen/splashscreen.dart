@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:d4tales/helper/navigation_helper.dart';
 import 'package:d4tales/screens/splash_screen/onboarding_screens.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,10 +13,10 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
- @override
+  @override
   void initState() {
     Future.delayed(const Duration(seconds: 2), () {
-     navigatePRTo(context, const OnboardingScreen());
+      navigatePRTo(context, const OnboardingScreen());
     });
     super.initState();
   }
@@ -67,7 +69,9 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
               const SizedBox(height: 30),
 
-             CupertinoActivityIndicator(color: Colors.white,)
+              const CupertinoActivityIndicator(
+                color: Colors.white,
+              )
             ],
           ),
         ),

@@ -1,13 +1,10 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:d4tales/constants/app_urls.dart';
-import 'package:d4tales/constants/image_class.dart';
-import 'package:d4tales/constants/textstyle_class.dart';
 import 'package:d4tales/helper/navigation_helper.dart';
 import 'package:d4tales/screens/episode_screen.dart/episode_screen.dart';
 import 'package:d4tales/screens/home_screen/provider/home_provider.dart';
 import 'package:d4tales/screens/home_screen/story_card.dart';
-import 'package:d4tales/screens/home_screen/story_reading_screen.dart';
 import 'package:d4tales/screens/language_selection/language_selection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -115,14 +112,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                   snapshot.storyModel!.data.length, (index) {
                                 void onTapFunction() {
                                   navigateTo(
-                                    context: context,
-                                    route: EpisodeScreen()
-                                    // PDFViewerScreen(
-                                    //   pdfUrl: ApiUrls.assetBaseUrl +
-                                    //       snapshot.storyModel!.data[index]
-                                    //           .storyFile,
-                                    // ),
-                                  );
+                                      context: context,
+                                      route: const EpisodeScreen()
+                                      // PDFViewerScreen(
+                                      //   pdfUrl: ApiUrls.assetBaseUrl +
+                                      //       snapshot.storyModel!.data[index]
+                                      //           .storyFile,
+                                      // ),
+                                      );
                                 }
 
                                 return
@@ -130,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     StoryCard(
                                         imageUrl: ApiUrls.assetBaseUrl +
                                             snapshot.storyModel!.data[index]
-                                                .thumbnail,
+                                                .coverimage,
                                         readTap: onTapFunction);
                               }),
                             ),

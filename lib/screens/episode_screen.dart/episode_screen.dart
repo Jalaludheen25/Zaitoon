@@ -30,7 +30,7 @@ class EpisodeScreen extends StatefulWidget {
 
 class _EpisodeScreenState extends State<EpisodeScreen> {
   String selectedFilter = 'All';
-  
+
   final List<StoryItem> stories = [
     StoryItem(
       title: 'The Sleepy Kitten',
@@ -62,7 +62,7 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
       title: 'A Trip to Fantasy Land',
       category: 'Creativity',
       subCategory: '',
-      imageUrl:ImageClass.onboarding1,
+      imageUrl: ImageClass.onboarding1,
       duration: 7,
       rating: 3,
       hasAudio: true,
@@ -105,7 +105,6 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 children: [
-                
                   const SizedBox(width: 8),
                   _buildFilterChip('Episodes-4', icon: Icons.book_rounded),
                 ],
@@ -130,31 +129,22 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
   }
 
   Widget _buildFilterChip(String label, {IconData? icon}) {
-    
     return FilterChip(
-      label: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-         
-            Icon(
-              icon,
-              size: 18,
-              color:  Colors.white,
-            ),
-            const SizedBox(width: 4),
-          
-          Text(
-            label,
-            style: TextStyle(
-              color: Colors.white,
-            ),
+      label: Row(mainAxisSize: MainAxisSize.min, children: [
+        Icon(
+          icon,
+          size: 18,
+          color: Colors.white,
+        ),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: const TextStyle(
+            color: Colors.white,
           ),
-        ]
-      ),
-     
-      onSelected: (selected) {
-      
-      },
+        ),
+      ]),
+      onSelected: (selected) {},
       backgroundColor: Colors.grey[900],
       selectedColor: Colors.green,
       checkmarkColor: Colors.transparent,
@@ -191,7 +181,7 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
             ),
           ),
           const SizedBox(width: 16),
-          
+
           // Story Details
           Expanded(
             child: Column(
@@ -240,26 +230,24 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
               ],
             ),
           ),
-          
-         
-         
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8,
-                vertical: 4,
-              ),
-              decoration: BoxDecoration(
-                color: Colors.grey[800],
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: const Text(
-                'Read',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                ),
+
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8,
+              vertical: 4,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.grey[800],
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: const Text(
+              'Read',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 12,
               ),
             ),
+          ),
         ],
       ),
     );
