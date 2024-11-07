@@ -69,6 +69,25 @@ class HomeProvider extends ChangeNotifier {
     }
   }
 
+    Future<void> loadSelectedLanguage() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    selectedLanguage = prefs.getString('language') ?? "en"; // Default to "en"
+    notifyListeners();
+  }
+
+
+   // Function to set onboarding as completed
+  Future<void> setOnboardingCompleted() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('onboardingCompleted', true);
+  }
+
+  // Function to check if onboarding is completed
+  Future<bool> isOnboardingCompleted() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('onboardingCompleted') ?? false;
+  }
+
 
 
   Future<void> fetchEpisodes(String id) async {

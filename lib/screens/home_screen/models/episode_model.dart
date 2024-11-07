@@ -27,6 +27,8 @@ class EpisodeModel {
 class Datum {
     String? coverImage;
     int? id;
+    String? mlStoryFile;
+    String? mlTitle;
     String? readMinutes;
     int? story;
     String? storyFile;
@@ -36,6 +38,8 @@ class Datum {
     Datum({
         this.coverImage,
         this.id,
+        this.mlStoryFile,
+        this.mlTitle,
         this.readMinutes,
         this.story,
         this.storyFile,
@@ -46,6 +50,8 @@ class Datum {
     factory Datum.fromJson(Map<String, dynamic> json) => Datum(
         coverImage: json["cover_image"],
         id: json["id"],
+        mlStoryFile: json["ml_story_file"],
+        mlTitle: json["ml_title"],
         readMinutes: json["read_minutes"],
         story: json["story"],
         storyFile: json["story_file"],
@@ -56,6 +62,8 @@ class Datum {
     Map<String, dynamic> toJson() => {
         "cover_image": coverImage,
         "id": id,
+        "ml_story_file": mlStoryFile,
+        "ml_title": mlTitle,
         "read_minutes": readMinutes,
         "story": story,
         "story_file": storyFile,

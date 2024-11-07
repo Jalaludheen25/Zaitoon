@@ -1,6 +1,8 @@
 import 'package:d4tales/helper/navigation_helper.dart';
 import 'package:d4tales/screens/home_screen/home_screen.dart';
+import 'package:d4tales/screens/home_screen/provider/home_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class AknowledgeScreen extends StatelessWidget {
   const AknowledgeScreen({super.key});
@@ -95,7 +97,10 @@ class AknowledgeScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
+                      final homeProvider =
+                          Provider.of<HomeProvider>(context, listen: false);
+                      await homeProvider.setOnboardingCompleted();
                       navigateTo(context: context, route: const HomeScreen());
                     },
                     style: ElevatedButton.styleFrom(

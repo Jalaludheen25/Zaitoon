@@ -113,7 +113,9 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        story.storyTile!,
+                                        snapshot.selectedLanguage == 'en'
+                                            ? story.storyTile!
+                                            : story.mlTitle!,
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 16,
@@ -154,9 +156,16 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
                                     navigatePRTo(
                                       context,
                                       PDFViewerScreen(
-                                        pdfUrl: ApiUrls.assetBaseUrl +
-                                            snapshot.episodeModel!.data![index]
-                                                .storyFile!,
+                                        pdfUrl:
+                                            snapshot.selectedLanguage == 'en'
+                                                ? ApiUrls.assetBaseUrl +
+                                                    snapshot.episodeModel!
+                                                        .data![index].storyFile!
+                                                : ApiUrls.assetBaseUrl +
+                                                    snapshot
+                                                        .episodeModel!
+                                                        .data![index]
+                                                        .mlStoryFile!,
                                       ),
                                     );
                                   },

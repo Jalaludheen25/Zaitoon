@@ -6,6 +6,7 @@ import 'package:d4tales/screens/episode_screen.dart/episode_screen.dart';
 import 'package:d4tales/screens/home_screen/provider/home_provider.dart';
 import 'package:d4tales/screens/home_screen/story_card.dart';
 import 'package:d4tales/screens/language_selection/language_selection.dart';
+import 'package:d4tales/screens/settings_screen/settings_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -19,7 +20,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   // List of categories with their colors
-  
 
   @override
   void initState() {
@@ -27,7 +27,6 @@ class _HomeScreenState extends State<HomeScreen> {
       HomeProvider homeProvider =
           Provider.of<HomeProvider>(context, listen: false);
       homeProvider.fetchStories();
-      
     });
     super.initState();
   }
@@ -69,6 +68,12 @@ class _HomeScreenState extends State<HomeScreen> {
                             color: Colors.white,
                             height: 32,
                           )),
+const SizedBox(width: 5,),
+                          GestureDetector(
+                            onTap: (){
+                              navigatePRTo(context, const SettingsScreen());
+                            },
+                            child: const Icon(Icons.settings,color: Colors.white,))
                     ],
                   ),
                   const SizedBox(height: 8),
@@ -101,13 +106,18 @@ class _HomeScreenState extends State<HomeScreen> {
                           : ListView(
                               padding: const EdgeInsets.all(16),
                               children: List.generate(
-                                  snapshot.storyModel!.data.length, (index) {
+                                  snapshot.storyModel!.data!.length, (index) {
                                 void onTapFunction() {
                                   navigateTo(
                                       context: context,
-                                      route:   EpisodeScreen(
-                                        title:snapshot.storyModel!.data[index].name ,
-                                        id:snapshot.storyModel!.data[index].id.toString() ,
+                                      route: EpisodeScreen(
+                                        title: snapshot.selectedLanguage == 'en'
+                                            ? snapshot
+                                                .storyModel!.data![index].name!
+                                            : snapshot.storyModel!.data![index]
+                                                .mlTitle!,
+                                        id: snapshot.storyModel!.data![index].id
+                                            .toString(),
                                       )
                                       // PDFViewerScreen(
                                       //   pdfUrl: ApiUrls.assetBaseUrl +
@@ -120,12 +130,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                 return
                                     // Story Card with Bow
                                     StoryCard(
-                                      name: snapshot.storyModel!.data[index].name,
-                                      discription: snapshot.storyModel!.data[index].description,
-                                      tag: snapshot.storyModel!.data[index].tag,
+                                        name: snapshot.selectedLanguage == 'en'
+                                            ? snapshot
+                                                .storyModel!.data![index].name
+                                            : snapshot.storyModel!.data![index]
+                                                .mlTitle,
+                                        discription:
+                                            snapshot.selectedLanguage == 'en'
+                                                ? snapshot.storyModel!
+                                                    .data![index].description
+                                                : snapshot.storyModel!
+                                                    .data![index].mlDescription,
+                                        tag: snapshot
+                                            .storyModel!.data![index].tag,
                                         imageUrl: ApiUrls.assetBaseUrl +
-                                            snapshot.storyModel!.data[index]
-                                                .coverimage,
+                                            snapshot.storyModel!.data![index]
+                                                .coverimage!,
                                         readTap: onTapFunction);
                               }),
                             ),

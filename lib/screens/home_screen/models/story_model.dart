@@ -4,56 +4,62 @@
 
 import 'dart:convert';
 
-StoryModel storyModelFromJson(String str) =>
-    StoryModel.fromJson(json.decode(str));
+StoryModel storyModelFromJson(String str) => StoryModel.fromJson(json.decode(str));
 
 String storyModelToJson(StoryModel data) => json.encode(data.toJson());
 
 class StoryModel {
-  final List<StoryData> data;
+    List<StoryData>? data;
 
-  StoryModel({
-    required this.data,
-  });
+    StoryModel({
+        this.data,
+    });
 
-  factory StoryModel.fromJson(Map<String, dynamic> json) => StoryModel(
-        data: List<StoryData>.from(
-            json["data"].map((x) => StoryData.fromJson(x))),
-      );
+    factory StoryModel.fromJson(Map<String, dynamic> json) => StoryModel(
+        data: json["data"] == null ? [] : List<StoryData>.from(json["data"]!.map((x) => StoryData.fromJson(x))),
+    );
 
-  Map<String, dynamic> toJson() => {
-        "data": List<dynamic>.from(data.map((x) => x.toJson())),
-      };
+    Map<String, dynamic> toJson() => {
+        "data": data == null ? [] : List<dynamic>.from(data!.map((x) => x.toJson())),
+    };
 }
 
 class StoryData {
-  final int id;
-  final String coverimage;
-  final String description;
-  final String name;
-  final String tag;
+    String? coverimage;
+    String? description;
+    int? id;
+    String? mlDescription;
+    String? mlTitle;
+    String? name;
+    String? tag;
 
-  StoryData({
-    required this.id,
-    required this.coverimage,
-    required this.description,
-    required this.name,
-    required this.tag,
-  });
+    StoryData({
+        this.coverimage,
+        this.description,
+        this.id,
+        this.mlDescription,
+        this.mlTitle,
+        this.name,
+        this.tag,
+    });
 
-  factory StoryData.fromJson(Map<String, dynamic> json) => StoryData(
-        id: json["id"],
+    factory StoryData.fromJson(Map<String, dynamic> json) => StoryData(
         coverimage: json["coverimage"],
         description: json["description"],
+        id: json["id"],
+        mlDescription: json["ml_description"],
+        mlTitle: json["ml_title"],
         name: json["name"],
         tag: json["tag"],
-      );
+    );
 
-  Map<String, dynamic> toJson() => {
-        "id": id,
+    Map<String, dynamic> toJson() => {
         "coverimage": coverimage,
         "description": description,
+        "id": id,
+        "ml_description": mlDescription,
+        "ml_title": mlTitle,
         "name": name,
         "tag": tag,
-      };
+    };
 }

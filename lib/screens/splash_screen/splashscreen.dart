@@ -1,9 +1,12 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:d4tales/helper/navigation_helper.dart';
+import 'package:d4tales/screens/home_screen/home_screen.dart';
+import 'package:d4tales/screens/home_screen/provider/home_provider.dart';
 import 'package:d4tales/screens/splash_screen/onboarding_screens.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -15,10 +18,25 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
-    Future.delayed(const Duration(seconds: 2), () {
-      navigatePRTo(context, const OnboardingScreen());
-    });
     super.initState();
+    _navigateBasedOnOnboardingStatus();
+  }
+
+  Future<void> _navigateBasedOnOnboardingStatus() async {
+    // Access HomeProvider to check onboarding status
+    final homeProvider = Provider.of<HomeProvider>(context, listen: false);
+    bool isOnboardingCompleted = await homeProvider.isOnboardingCompleted();
+     homeProvider.loadSelectedLanguage();
+
+    Future.delayed(const Duration(seconds: 2), () {
+      if (isOnboardingCompleted) {
+        // Navigate to HomeScreen if onboarding is completed
+        navigateTo(context: context, route: const HomeScreen());
+      } else {
+        // Otherwise, navigate to OnboardingScreen
+        navigateTo(context: context, route: const OnboardingScreen());
+      }
+    });
   }
 
   @override
@@ -34,7 +52,6 @@ class _SplashScreenState extends State<SplashScreen> {
               // Mascot character container
               Container(
                 decoration: BoxDecoration(
-                  // color: Colors.teal[100],
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Center(
@@ -71,7 +88,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
               const CupertinoActivityIndicator(
                 color: Colors.white,
-              )
+              ),
             ],
           ),
         ),

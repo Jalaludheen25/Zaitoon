@@ -50,106 +50,112 @@ class _PDFViewerContentState extends State<PDFViewerContent> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
+    return WillPopScope(
+        onWillPop: () async {
+      navigatePRTo(context, const HomeScreen());
+      return false; // Prevents default back navigation
+    },
+      child: Scaffold(
         backgroundColor: Colors.black,
-        title: const Text('PDF Viewer'),
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios,
-            color: Colors.white,
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+          title: const Text('PDF Viewer'),
+          leading: IconButton(
+            icon: const Icon(
+              Icons.arrow_back_ios,
+              color: Colors.white,
+            ),
+            onPressed: () {
+            navigatePRTo(context, const HomeScreen());
+            },
           ),
-          onPressed: () {
-           navigatePRTo(context, const HomeScreen());
+          actions: [
+            Consumer<PDFState>(
+              builder: (context, state, child) {
+                if (state.totalPages > 0) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Text(
+                        'Page ${state.currentPage + 1} of ${state.totalPages}',
+                        style: const TextStyle(fontSize: 16, color: Colors.white),
+                      ),
+                    ),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
+          ],
+        ),
+        body: Consumer<PDFState>(
+          builder: (context, state, child) {
+            if (state.isLoading) {
+              return const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CupertinoActivityIndicator(
+                      color: ColorClass.white,
+                    ),
+                    SizedBox(height: 16),
+                    Text('Loading PDF...'),
+                  ],
+                ),
+              );
+            }
+      
+            if (state.hasError) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      color: Colors.red,
+                      size: 48,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Error loading PDF:\n${state.errorMessage}',
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        context.read<PDFState>().loadPDF(widget.pdfUrl);
+                      },
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              );
+            }
+      
+            if (state.pdfPath == null) {
+              return const Center(
+                child: Text('No PDF loaded'),
+              );
+            }
+      
+            return PDFView(
+              filePath: state.pdfPath!,
+              enableSwipe: true,
+              swipeHorizontal: false,
+              autoSpacing: true,
+              pageSnap: true,
+              onRender: (pages) {
+                state.setTotalPages(pages!);
+              },
+              onPageChanged: (page, total) {
+                state.setCurrentPage(page!);
+              },
+              onError: (error) {
+                log('Error rendering PDF: $error');
+              },
+            );
           },
         ),
-        actions: [
-          Consumer<PDFState>(
-            builder: (context, state, child) {
-              if (state.totalPages > 0) {
-                return Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text(
-                      'Page ${state.currentPage + 1} of ${state.totalPages}',
-                      style: const TextStyle(fontSize: 16, color: Colors.white),
-                    ),
-                  ),
-                );
-              }
-              return const SizedBox.shrink();
-            },
-          ),
-        ],
-      ),
-      body: Consumer<PDFState>(
-        builder: (context, state, child) {
-          if (state.isLoading) {
-            return const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CupertinoActivityIndicator(
-                    color: ColorClass.white,
-                  ),
-                  SizedBox(height: 16),
-                  Text('Loading PDF...'),
-                ],
-              ),
-            );
-          }
-
-          if (state.hasError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.error_outline,
-                    color: Colors.red,
-                    size: 48,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Error loading PDF:\n${state.errorMessage}',
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      context.read<PDFState>().loadPDF(widget.pdfUrl);
-                    },
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          if (state.pdfPath == null) {
-            return const Center(
-              child: Text('No PDF loaded'),
-            );
-          }
-
-          return PDFView(
-            filePath: state.pdfPath!,
-            enableSwipe: true,
-            swipeHorizontal: false,
-            autoSpacing: true,
-            pageSnap: true,
-            onRender: (pages) {
-              state.setTotalPages(pages!);
-            },
-            onPageChanged: (page, total) {
-              state.setCurrentPage(page!);
-            },
-            onError: (error) {
-              log('Error rendering PDF: $error');
-            },
-          );
-        },
       ),
     );
   }

@@ -141,6 +141,7 @@ class LanguageSelection extends StatelessWidget {
                           navigateTo(
                               context: context,
                               route: const AknowledgeScreen());
+                              debugPrint(snapshot.selectedLanguage.toString());
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,
