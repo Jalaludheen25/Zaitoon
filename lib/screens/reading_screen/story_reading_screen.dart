@@ -5,7 +5,7 @@ import 'dart:developer';
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/home_screen/home_screen.dart';
-import 'package:zaitoon/screens/home_screen/provider/story_provider.dart';
+import 'package:zaitoon/screens/reading_screen/provider/story_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';

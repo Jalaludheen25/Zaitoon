@@ -4,7 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:zaitoon/constants/app_urls.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
-import 'package:zaitoon/screens/home_screen/story_reading_screen.dart';
+import 'package:zaitoon/screens/reading_screen/story_reading_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -70,7 +70,7 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
                         children: [
                           const SizedBox(width: 8),
                           _buildFilterChip(
-                              'Episodes-${snapshot.episodeModel!.data!.length}',
+                              'Episodes ${snapshot.episodeModel!.data!.length}',
                               icon: Icons.book_rounded),
                         ],
                       ),

@@ -4,7 +4,7 @@ import 'dart:io';
 
 import 'package:zaitoon/constants/theme.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
-import 'package:zaitoon/screens/home_screen/provider/story_provider.dart';
+import 'package:zaitoon/screens/reading_screen/provider/story_provider.dart';
 import 'package:zaitoon/screens/login_screen/provider/auth_provider.dart';
 import 'package:zaitoon/screens/splash_screen/onboarding_screens.dart';
 import 'package:zaitoon/screens/splash_screen/splashscreen.dart';

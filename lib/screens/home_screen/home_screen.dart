@@ -4,7 +4,7 @@ import 'package:zaitoon/constants/app_urls.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/episode_screen.dart/episode_screen.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
-import 'package:zaitoon/screens/home_screen/story_card.dart';
+import 'package:zaitoon/screens/reading_screen/story_card.dart';
 import 'package:zaitoon/screens/language_selection/language_selection.dart';
 import 'package:zaitoon/screens/settings_screen/settings_screen.dart';
 import 'package:flutter/cupertino.dart';
@@ -49,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       const Expanded(
                         child: Text(
-                          'A story earns a goodnight kiss',
+                          'Zai Toon: Read, Dream, Explore',
                           style: TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.bold,
@@ -71,21 +71,22 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(
                         width: 5,
                       ),
-                      GestureDetector(
-                          onTap: () {
-                            navigatePRTo(context, const SettingsScreen());
-                          },
-                          child: const Icon(
-                            Icons.settings,
-                            color: Colors.white,
-                          ))
+                      IconButton(
+                        onPressed: () {
+                          navigatePRTo(context, const SettingsScreen());
+                        },
+                        icon: const Icon(
+                          Icons.settings,
+                          color: Colors.white,
+                        ),
+                      )
                     ],
                   ),
                   const SizedBox(height: 8),
 
                   // Free Story Section
                   const Text(
-                    'Free Story of the Day',
+                    'Read, imagine, and explore stories',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
