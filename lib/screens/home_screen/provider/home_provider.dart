@@ -1,8 +1,8 @@
 import 'dart:developer';
 import 'dart:io';
-import 'package:d4tales/constants/app_urls.dart';
-import 'package:d4tales/screens/home_screen/models/episode_model.dart';
-import 'package:d4tales/screens/home_screen/models/story_model.dart';
+import 'package:zaitoon/constants/app_urls.dart';
+import 'package:zaitoon/screens/home_screen/models/episode_model.dart';
+import 'package:zaitoon/screens/home_screen/models/story_model.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -69,14 +69,13 @@ class HomeProvider extends ChangeNotifier {
     }
   }
 
-    Future<void> loadSelectedLanguage() async {
+  Future<void> loadSelectedLanguage() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     selectedLanguage = prefs.getString('language') ?? "en"; // Default to "en"
     notifyListeners();
   }
 
-
-   // Function to set onboarding as completed
+  // Function to set onboarding as completed
   Future<void> setOnboardingCompleted() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setBool('onboardingCompleted', true);
@@ -87,8 +86,6 @@ class HomeProvider extends ChangeNotifier {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getBool('onboardingCompleted') ?? false;
   }
-
-
 
   Future<void> fetchEpisodes(String id) async {
     _isLoading = true;
@@ -126,5 +123,4 @@ class HomeProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
-
 }

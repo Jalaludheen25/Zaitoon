@@ -2,12 +2,12 @@
 
 import 'dart:io';
 
-import 'package:d4tales/constants/theme.dart';
-import 'package:d4tales/screens/home_screen/provider/home_provider.dart';
-import 'package:d4tales/screens/home_screen/provider/story_provider.dart';
-import 'package:d4tales/screens/login_screen/provider/auth_provider.dart';
-import 'package:d4tales/screens/splash_screen/onboarding_screens.dart';
-import 'package:d4tales/screens/splash_screen/splashscreen.dart';
+import 'package:zaitoon/constants/theme.dart';
+import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
+import 'package:zaitoon/screens/home_screen/provider/story_provider.dart';
+import 'package:zaitoon/screens/login_screen/provider/auth_provider.dart';
+import 'package:zaitoon/screens/splash_screen/onboarding_screens.dart';
+import 'package:zaitoon/screens/splash_screen/splashscreen.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

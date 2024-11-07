@@ -1,11 +1,11 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use
 
 import 'dart:developer';
 
-import 'package:d4tales/constants/color_class.dart';
-import 'package:d4tales/helper/navigation_helper.dart';
-import 'package:d4tales/screens/home_screen/home_screen.dart';
-import 'package:d4tales/screens/home_screen/provider/story_provider.dart';
+import 'package:zaitoon/constants/color_class.dart';
+import 'package:zaitoon/helper/navigation_helper.dart';
+import 'package:zaitoon/screens/home_screen/home_screen.dart';
+import 'package:zaitoon/screens/home_screen/provider/story_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
@@ -51,10 +51,10 @@ class _PDFViewerContentState extends State<PDFViewerContent> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-        onWillPop: () async {
-      navigatePRTo(context, const HomeScreen());
-      return false; // Prevents default back navigation
-    },
+      onWillPop: () async {
+        navigatePRTo(context, const HomeScreen());
+        return false; // Prevents default back navigation
+      },
       child: Scaffold(
         backgroundColor: Colors.black,
         appBar: AppBar(
@@ -66,7 +66,7 @@ class _PDFViewerContentState extends State<PDFViewerContent> {
               color: Colors.white,
             ),
             onPressed: () {
-            navigatePRTo(context, const HomeScreen());
+              navigatePRTo(context, const HomeScreen());
             },
           ),
           actions: [
@@ -78,7 +78,8 @@ class _PDFViewerContentState extends State<PDFViewerContent> {
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Text(
                         'Page ${state.currentPage + 1} of ${state.totalPages}',
-                        style: const TextStyle(fontSize: 16, color: Colors.white),
+                        style:
+                            const TextStyle(fontSize: 16, color: Colors.white),
                       ),
                     ),
                   );
@@ -104,7 +105,7 @@ class _PDFViewerContentState extends State<PDFViewerContent> {
                 ),
               );
             }
-      
+
             if (state.hasError) {
               return Center(
                 child: Column(
@@ -131,13 +132,13 @@ class _PDFViewerContentState extends State<PDFViewerContent> {
                 ),
               );
             }
-      
+
             if (state.pdfPath == null) {
               return const Center(
                 child: Text('No PDF loaded'),
               );
             }
-      
+
             return PDFView(
               filePath: state.pdfPath!,
               enableSwipe: true,

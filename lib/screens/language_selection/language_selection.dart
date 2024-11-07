@@ -1,6 +1,6 @@
-import 'package:d4tales/helper/navigation_helper.dart';
-import 'package:d4tales/screens/aknowledge_screen/aknowledge_screen.dart';
-import 'package:d4tales/screens/home_screen/provider/home_provider.dart';
+import 'package:zaitoon/helper/navigation_helper.dart';
+import 'package:zaitoon/screens/aknowledge_screen/aknowledge_screen.dart';
+import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -141,7 +141,7 @@ class LanguageSelection extends StatelessWidget {
                           navigateTo(
                               context: context,
                               route: const AknowledgeScreen());
-                              debugPrint(snapshot.selectedLanguage.toString());
+                          debugPrint(snapshot.selectedLanguage.toString());
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,

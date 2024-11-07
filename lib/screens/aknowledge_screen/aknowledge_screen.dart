@@ -1,6 +1,8 @@
-import 'package:d4tales/helper/navigation_helper.dart';
-import 'package:d4tales/screens/home_screen/home_screen.dart';
-import 'package:d4tales/screens/home_screen/provider/home_provider.dart';
+// ignore_for_file: use_build_context_synchronously
+
+import 'package:zaitoon/helper/navigation_helper.dart';
+import 'package:zaitoon/screens/home_screen/home_screen.dart';
+import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

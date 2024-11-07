@@ -1,6 +1,6 @@
-// import 'package:d4tales/helper/navigation_helper.dart';
-// import 'package:d4tales/screens/language_selection/language_selection.dart';
-// import 'package:d4tales/screens/login_screen/provider/auth_provider.dart';
+// import 'package:zaitoon/helper/navigation_helper.dart';
+// import 'package:zaitoon/screens/language_selection/language_selection.dart';
+// import 'package:zaitoon/screens/login_screen/provider/auth_provider.dart';
 // import 'package:flutter/material.dart';
 // import 'package:provider/provider.dart';
 
@@ -34,7 +34,7 @@
 
 //               // Headline text
 //               const Text(
-//                 'Welcome to D4Tales',
+//                 'Welcome to zaitoon',
 //                 style: TextStyle(
 //                   fontSize: 28,
 //                   fontWeight: FontWeight.bold,

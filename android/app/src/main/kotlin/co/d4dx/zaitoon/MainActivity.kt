@@ -1,4 +1,4 @@
-package co.d4dx.d4tales
+package co.d4dx.zaitoon
 
 import io.flutter.embedding.android.FlutterActivity
 

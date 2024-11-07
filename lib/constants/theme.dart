@@ -1,4 +1,4 @@
-import 'package:d4tales/constants/color_class.dart';
+import 'package:zaitoon/constants/color_class.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 

@@ -1,12 +1,12 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'package:d4tales/constants/app_urls.dart';
-import 'package:d4tales/helper/navigation_helper.dart';
-import 'package:d4tales/screens/episode_screen.dart/episode_screen.dart';
-import 'package:d4tales/screens/home_screen/provider/home_provider.dart';
-import 'package:d4tales/screens/home_screen/story_card.dart';
-import 'package:d4tales/screens/language_selection/language_selection.dart';
-import 'package:d4tales/screens/settings_screen/settings_screen.dart';
+import 'package:zaitoon/constants/app_urls.dart';
+import 'package:zaitoon/helper/navigation_helper.dart';
+import 'package:zaitoon/screens/episode_screen.dart/episode_screen.dart';
+import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
+import 'package:zaitoon/screens/home_screen/story_card.dart';
+import 'package:zaitoon/screens/language_selection/language_selection.dart';
+import 'package:zaitoon/screens/settings_screen/settings_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -68,12 +68,17 @@ class _HomeScreenState extends State<HomeScreen> {
                             color: Colors.white,
                             height: 32,
                           )),
-const SizedBox(width: 5,),
-                          GestureDetector(
-                            onTap: (){
-                              navigatePRTo(context, const SettingsScreen());
-                            },
-                            child: const Icon(Icons.settings,color: Colors.white,))
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      GestureDetector(
+                          onTap: () {
+                            navigatePRTo(context, const SettingsScreen());
+                          },
+                          child: const Icon(
+                            Icons.settings,
+                            color: Colors.white,
+                          ))
                     ],
                   ),
                   const SizedBox(height: 8),

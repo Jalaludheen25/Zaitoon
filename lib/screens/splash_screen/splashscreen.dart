@@ -1,12 +1,12 @@
-import 'package:d4tales/helper/navigation_helper.dart';
-import 'package:d4tales/screens/home_screen/home_screen.dart';
-import 'package:d4tales/screens/home_screen/provider/home_provider.dart';
-import 'package:d4tales/screens/splash_screen/onboarding_screens.dart';
+// ignore_for_file: use_build_context_synchronously
+
+import 'package:zaitoon/helper/navigation_helper.dart';
+import 'package:zaitoon/screens/home_screen/home_screen.dart';
+import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
+import 'package:zaitoon/screens/splash_screen/onboarding_screens.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -26,7 +26,7 @@ class _SplashScreenState extends State<SplashScreen> {
     // Access HomeProvider to check onboarding status
     final homeProvider = Provider.of<HomeProvider>(context, listen: false);
     bool isOnboardingCompleted = await homeProvider.isOnboardingCompleted();
-     homeProvider.loadSelectedLanguage();
+    homeProvider.loadSelectedLanguage();
 
     Future.delayed(const Duration(seconds: 2), () {
       if (isOnboardingCompleted) {

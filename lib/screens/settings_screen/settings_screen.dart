@@ -1,7 +1,9 @@
-import 'package:d4tales/constants/image_class.dart';
-import 'package:d4tales/constants/textstyle_class.dart';
-import 'package:d4tales/helper/navigation_helper.dart';
-import 'package:d4tales/screens/home_screen/home_screen.dart';
+// ignore_for_file: deprecated_member_use
+
+import 'package:zaitoon/constants/image_class.dart';
+import 'package:zaitoon/constants/textstyle_class.dart';
+import 'package:zaitoon/helper/navigation_helper.dart';
+import 'package:zaitoon/screens/home_screen/home_screen.dart';
 import 'package:flutter/material.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -15,19 +17,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-       onWillPop: () async {
-      navigatePRTo(context, const HomeScreen());
-      return false;
+      onWillPop: () async {
+        navigatePRTo(context, const HomeScreen());
+        return false;
       },
       child: Scaffold(
         backgroundColor: Colors.black,
         appBar: AppBar(
           backgroundColor: Colors.black,
-          title:   Text('Settings',style: TextStyleClass.primaryFont600(16, Colors.white),),
+          title: Text(
+            'Settings',
+            style: TextStyleClass.primaryFont600(16, Colors.white),
+          ),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
             onPressed: () {
-             navigatePRTo(context, const HomeScreen());
+              navigatePRTo(context, const HomeScreen());
             },
           ),
         ),
@@ -37,10 +42,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Center(
-                child: SizedBox(
-                  height: 150,
-                  child: Image.asset(ImageClass.appIcon))
-              ),
+                  child: SizedBox(
+                      height: 150, child: Image.asset(ImageClass.appIcon))),
               const SizedBox(height: 8.0),
               const Center(
                 child: Text(
@@ -79,10 +82,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   color: Colors.white,
                 ),
               ),
-              const Icon(Icons.keyboard_arrow_right,color: Colors.white,)
+              const Icon(
+                Icons.keyboard_arrow_right,
+                color: Colors.white,
+              )
             ],
           ),
-          const Divider(color: Colors.white38,)
+          const Divider(
+            color: Colors.white38,
+          )
         ],
       ),
     );

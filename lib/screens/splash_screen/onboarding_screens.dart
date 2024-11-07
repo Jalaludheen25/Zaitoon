@@ -1,7 +1,7 @@
-import 'package:d4tales/constants/color_class.dart';
-import 'package:d4tales/constants/image_class.dart';
-import 'package:d4tales/helper/navigation_helper.dart';
-import 'package:d4tales/screens/language_selection/language_selection.dart';
+import 'package:zaitoon/constants/color_class.dart';
+import 'package:zaitoon/constants/image_class.dart';
+import 'package:zaitoon/helper/navigation_helper.dart';
+import 'package:zaitoon/screens/language_selection/language_selection.dart';
 import 'package:flutter/material.dart';
 
 class OnboardingScreen extends StatefulWidget {

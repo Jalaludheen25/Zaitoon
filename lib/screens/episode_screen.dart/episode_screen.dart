@@ -1,10 +1,10 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:d4tales/constants/app_urls.dart';
-import 'package:d4tales/helper/navigation_helper.dart';
-import 'package:d4tales/screens/home_screen/provider/home_provider.dart';
-import 'package:d4tales/screens/home_screen/story_reading_screen.dart';
+import 'package:zaitoon/constants/app_urls.dart';
+import 'package:zaitoon/helper/navigation_helper.dart';
+import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
+import 'package:zaitoon/screens/home_screen/story_reading_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
