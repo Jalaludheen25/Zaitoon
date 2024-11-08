@@ -66,7 +66,8 @@ class _PDFViewerContentState extends State<PDFViewerContent> {
               color: Colors.white,
             ),
             onPressed: () {
-              navigatePRTo(context, const HomeScreen());
+              Navigator.of(context).pop();
+              // navigatePRTo(context, const HomeScreen());
             },
           ),
           actions: [
