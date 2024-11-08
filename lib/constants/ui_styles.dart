@@ -32,4 +32,7 @@ class UiStyles {
       ],
     );
   }
+
+  static const double fontSizeTitle = 22;
+  static const double fontSizeSubTitle = 14;
 }

@@ -4,7 +4,7 @@ import 'package:zaitoon/constants/app_urls.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/episode_screen.dart/episode_screen.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
-import 'package:zaitoon/screens/reading_screen/story_card.dart';
+import 'package:zaitoon/screens/home_screen/components/story_card.dart';
 import 'package:zaitoon/screens/language_selection/language_selection.dart';
 import 'package:zaitoon/screens/settings_screen/settings_screen.dart';
 import 'package:flutter/cupertino.dart';
@@ -58,22 +58,27 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       IconButton(
-                          onPressed: () {
-                            navigateTo(
-                                context: context,
-                                route: const LanguageSelection());
-                          },
-                          icon: Image.asset(
-                            'assets/icons/language.png',
-                            color: Colors.white,
-                            height: 32,
-                          )),
+                        onPressed: () {
+                          navigateTo(
+                            context: context,
+                            route: const LanguageSelection(),
+                          );
+                        },
+                        icon: Image.asset(
+                          'assets/icons/language.png',
+                          color: Colors.white,
+                          height: 32,
+                        ),
+                      ),
                       const SizedBox(
                         width: 5,
                       ),
                       IconButton(
                         onPressed: () {
-                          navigatePRTo(context, const SettingsScreen());
+                          navigatePRTo(
+                            context,
+                            const SettingsScreen(),
+                          );
                         },
                         icon: const Icon(
                           Icons.settings,
@@ -99,63 +104,59 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             // Main Content
             Expanded(
-                flex: 2,
-                child: Consumer<HomeProvider>(
-                  builder: (context, snapshot, child) => snapshot.isStoryLoading
-                      ? const Center(
-                          child: CupertinoActivityIndicator(),
-                        )
-                      : snapshot.storyModel == null
-                          ? const Center(
-                              child: Text('No Data Found'),
-                            )
-                          : ListView(
-                              padding: const EdgeInsets.all(16),
-                              children: List.generate(
-                                  snapshot.storyModel!.data!.length, (index) {
+              flex: 2,
+              child: Consumer<HomeProvider>(
+                builder: (context, snapshot, child) => snapshot.isStoryLoading
+                    ? const Center(
+                        child: CupertinoActivityIndicator(),
+                      )
+                    : snapshot.storyModel == null
+                        ? const Center(
+                            child: Text('No Data Found'),
+                          )
+                        : ListView(
+                            padding: const EdgeInsets.all(16),
+                            children: List.generate(
+                              snapshot.storyModel!.data!.length,
+                              (index) {
                                 void onTapFunction() {
                                   navigateTo(
-                                      context: context,
-                                      route: EpisodeScreen(
-                                        title: snapshot.selectedLanguage == 'en'
-                                            ? snapshot
-                                                .storyModel!.data![index].name!
-                                            : snapshot.storyModel!.data![index]
-                                                .mlTitle!,
-                                        id: snapshot.storyModel!.data![index].id
-                                            .toString(),
-                                      )
-                                      // PDFViewerScreen(
-                                      //   pdfUrl: ApiUrls.assetBaseUrl +
-                                      //       snapshot.storyModel!.data[index]
-                                      //           .storyFile,
-                                      // ),
-                                      );
+                                    context: context,
+                                    route: EpisodeScreen(
+                                      title: snapshot.selectedLanguage == 'en'
+                                          ? snapshot
+                                              .storyModel!.data![index].name!
+                                          : snapshot.storyModel!.data![index]
+                                              .mlTitle!,
+                                      id: snapshot.storyModel!.data![index].id
+                                          .toString(),
+                                    ),
+                                  );
                                 }
 
                                 return
                                     // Story Card with Bow
                                     StoryCard(
-                                        name: snapshot.selectedLanguage == 'en'
-                                            ? snapshot
-                                                .storyModel!.data![index].name
-                                            : snapshot.storyModel!.data![index]
-                                                .mlTitle,
-                                        discription:
-                                            snapshot.selectedLanguage == 'en'
-                                                ? snapshot.storyModel!
-                                                    .data![index].description
-                                                : snapshot.storyModel!
-                                                    .data![index].mlDescription,
-                                        tag: snapshot
-                                            .storyModel!.data![index].tag,
-                                        imageUrl: ApiUrls.assetBaseUrl +
-                                            snapshot.storyModel!.data![index]
-                                                .coverimage!,
-                                        readTap: onTapFunction);
-                              }),
+                                  name: snapshot.selectedLanguage == 'en'
+                                      ? snapshot.storyModel!.data![index].name
+                                      : snapshot
+                                          .storyModel!.data![index].mlTitle,
+                                  discription: snapshot.selectedLanguage == 'en'
+                                      ? snapshot
+                                          .storyModel!.data![index].description
+                                      : snapshot.storyModel!.data![index]
+                                          .mlDescription,
+                                  tag: snapshot.storyModel!.data![index].tag,
+                                  imageUrl: ApiUrls.assetBaseUrl +
+                                      snapshot
+                                          .storyModel!.data![index].coverimage!,
+                                  readTap: onTapFunction,
+                                );
+                              },
                             ),
-                )),
+                          ),
+              ),
+            ),
           ],
         ),
       ),
