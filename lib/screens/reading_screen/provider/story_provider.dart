@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 
-class PDFState extends ChangeNotifier {
+class PdfProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _pdfPath;
   int _currentPage = 0;

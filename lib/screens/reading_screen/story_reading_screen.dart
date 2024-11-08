@@ -22,7 +22,7 @@ class PDFViewerScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => PDFState(),
+      create: (_) => PdfProvider(),
       child: PDFViewerContent(pdfUrl: pdfUrl),
     );
   }
@@ -45,7 +45,7 @@ class _PDFViewerContentState extends State<PDFViewerContent> {
   void initState() {
     super.initState();
     // Load PDF when screen initializes
-    Future.microtask(() => context.read<PDFState>().loadPDF(widget.pdfUrl));
+    Future.microtask(() => context.read<PdfProvider>().loadPDF(widget.pdfUrl));
   }
 
   @override
@@ -66,11 +66,12 @@ class _PDFViewerContentState extends State<PDFViewerContent> {
               color: Colors.white,
             ),
             onPressed: () {
-              navigatePRTo(context, const HomeScreen());
+              Navigator.of(context).pop();
+              // navigatePRTo(context, const HomeScreen());
             },
           ),
           actions: [
-            Consumer<PDFState>(
+            Consumer<PdfProvider>(
               builder: (context, state, child) {
                 if (state.totalPages > 0) {
                   return Center(
@@ -89,7 +90,7 @@ class _PDFViewerContentState extends State<PDFViewerContent> {
             ),
           ],
         ),
-        body: Consumer<PDFState>(
+        body: Consumer<PdfProvider>(
           builder: (context, state, child) {
             if (state.isLoading) {
               return const Center(
@@ -124,7 +125,7 @@ class _PDFViewerContentState extends State<PDFViewerContent> {
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () {
-                        context.read<PDFState>().loadPDF(widget.pdfUrl);
+                        context.read<PdfProvider>().loadPDF(widget.pdfUrl);
                       },
                       child: const Text('Retry'),
                     ),
