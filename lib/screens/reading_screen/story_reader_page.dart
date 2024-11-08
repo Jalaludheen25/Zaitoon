@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
@@ -19,43 +21,57 @@ class _StoryReadingScreenState extends State<StoryReadingScreen> {
   @override
   Widget build(BuildContext context) {
     PdfProvider pdfProvider = Provider.of<PdfProvider>(context);
-    return Scaffold(
-      body: Stack(
-        children: [
-          SfPdfViewer.network(
-            widget.pdfUrl,
-            controller: _pdfViewerController,
-            enableDoubleTapZooming: false,
-            canShowScrollHead: false,
-            maxZoomLevel: 1,
-            pageLayoutMode: PdfPageLayoutMode.continuous,
-          ),
-          Positioned(
-            top: 40,
-            left: 20,
-            child: IconButton(
-              icon: const Icon(
-                Icons.arrow_back_ios_new,
-                color: Colors.white,
-              ),
-              style: ButtonStyle(
-                backgroundColor:
-                    WidgetStateProperty.all(Colors.black.withOpacity(0.2)),
-              ),
-              onPressed: () {
-                if (pdfProvider.currentStoryId != null) {
-                  navigatePRTo(
-                      context,
-                      EpisodeScreen(
-                          id: pdfProvider.currentStoryId.toString(),
-                          title: pdfProvider.currentStoryTitle!));
-                } else {
-                  navigatePRTo(context, const HomeScreen());
-                }
-              },
+    return WillPopScope(
+      onWillPop: () async {
+        if (pdfProvider.currentStoryId != null) {
+          navigatePRTo(
+              context,
+              EpisodeScreen(
+                  id: pdfProvider.currentStoryId.toString(),
+                  title: pdfProvider.currentStoryTitle!));
+        } else {
+          navigatePRTo(context, const HomeScreen());
+        }
+        return false;
+      },
+      child: Scaffold(
+        body: Stack(
+          children: [
+            SfPdfViewer.network(
+              widget.pdfUrl,
+              controller: _pdfViewerController,
+              enableDoubleTapZooming: false,
+              canShowScrollHead: false,
+              maxZoomLevel: 1,
+              pageLayoutMode: PdfPageLayoutMode.continuous,
             ),
-          ),
-        ],
+            Positioned(
+              top: 40,
+              left: 20,
+              child: IconButton(
+                icon: const Icon(
+                  Icons.arrow_back_ios_new,
+                  color: Colors.white,
+                ),
+                style: ButtonStyle(
+                  backgroundColor:
+                      WidgetStateProperty.all(Colors.black.withOpacity(0.2)),
+                ),
+                onPressed: () {
+                  if (pdfProvider.currentStoryId != null) {
+                    navigatePRTo(
+                        context,
+                        EpisodeScreen(
+                            id: pdfProvider.currentStoryId.toString(),
+                            title: pdfProvider.currentStoryTitle!));
+                  } else {
+                    navigatePRTo(context, const HomeScreen());
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
