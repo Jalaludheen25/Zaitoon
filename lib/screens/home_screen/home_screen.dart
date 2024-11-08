@@ -4,7 +4,7 @@ import 'package:zaitoon/constants/app_urls.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/episode_screen.dart/episode_screen.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
-import 'package:zaitoon/screens/reading_screen/story_card.dart';
+import 'package:zaitoon/screens/home_screen/components/story_card.dart';
 import 'package:zaitoon/screens/language_selection/language_selection.dart';
 import 'package:zaitoon/screens/settings_screen/settings_screen.dart';
 import 'package:flutter/cupertino.dart';
