@@ -52,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Text(
                           'Zai Toon: Read, Dream, Explore',
                           style: TextStyle(
-                            fontSize: 32,
+                            fontSize: 25,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),
