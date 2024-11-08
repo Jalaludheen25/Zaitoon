@@ -40,7 +40,7 @@ class _StoryCardState extends State<StoryCard> {
                 widget.imageUrl ?? '',
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
-                  return Container(color: Colors.grey);
+                  return Container(color: ColorClass.grey);
                 },
               ),
             ),
@@ -87,7 +87,7 @@ class _StoryCardState extends State<StoryCard> {
                             Text(
                               widget.tag ?? '',
                               style: const TextStyle(
-                                color: Colors.white,
+                                color: ColorClass.white,
                                 fontSize: UiStyles.fontSizeSubTitle,
                               ),
                             ),
@@ -101,13 +101,13 @@ class _StoryCardState extends State<StoryCard> {
                               vertical: 8,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.black,
+                              color: ColorClass.black,
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: const Text(
                               'Read',
                               style: TextStyle(
-                                color: Colors.white,
+                                color: ColorClass.white,
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),

@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/home_screen/home_screen.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
@@ -66,7 +67,7 @@ class AknowledgeScreen extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(24),
               decoration: const BoxDecoration(
-                color: Colors.black,
+                color: ColorClass.black,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(32),
                   topRight: Radius.circular(32),
@@ -79,7 +80,7 @@ class AknowledgeScreen extends StatelessWidget {
                   const Text(
                     'Reading to children benefits their emotional development',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: ColorClass.white,
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
@@ -106,7 +107,7 @@ class AknowledgeScreen extends StatelessWidget {
                       navigateTo(context: context, route: const HomeScreen());
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
+                      backgroundColor: ColorClass.primaryColor,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -142,12 +143,12 @@ class BulletPoint extends StatelessWidget {
       children: [
         const Text(
           '• ',
-          style: TextStyle(color: Colors.white, fontSize: 16),
+          style: TextStyle(color: ColorClass.white, fontSize: 16),
         ),
         Expanded(
           child: RichText(
             text: TextSpan(
-              style: const TextStyle(color: Colors.white, fontSize: 16),
+              style: const TextStyle(color: ColorClass.white, fontSize: 16),
               children: [
                 TextSpan(text: parts[0]),
                 TextSpan(

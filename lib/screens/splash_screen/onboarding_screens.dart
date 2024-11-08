@@ -16,7 +16,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: ColorClass.black,
       body: SafeArea(
         child: Column(
           children: [
@@ -64,8 +64,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   });
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF22A45D),
-                  foregroundColor: Colors.white,
+                  backgroundColor: ColorClass.primaryColor,
+                  foregroundColor: ColorClass.white,
                   minimumSize: const Size(double.infinity, 40),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -137,7 +137,7 @@ class DotIndicator extends StatelessWidget {
   const DotIndicator({
     super.key,
     this.isActive = false,
-    this.activeColor = const Color(0xFF22A45D),
+    this.activeColor = ColorClass.primaryColor,
     this.inActiveColor = const Color(0xFF868686),
   });
 

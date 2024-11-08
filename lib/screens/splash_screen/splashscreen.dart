@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/image_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/home_screen/home_screen.dart';
@@ -29,7 +30,7 @@ class _SplashScreenState extends State<SplashScreen> {
     bool isOnboardingCompleted = await homeProvider.isOnboardingCompleted();
     homeProvider.loadSelectedLanguage();
 
-    Future.delayed(const Duration(seconds: 30), () {
+    Future.delayed(const Duration(seconds: 3), () {
       if (isOnboardingCompleted) {
         // Navigate to HomeScreen if onboarding is completed
         navigateTo(context: context, route: const HomeScreen());
@@ -43,7 +44,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: ColorClass.black,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -74,7 +75,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: ColorClass.white,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -85,14 +86,14 @@ class _SplashScreenState extends State<SplashScreen> {
                 'Interactive stories as you read along',
                 style: TextStyle(
                   fontSize: 16,
-                  color: Colors.white70,
+                  color: ColorClass.white70,
                 ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 30),
 
               const CupertinoActivityIndicator(
-                color: Colors.white,
+                color: ColorClass.white,
               ),
             ],
           ),

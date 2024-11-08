@@ -5,13 +5,13 @@ import 'package:google_fonts/google_fonts.dart';
 class AppTheme {
   static ThemeData lightTheme(BuildContext context) {
     return ThemeData(
-      scaffoldBackgroundColor: Colors.white,
+      scaffoldBackgroundColor: ColorClass.white,
       fontFamily: 'Poppins',
       appBarTheme: AppBarTheme(
-          color: Colors.white,
+          color: ColorClass.white,
           elevation: 0,
-          iconTheme: const IconThemeData(color: Colors.black),
-          titleTextStyle: GoogleFonts.poppins(color: Colors.black)),
+          iconTheme: const IconThemeData(color: ColorClass.black),
+          titleTextStyle: GoogleFonts.poppins(color: ColorClass.black)),
       textTheme: TextTheme(
         bodyLarge: GoogleFonts.poppins(color: ColorClass.neutral900),
         bodyMedium: GoogleFonts.poppins(color: ColorClass.neutral900),
@@ -29,7 +29,7 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           elevation: 0,
           backgroundColor: ColorClass.primaryColor,
-          foregroundColor: Colors.white,
+          foregroundColor: ColorClass.white,
           minimumSize: const Size(double.infinity, 48),
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(16)),

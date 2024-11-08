@@ -10,7 +10,7 @@
 //   @override
 //   Widget build(BuildContext context) {
 //     return Scaffold(
-//       backgroundColor: Colors.black,
+//       backgroundColor: ColorClass.black,
 //       body: SafeArea(
 //         child: Padding(
 //           padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -20,7 +20,7 @@
 //               // Mascot character container
 //               Container(
 //                 decoration: BoxDecoration(
-//                   // color: Colors.teal[100],
+//                   // color: ColorClass.teal[100],
 //                   borderRadius: BorderRadius.circular(20),
 //                 ),
 //                 child: Center(
@@ -38,7 +38,7 @@
 //                 style: TextStyle(
 //                   fontSize: 28,
 //                   fontWeight: FontWeight.bold,
-//                   color: Colors.white,
+//                   color: ColorClass.white,
 //                 ),
 //                 textAlign: TextAlign.center,
 //               ),
@@ -49,7 +49,7 @@
 //                 'Interactive stories with sound effects as you read along',
 //                 style: TextStyle(
 //                   fontSize: 16,
-//                   color: Colors.white70,
+//                   color: ColorClass.white70,
 //                 ),
 //                 textAlign: TextAlign.center,
 //               ),
@@ -67,7 +67,7 @@
 //                               route: const LanguageSelection());
 //                         },
 //                         style: ElevatedButton.styleFrom(
-//                           backgroundColor: Colors.white,
+//                           backgroundColor: ColorClass.white,
 //                           minimumSize: const Size(double.infinity, 50),
 //                           shape: RoundedRectangleBorder(
 //                             borderRadius: BorderRadius.circular(25),
@@ -76,12 +76,12 @@
 //                         child: const Row(
 //                           mainAxisAlignment: MainAxisAlignment.center,
 //                           children: [
-//                             Icon(Icons.apple, color: Colors.black),
+//                             Icon(Icons.apple, color: ColorClass.black),
 //                             SizedBox(width: 8),
 //                             Text(
 //                               'Continue with Apple',
 //                               style: TextStyle(
-//                                 color: Colors.black,
+//                                 color: ColorClass.black,
 //                                 fontSize: 16,
 //                               ),
 //                             ),
@@ -96,7 +96,7 @@
 //                               route: const LanguageSelection());
 //                         },
 //                         style: ElevatedButton.styleFrom(
-//                           backgroundColor: Colors.white,
+//                           backgroundColor: ColorClass.white,
 //                           minimumSize: const Size(double.infinity, 50),
 //                           shape: RoundedRectangleBorder(
 //                             borderRadius: BorderRadius.circular(25),
@@ -113,7 +113,7 @@
 //                             const Text(
 //                               'Continue with Google',
 //                               style: TextStyle(
-//                                 color: Colors.black,
+//                                 color: ColorClass.black,
 //                                 fontSize: 16,
 //                               ),
 //                             ),
@@ -135,7 +135,7 @@
 //                 child: const Text(
 //                   'Continue without account',
 //                   style: TextStyle(
-//                     color: Colors.white70,
+//                     color: ColorClass.white70,
 //                     fontSize: 14,
 //                   ),
 //                 ),
@@ -147,7 +147,7 @@
 //                 child: RichText(
 //                   textAlign: TextAlign.center,
 //                   text: const TextSpan(
-//                     style: TextStyle(color: Colors.white60, fontSize: 12),
+//                     style: TextStyle(color: ColorClass.white60, fontSize: 12),
 //                     children: [
 //                       TextSpan(text: 'By continuing, you agree to our '),
 //                       TextSpan(

@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:zaitoon/constants/app_constants.dart';
+import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/image_class.dart';
 import 'package:zaitoon/constants/textstyle_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
@@ -24,16 +25,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
         return false;
       },
       child: Scaffold(
-        backgroundColor: Colors.black,
+        backgroundColor: ColorClass.black,
         appBar: AppBar(
           centerTitle: true,
-          backgroundColor: Colors.black,
+          backgroundColor: ColorClass.black,
           title: Text(
             'Settings',
-            style: TextStyleClass.primaryFont600(16, Colors.white),
+            style: TextStyleClass.primaryFont600(16, ColorClass.white),
           ),
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+            icon: const Icon(Icons.arrow_back_ios, color: ColorClass.white),
             onPressed: () {
               navigatePRTo(context, const HomeScreen());
             },
@@ -47,7 +48,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Center(
                 child: Container(
                   decoration: const BoxDecoration(
-                    color: Colors.white,
+                    color: ColorClass.white,
                     shape: BoxShape.circle,
                     image: DecorationImage(
                       image: AssetImage(ImageClass.appIcon),
@@ -63,7 +64,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   'version ${ApiContants.appVersion}',
                   style: TextStyle(
                     fontSize: 16.0,
-                    color: Colors.grey,
+                    color: ColorClass.grey,
                   ),
                 ),
               ),
@@ -77,10 +78,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         builder: (context) {
                           return Container(
                             decoration: const BoxDecoration(
-                              color: Colors.black,
+                              color: ColorClass.black,
                               border: Border(
                                 top: BorderSide(
-                                  color: Colors.white,
+                                  color: ColorClass.white,
                                   width: 2,
                                 ),
                               ),
@@ -103,7 +104,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           'About Us',
                                           style: TextStyle(
                                             fontSize: 20,
-                                            color: Colors.white,
+                                            color: ColorClass.white,
                                           ),
                                         ),
                                       ),
@@ -111,7 +112,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     IconButton(
                                       icon: const Icon(
                                         Icons.close,
-                                        color: Colors.white,
+                                        color: ColorClass.white,
                                       ),
                                       onPressed: () {
                                         // Add your close functionality here
@@ -133,7 +134,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                             "Zai Toon is an engaging digital platform designed especially for young readers and children, presented by the Malarvadi Children’s Organization in Kerala. This vibrant initiative is inspired by the popular webtoon format, offering stories that are visually captivating, relatable, and full of valuable life lessons. Zai Toon provides a space where young minds can dive into stories that not only entertain but also inspire and instill meaningful values. By embracing a digital storytelling approach, Zai Toon makes reading accessible, interactive, and enjoyable for today’s tech-savvy youth.\n\nThe Malarvadi Children’s Organization, known for its many projects and programs aimed at enhancing young minds, has developed Zai Toon to encourage personal growth and integrity in children. Through thoughtfully crafted stories, the platform emphasizes themes of kindness, resilience, and empathy, encouraging children to make positive choices and develop a sense of purpose. Zai Toon’s mission goes beyond storytelling; it seeks to nurture young readers into responsible and value-driven individuals who are well-equipped to navigate their future.",
                                             style: TextStyle(
                                               fontSize: 16,
-                                              color: Colors.white,
+                                              color: ColorClass.white,
                                             ),
                                           )),
                                       SizedBox(height: 20),
@@ -184,17 +185,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 style: const TextStyle(
                   fontSize: 18.0,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: ColorClass.white,
                 ),
               ),
               const Icon(
                 Icons.keyboard_arrow_right,
-                color: Colors.white,
+                color: ColorClass.white,
               )
             ],
           ),
           const Divider(
-            color: Colors.white38,
+            color: ColorClass.white38,
           )
         ],
       ),

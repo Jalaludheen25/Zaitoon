@@ -2,6 +2,7 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:zaitoon/constants/app_urls.dart';
+import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/home_screen/home_screen.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
@@ -38,21 +39,21 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.black,
+          backgroundColor: ColorClass.black,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+            icon: const Icon(Icons.arrow_back_ios_new, color: ColorClass.white),
             onPressed: () => navigatePRTo(context, const HomeScreen()),
           ),
           title: Text(
             widget.title,
             style: const TextStyle(
-              color: Colors.white,
+              color: ColorClass.white,
               fontSize: 18,
               fontWeight: FontWeight.w500,
             ),
           ),
         ),
-        backgroundColor: Colors.black,
+        backgroundColor: ColorClass.black,
         body: SafeArea(
           child: Consumer<HomeProvider>(
             builder: (context, snapshot, _) => snapshot.episodeModel == null
@@ -91,7 +92,7 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
                                     child: Container(
                                       width: 80,
                                       height: 80,
-                                      color: Colors.grey[800],
+                                      color: ColorClass.grey800,
                                       child: CachedNetworkImage(
                                           imageUrl: ApiUrls.assetBaseUrl +
                                               story.coverImage!,
@@ -115,7 +116,7 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
                                               ? story.storyTile!
                                               : story.mlTitle!,
                                           style: const TextStyle(
-                                            color: Colors.white,
+                                            color: ColorClass.white,
                                             fontSize: 16,
                                             fontWeight: FontWeight.w500,
                                           ),
@@ -123,22 +124,22 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
                                         const SizedBox(height: 4),
                                         Text(
                                           '${story.uploadDate} ',
-                                          style: TextStyle(
-                                            color: Colors.grey[400],
+                                          style: const TextStyle(
+                                            color: ColorClass.grey400,
                                             fontSize: 14,
                                           ),
                                         ),
                                         const SizedBox(height: 8),
                                         Row(
                                           children: [
-                                            Icon(Icons.access_time,
+                                            const Icon(Icons.access_time,
                                                 size: 16,
-                                                color: Colors.grey[400]),
+                                                color: ColorClass.grey400),
                                             const SizedBox(width: 4),
                                             Text(
                                               '${story.readMinutes} min',
-                                              style: TextStyle(
-                                                color: Colors.grey[400],
+                                              style: const TextStyle(
+                                                color: ColorClass.grey400,
                                                 fontSize: 14,
                                               ),
                                             ),
@@ -175,13 +176,13 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
                                         vertical: 4,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: Colors.grey[800],
+                                        color: ColorClass.grey800,
                                         borderRadius: BorderRadius.circular(4),
                                       ),
                                       child: const Text(
                                         'Read',
                                         style: TextStyle(
-                                          color: Colors.white,
+                                          color: ColorClass.white,
                                           fontSize: 12,
                                         ),
                                       ),
@@ -207,20 +208,20 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
         Icon(
           icon,
           size: 18,
-          color: Colors.white,
+          color: ColorClass.white,
         ),
         const SizedBox(width: 4),
         Text(
           label,
           style: const TextStyle(
-            color: Colors.white,
+            color: ColorClass.white,
           ),
         ),
       ]),
       onSelected: (selected) {},
-      backgroundColor: Colors.grey[900],
-      selectedColor: Colors.green,
-      checkmarkColor: Colors.transparent,
+      backgroundColor: ColorClass.grey900,
+      selectedColor: ColorClass.primaryColor,
+      checkmarkColor: ColorClass.transparent,
       showCheckmark: false,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
     );

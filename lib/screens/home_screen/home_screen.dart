@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:zaitoon/constants/app_urls.dart';
+import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/episode_screen.dart/episode_screen.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
@@ -20,7 +21,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // List of categories with their colors
+  // List of categories with their ColorClass
 
   @override
   void initState() {
@@ -35,7 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: ColorClass.black,
       body: SafeArea(
         child: Column(
           children: [
@@ -54,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           style: TextStyle(
                             fontSize: 25,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: ColorClass.white,
                           ),
                         ),
                       ),
@@ -67,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                         icon: Image.asset(
                           'assets/icons/language.png',
-                          color: Colors.white,
+                          color: ColorClass.white,
                           height: 32,
                         ),
                       ),
@@ -83,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                         icon: const Icon(
                           Icons.settings,
-                          color: Colors.white,
+                          color: ColorClass.white,
                         ),
                       )
                     ],
@@ -96,7 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.grey,
+                      color: ColorClass.grey,
                     ),
                   ),
                   const SizedBox(height: 8),

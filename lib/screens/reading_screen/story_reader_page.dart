@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/episode_screen.dart/episode_screen.dart';
 import 'package:zaitoon/screens/home_screen/home_screen.dart';
@@ -51,11 +52,11 @@ class _StoryReadingScreenState extends State<StoryReadingScreen> {
               child: IconButton(
                 icon: const Icon(
                   Icons.arrow_back_ios_new,
-                  color: Colors.white,
+                  color: ColorClass.white,
                 ),
                 style: ButtonStyle(
-                  backgroundColor:
-                      WidgetStateProperty.all(Colors.black.withOpacity(0.2)),
+                  backgroundColor: WidgetStateProperty.all(
+                      ColorClass.black.withOpacity(0.2)),
                 ),
                 onPressed: () {
                   if (pdfProvider.currentStoryId != null) {

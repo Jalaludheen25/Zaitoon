@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
-          title: 'Zaitoon',
+          title: 'Zai Toon',
           theme: AppTheme.lightTheme(context),
           home: const SplashScreen(),
         ));

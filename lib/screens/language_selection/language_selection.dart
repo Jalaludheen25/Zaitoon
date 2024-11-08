@@ -1,3 +1,4 @@
+import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/aknowledge_screen/aknowledge_screen.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
@@ -11,7 +12,7 @@ class LanguageSelection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: ColorClass.black,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -21,7 +22,6 @@ class LanguageSelection extends StatelessWidget {
               // Mascot character container
               Container(
                 decoration: BoxDecoration(
-                  // color: Colors.teal[100],
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Center(
@@ -39,7 +39,7 @@ class LanguageSelection extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: ColorClass.white,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -50,7 +50,7 @@ class LanguageSelection extends StatelessWidget {
                 'Choose your preferred language to read stories, you can change it later',
                 style: TextStyle(
                   fontSize: 16,
-                  color: Colors.white70,
+                  color: ColorClass.white70,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -72,12 +72,12 @@ class LanguageSelection extends StatelessWidget {
                                 minimumSize: const Size(double.infinity, 50),
                                 backgroundColor:
                                     snapshot.selectedLanguage == "en"
-                                        ? Colors.white
-                                        : Colors.black,
+                                        ? ColorClass.white
+                                        : ColorClass.black,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                   side: const BorderSide(
-                                      color: Colors.white,
+                                      color: ColorClass.white,
                                       width: 2), // Border color and width
                                 ),
                               ),
@@ -88,8 +88,8 @@ class LanguageSelection extends StatelessWidget {
                                     'English',
                                     style: TextStyle(
                                       color: snapshot.selectedLanguage == "en"
-                                          ? Colors.black
-                                          : Colors.white,
+                                          ? ColorClass.black
+                                          : ColorClass.white,
                                       fontSize: 16,
                                     ),
                                   ),
@@ -107,12 +107,12 @@ class LanguageSelection extends StatelessWidget {
                                 minimumSize: const Size(double.infinity, 50),
                                 backgroundColor:
                                     snapshot.selectedLanguage == "ml"
-                                        ? Colors.white
-                                        : Colors.black,
+                                        ? ColorClass.white
+                                        : ColorClass.black,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                   side: const BorderSide(
-                                      color: Colors.white,
+                                      color: ColorClass.white,
                                       width: 2), // Border color and width
                                 ),
                               ),
@@ -123,8 +123,8 @@ class LanguageSelection extends StatelessWidget {
                                     'മലയാളം',
                                     style: GoogleFonts.manjari(
                                       color: snapshot.selectedLanguage == "ml"
-                                          ? Colors.black
-                                          : Colors.white,
+                                          ? ColorClass.black
+                                          : ColorClass.white,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500,
                                     ),
@@ -144,7 +144,7 @@ class LanguageSelection extends StatelessWidget {
                           debugPrint(snapshot.selectedLanguage.toString());
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
+                          backgroundColor: ColorClass.primaryColor,
                           minimumSize: const Size(double.infinity, 50),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -156,7 +156,7 @@ class LanguageSelection extends StatelessWidget {
                             Text(
                               'Continue',
                               style: GoogleFonts.manrope(
-                                color: Colors.white,
+                                color: ColorClass.white,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
                               ),

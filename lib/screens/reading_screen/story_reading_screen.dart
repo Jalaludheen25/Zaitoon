@@ -56,14 +56,14 @@
 //         return false; // Prevents default back navigation
 //       },
 //       child: Scaffold(
-//         backgroundColor: Colors.black,
+//         backgroundColor: ColorClass.black,
 //         appBar: AppBar(
-//           backgroundColor: Colors.black,
+//           backgroundColor: ColorClass.black,
 //           title: const Text('PDF Viewer'),
 //           leading: IconButton(
 //             icon: const Icon(
 //               Icons.arrow_back_ios,
-//               color: Colors.white,
+//               color: ColorClass.white,
 //             ),
 //             onPressed: () {
 //               Navigator.of(context).pop();
@@ -80,7 +80,7 @@
 //                       child: Text(
 //                         'Page ${state.currentPage + 1} of ${state.totalPages}',
 //                         style:
-//                             const TextStyle(fontSize: 16, color: Colors.white),
+//                             const TextStyle(fontSize: 16, color: ColorClass.white),
 //                       ),
 //                     ),
 //                   );
@@ -114,7 +114,7 @@
 //                   children: [
 //                     const Icon(
 //                       Icons.error_outline,
-//                       color: Colors.red,
+//                       color: ColorClassred,
 //                       size: 48,
 //                     ),
 //                     const SizedBox(height: 16),
