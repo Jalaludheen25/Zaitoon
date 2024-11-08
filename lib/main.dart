@@ -1,12 +1,9 @@
 // ignore_for_file: deprecated_member_use
 
-import 'dart:io';
-
 import 'package:zaitoon/constants/theme.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
 import 'package:zaitoon/screens/reading_screen/provider/story_provider.dart';
 import 'package:zaitoon/screens/login_screen/provider/auth_provider.dart';
-import 'package:zaitoon/screens/splash_screen/onboarding_screens.dart';
 import 'package:zaitoon/screens/splash_screen/splashscreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -34,7 +31,7 @@ class MyApp extends StatelessWidget {
         providers: [
           ChangeNotifierProvider(create: (context) => AuthProvider()),
           ChangeNotifierProvider(create: (context) => HomeProvider()),
-          ChangeNotifierProvider(create: (context) => PDFState()),
+          ChangeNotifierProvider(create: (context) => PdfProvider()),
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
