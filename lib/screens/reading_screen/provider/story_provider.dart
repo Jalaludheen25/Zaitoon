@@ -7,6 +7,18 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 
 class PdfProvider extends ChangeNotifier {
+  /// current read story
+  int? currentStoryId;
+  String? currentStoryTitle;
+  void setCurrentStory(int? id, String? title) {
+    currentStoryId = id;
+    currentStoryTitle = title;
+    log('currentStoryId: $currentStoryId');
+    notifyListeners();
+  }
+
+  /// current read story
+
   bool _isLoading = false;
   String? _pdfPath;
   int _currentPage = 0;

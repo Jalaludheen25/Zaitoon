@@ -6,6 +6,7 @@ import 'package:zaitoon/screens/episode_screen.dart/episode_screen.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
 import 'package:zaitoon/screens/home_screen/components/story_card.dart';
 import 'package:zaitoon/screens/language_selection/language_selection.dart';
+import 'package:zaitoon/screens/reading_screen/provider/story_provider.dart';
 import 'package:zaitoon/screens/settings_screen/settings_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -105,8 +106,9 @@ class _HomeScreenState extends State<HomeScreen> {
             // Main Content
             Expanded(
               flex: 2,
-              child: Consumer<HomeProvider>(
-                builder: (context, snapshot, child) => snapshot.isStoryLoading
+              child: Consumer2<HomeProvider, PdfProvider>(
+                builder: (context, snapshot, pdfSnapshot, child) => snapshot
+                        .isStoryLoading
                     ? const Center(
                         child: CupertinoActivityIndicator(),
                       )
@@ -131,6 +133,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                       id: snapshot.storyModel!.data![index].id
                                           .toString(),
                                     ),
+                                  );
+                                  pdfSnapshot.setCurrentStory(
+                                    snapshot.storyModel!.data![index].id,
+                                    snapshot.selectedLanguage == 'en'
+                                        ? snapshot.storyModel!.data![index].name
+                                        : snapshot
+                                            .storyModel!.data![index].mlTitle,
                                   );
                                 }
 
