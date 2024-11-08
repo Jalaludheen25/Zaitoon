@@ -1,6 +1,6 @@
 # Zai toon
 
-A new Flutter project.
+Zai Toon Kids - where stories come alive.
 
 ## Getting Started
 

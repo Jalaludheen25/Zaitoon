@@ -1,5 +1,5 @@
 name: zaitoon
-description: "A new Flutter project."
+description: "Zai Toon Kids - where stories come alive."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -63,6 +63,10 @@ flutter_launcher_icons:
 
   ios: true
   remove_alpha_channel_ios: true
+  web:
+    generate: true
+    image_path: "assets/images/appicon.png"
+
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
