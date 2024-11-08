@@ -12,4 +12,5 @@ class ImageClass {
   static const String onboarding1 = '${imageRoot}onboarding1.png';
   static const String onboarding2 = '${imageRoot}onboarding2.png';
   static const String onboarding3 = '${imageRoot}onboarding3.png';
+  static const String malarvadiLogo = '${imageRoot}malarvadi-logo.png';
 }

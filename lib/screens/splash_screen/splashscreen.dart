@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:zaitoon/constants/image_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/home_screen/home_screen.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
@@ -28,7 +29,7 @@ class _SplashScreenState extends State<SplashScreen> {
     bool isOnboardingCompleted = await homeProvider.isOnboardingCompleted();
     homeProvider.loadSelectedLanguage();
 
-    Future.delayed(const Duration(seconds: 2), () {
+    Future.delayed(const Duration(seconds: 30), () {
       if (isOnboardingCompleted) {
         // Navigate to HomeScreen if onboarding is completed
         navigateTo(context: context, route: const HomeScreen());
@@ -62,6 +63,10 @@ class _SplashScreenState extends State<SplashScreen> {
                 ),
               ),
               const SizedBox(height: 15),
+              Image.asset(
+                ImageClass.malarvadiLogo,
+                height: MediaQuery.sizeOf(context).height * 0.1,
+              ),
 
               // Headline text
               const Text(
@@ -77,7 +82,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
               // Subtitle
               const Text(
-                'Interactive stories with sound effects as you read along',
+                'Interactive stories as you read along',
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.white70,
