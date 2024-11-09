@@ -21,8 +21,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // List of categories with their ColorClass
-
   @override
   void initState() {
     Future.microtask(() {
@@ -72,15 +70,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           height: 32,
                         ),
                       ),
-                      const SizedBox(
-                        width: 5,
-                      ),
+                      const SizedBox(width: 5),
                       IconButton(
                         onPressed: () {
-                          navigatePRTo(
-                            context,
-                            const SettingsScreen(),
-                          );
+                          navigatePRTo(context, const SettingsScreen());
                         },
                         icon: const Icon(
                           Icons.settings,
@@ -90,7 +83,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                   const SizedBox(height: 8),
-
                   // Free Story Section
                   const Text(
                     'Read, imagine, and explore stories',
@@ -108,68 +100,77 @@ class _HomeScreenState extends State<HomeScreen> {
             Expanded(
               flex: 2,
               child: Consumer2<HomeProvider, PdfProvider>(
-                builder: (context, snapshot, pdfSnapshot, child) => snapshot
-                        .isStoryLoading
-                    ? const Center(
-                        child: CupertinoActivityIndicator(),
-                      )
-                    : snapshot.storyModel == null
-                        ? const Center(
-                            child: Text('No Data Found'),
-                          )
-                        : ListView(
-                            padding: const EdgeInsets.all(16),
-                            children: List.generate(
-                              snapshot.storyModel!.data!.length,
-                              (index) {
-                                void onTapFunction() {
-                                  navigateTo(
-                                    context: context,
-                                    route: EpisodeScreen(
-                                      title: snapshot.selectedLanguage == 'en'
-                                          ? snapshot
-                                              .storyModel!.data![index].name!
-                                          : snapshot.storyModel!.data![index]
-                                              .mlTitle!,
-                                      id: snapshot.storyModel!.data![index].id
-                                          .toString(),
-                                      imageUrl: ApiUrls.assetBaseUrl +
-                                          snapshot.storyModel!.data![index]
-                                              .coverimage!, // Add this line
-                                    ),
-                                  );
-                                  pdfSnapshot.setCurrentStory(
-                                    snapshot.storyModel!.data![index].id,
-                                    snapshot.selectedLanguage == 'en'
-                                        ? snapshot.storyModel!.data![index].name
-                                        : snapshot
-                                            .storyModel!.data![index].mlTitle,
-                                              ApiUrls.assetBaseUrl + snapshot.storyModel!.data![index].coverimage!, // Add this line
+                builder: (context, snapshot, pdfSnapshot, child) {
+                  if (snapshot.isStoryLoading) {
+                    return const Center(
+                      child: CupertinoActivityIndicator(),
+                    );
+                  }
+                  if (snapshot.storyModel == null) {
+                    return const Center(
+                      child: Text('No Data Found'),
+                    );
+                  }
 
-                                  );
-                                }
+                  return LayoutBuilder(
+                    builder: (context, constraints) {
+                      // Determine number of columns based on screen width
+                      int crossAxisCount = constraints.maxWidth > 600 ? 2 : 1;
 
-                                return
-                                    // Story Card with Bow
-                                    StoryCard(
-                                  name: snapshot.selectedLanguage == 'en'
-                                      ? snapshot.storyModel!.data![index].name
-                                      : snapshot
-                                          .storyModel!.data![index].mlTitle,
-                                  discription: snapshot.selectedLanguage == 'en'
-                                      ? snapshot
-                                          .storyModel!.data![index].description
-                                      : snapshot.storyModel!.data![index]
-                                          .mlDescription,
-                                  tag: snapshot.storyModel!.data![index].tag,
-                                  imageUrl: ApiUrls.assetBaseUrl +
-                                      snapshot
-                                          .storyModel!.data![index].coverimage!,
-                                  readTap: onTapFunction,
-                                );
-                              },
-                            ),
-                          ),
+                      return GridView.builder(
+                        padding: const EdgeInsets.all(16),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                          childAspectRatio:
+                              1.5, // Adjust this value to control card height
+                        ),
+                        itemCount: snapshot.storyModel!.data!.length,
+                        itemBuilder: (context, index) {
+                          void onTapFunction() {
+                            navigateTo(
+                              context: context,
+                              route: EpisodeScreen(
+                                title: snapshot.selectedLanguage == 'en'
+                                    ? snapshot.storyModel!.data![index].name!
+                                    : snapshot
+                                        .storyModel!.data![index].mlTitle!,
+                                id: snapshot.storyModel!.data![index].id
+                                    .toString(),
+                                imageUrl: ApiUrls.assetBaseUrl +
+                                    snapshot
+                                        .storyModel!.data![index].coverimage!,
+                              ),
+                            );
+                            pdfSnapshot.setCurrentStory(
+                              snapshot.storyModel!.data![index].id,
+                              snapshot.selectedLanguage == 'en'
+                                  ? snapshot.storyModel!.data![index].name
+                                  : snapshot.storyModel!.data![index].mlTitle,
+                              ApiUrls.assetBaseUrl +
+                                  snapshot.storyModel!.data![index].coverimage!,
+                            );
+                          }
+
+                          return StoryCard(
+                            name: snapshot.selectedLanguage == 'en'
+                                ? snapshot.storyModel!.data![index].name
+                                : snapshot.storyModel!.data![index].mlTitle,
+                            discription: snapshot.selectedLanguage == 'en'
+                                ? snapshot.storyModel!.data![index].description
+                                : snapshot
+                                    .storyModel!.data![index].mlDescription,
+                            tag: snapshot.storyModel!.data![index].tag,
+                            imageUrl: ApiUrls.assetBaseUrl +
+                                snapshot.storyModel!.data![index].coverimage!,
+                            readTap: onTapFunction,
+                          );
+                        },
+                      );
+                    },
+                  );
+                },
               ),
             ),
           ],
