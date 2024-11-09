@@ -7,9 +7,11 @@ class PdfProvider extends ChangeNotifier {
   /// current read story
   int? currentStoryId;
   String? currentStoryTitle;
-  void setCurrentStory(int? id, String? title) {
+  String? currentStoryImage;
+  void setCurrentStory(int? id, String? title, String? imageUrl) {
     currentStoryId = id;
     currentStoryTitle = title;
+     currentStoryImage = imageUrl;
     log('currentStoryId: $currentStoryId');
     notifyListeners();
   }

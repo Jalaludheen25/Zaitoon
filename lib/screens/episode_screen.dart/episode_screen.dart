@@ -1,20 +1,26 @@
-// ignore_for_file: use_build_context_synchronously, deprecated_member_use
-
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:zaitoon/constants/app_urls.dart';
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/home_screen/home_screen.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
 import 'package:zaitoon/screens/reading_screen/story_reader_page.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class EpisodeScreen extends StatefulWidget {
-  const EpisodeScreen({super.key, required this.id, required this.title});
+  const EpisodeScreen({
+    super.key,
+    required this.id,
+    required this.title,
+    required this.imageUrl,
+  });
+
   final String id;
   final String title;
+  final String imageUrl;
+
   @override
   State<EpisodeScreen> createState() => _EpisodeScreenState();
 }
@@ -32,198 +38,272 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        navigatePRTo(context, const HomeScreen());
-        return true;
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: ColorClass.black,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: ColorClass.white),
-            onPressed: () => navigatePRTo(context, const HomeScreen()),
-          ),
-          title: Text(
-            widget.title,
-            style: const TextStyle(
-              color: ColorClass.white,
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-        backgroundColor: ColorClass.black,
-        body: SafeArea(
-          child: Consumer<HomeProvider>(
-            builder: (context, snapshot, _) => snapshot.episodeModel == null
-                ? const Center(child: CupertinoActivityIndicator())
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Filter Chips
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Row(
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: SafeArea(
+        child: Consumer<HomeProvider>(
+          builder: (context, snapshot, _) => snapshot.episodeModel == null
+              ? const Center(child: CupertinoActivityIndicator())
+              : CustomScrollView(
+                  slivers: [
+                    // Custom App Bar (unchanged)
+                    SliverAppBar(
+                      backgroundColor: Colors.transparent,
+                      expandedHeight: 300,
+                      pinned: true,
+                      flexibleSpace: FlexibleSpaceBar(
+                        background: Stack(
+                          fit: StackFit.expand,
                           children: [
-                            const SizedBox(width: 8),
-                            _buildFilterChip(
-                                'Episodes ${snapshot.episodeModel!.data!.length}',
-                                icon: Icons.book_rounded),
-                          ],
-                        ),
-                      ),
-
-                      // Stories List
-                      Expanded(
-                        child: ListView.builder(
-                          padding: const EdgeInsets.all(16),
-                          itemCount: snapshot.episodeModel!.data!.length,
-                          itemBuilder: (context, index) {
-                            final story = snapshot.episodeModel!.data![index];
-                            return Container(
-                              margin: const EdgeInsets.only(bottom: 16),
-                              child: Row(
-                                children: [
-                                  // Story Image
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(12),
-                                    child: Container(
-                                      width: 80,
-                                      height: 80,
-                                      color: ColorClass.grey800,
-                                      child: CachedNetworkImage(
-                                          imageUrl: ApiUrls.assetBaseUrl +
-                                              story.coverImage!,
-                                          fit: BoxFit.cover,
-                                          placeholder: (context, url) =>
-                                              const CupertinoActivityIndicator(),
-                                          errorWidget: (context, url, error) =>
-                                              const Icon(Icons.error)),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-
-                                  // Story Details
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          snapshot.selectedLanguage == 'en'
-                                              ? story.storyTile!
-                                              : story.mlTitle!,
-                                          style: const TextStyle(
-                                            color: ColorClass.white,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          '${story.uploadDate} ',
-                                          style: const TextStyle(
-                                            color: ColorClass.grey400,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Row(
-                                          children: [
-                                            const Icon(Icons.access_time,
-                                                size: 16,
-                                                color: ColorClass.grey400),
-                                            const SizedBox(width: 4),
-                                            Text(
-                                              '${story.readMinutes} min',
-                                              style: const TextStyle(
-                                                color: ColorClass.grey400,
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 16),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-
-                                  GestureDetector(
-                                    onTap: () {
-                                      navigatePRTo(
-                                        context,
-                                        StoryReadingScreen(
-                                          pdfUrl:
-                                              snapshot.selectedLanguage == 'en'
-                                                  ? ApiUrls.assetBaseUrl +
-                                                      snapshot
-                                                          .episodeModel!
-                                                          .data![index]
-                                                          .storyFile!
-                                                  : ApiUrls.assetBaseUrl +
-                                                      snapshot
-                                                          .episodeModel!
-                                                          .data![index]
-                                                          .mlStoryFile!,
-                                        ),
-                                      );
+                            snapshot.episodeModel!.data!.isNotEmpty
+                                ? Image.network(
+                                    widget.imageUrl,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(color: ColorClass.grey);
                                     },
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: ColorClass.grey800,
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: const Text(
-                                        'Read',
-                                        style: TextStyle(
-                                          color: ColorClass.white,
-                                          fontSize: 12,
-                                        ),
-                                      ),
+                                  )
+                                : Container(color: Colors.grey[900]),
+                            Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Colors.transparent,
+                                    Colors.black.withOpacity(0.7),
+                                    Colors.black,
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 16,
+                              left: 16,
+                              right: 16,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    widget.title,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    '${snapshot.episodeModel!.data!.length} episodes • ${snapshot.episodeModel!.data!.fold(0, (sum, item) => sum + (int.tryParse(item.readMinutes ?? "0") ?? 0))} minutes',
+                                    style: TextStyle(
+                                      color: Colors.grey[400],
+                                      fontSize: 14,
                                     ),
                                   ),
                                 ],
                               ),
-                            );
-                          },
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-          ),
+                      leading: IconButton(
+                        icon: const Icon(Icons.arrow_back_ios_new),
+                        style: ButtonStyle(
+                          backgroundColor: WidgetStateProperty.all(
+                              Colors.black.withOpacity(0.2)),
+                        ),
+                        color: Colors.white,
+                        onPressed: () => Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (context) => const HomeScreen(),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // Enhanced Episodes List
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      sliver: SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            final episode = snapshot.episodeModel!.data![index];
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: _EpisodeTile(
+                                episode: episode,
+                                index: index,
+                                selectedLanguage: snapshot.selectedLanguage,
+                                onTap: () => navigatePRTo(
+                                  context,
+                                  StoryReadingScreen(
+                                    pdfUrl: snapshot.selectedLanguage == 'en'
+                                        ? ApiUrls.assetBaseUrl +
+                                            episode.storyFile!
+                                        : ApiUrls.assetBaseUrl +
+                                            episode.mlStoryFile!,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                          childCount: snapshot.episodeModel!.data!.length,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
         ),
       ),
     );
   }
+}
 
-  Widget _buildFilterChip(String label, {IconData? icon}) {
-    return FilterChip(
-      label: Row(mainAxisSize: MainAxisSize.min, children: [
-        Icon(
-          icon,
-          size: 18,
-          color: ColorClass.white,
-        ),
-        const SizedBox(width: 4),
-        Text(
-          label,
-          style: const TextStyle(
-            color: ColorClass.white,
+class _EpisodeTile extends StatelessWidget {
+  final dynamic episode;
+  final int index;
+  final String selectedLanguage;
+  final VoidCallback onTap;
+
+  const _EpisodeTile({
+    required this.episode,
+    required this.index,
+    required this.selectedLanguage,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Hero(
+      tag: 'episode_${episode.id}',
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.grey[900]!,
+                  Colors.grey[850]!,
+                ],
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  // Episode Number
+
+                  // Episode Image
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: CachedNetworkImage(
+                      imageUrl: ApiUrls.assetBaseUrl + episode.coverImage!,
+                      width: 72,
+                      height: 72,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Container(
+                        color: Colors.grey[800],
+                        child: const Center(
+                          child: CupertinoActivityIndicator(),
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        color: Colors.grey[800],
+                        child: const Icon(
+                          Icons.error_outline,
+                          color: Colors.white54,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+
+                  // Episode Details
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          selectedLanguage == 'en'
+                              ? episode.storyTile!
+                              : episode.mlTitle!,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.access_time,
+                              color: Colors.white54,
+                              size: 14,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${episode.readMinutes} min',
+                              style: const TextStyle(
+                                color: Colors.white54,
+                                fontSize: 14,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            const Icon(
+                              Icons.calendar_today,
+                              color: Colors.white54,
+                              size: 14,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              episode.uploadDate,
+                              style: const TextStyle(
+                                color: Colors.white54,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Play Button
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.play_arrow_rounded,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
-      ]),
-      onSelected: (selected) {},
-      backgroundColor: ColorClass.grey900,
-      selectedColor: ColorClass.primaryColor,
-      checkmarkColor: ColorClass.transparent,
-      showCheckmark: false,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      ),
     );
   }
 }

@@ -26,10 +26,13 @@ class _StoryReadingScreenState extends State<StoryReadingScreen> {
       onWillPop: () async {
         if (pdfProvider.currentStoryId != null) {
           navigatePRTo(
-              context,
-              EpisodeScreen(
-                  id: pdfProvider.currentStoryId.toString(),
-                  title: pdfProvider.currentStoryTitle!));
+            context,
+            EpisodeScreen(
+              id: pdfProvider.currentStoryId.toString(),
+              title: pdfProvider.currentStoryTitle!,
+              imageUrl: pdfProvider.currentStoryImage!,
+            ),
+          );
         } else {
           navigatePRTo(context, const HomeScreen());
         }
@@ -61,10 +64,13 @@ class _StoryReadingScreenState extends State<StoryReadingScreen> {
                 onPressed: () {
                   if (pdfProvider.currentStoryId != null) {
                     navigatePRTo(
-                        context,
-                        EpisodeScreen(
-                            id: pdfProvider.currentStoryId.toString(),
-                            title: pdfProvider.currentStoryTitle!));
+                      context,
+                      EpisodeScreen(
+                        id: pdfProvider.currentStoryId.toString(),
+                        title: pdfProvider.currentStoryTitle!,
+                        imageUrl: pdfProvider.currentStoryImage!,
+                      ),
+                    );
                   } else {
                     navigatePRTo(context, const HomeScreen());
                   }

@@ -133,6 +133,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                               .mlTitle!,
                                       id: snapshot.storyModel!.data![index].id
                                           .toString(),
+                                      imageUrl: ApiUrls.assetBaseUrl +
+                                          snapshot.storyModel!.data![index]
+                                              .coverimage!, // Add this line
                                     ),
                                   );
                                   pdfSnapshot.setCurrentStory(
@@ -141,6 +144,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ? snapshot.storyModel!.data![index].name
                                         : snapshot
                                             .storyModel!.data![index].mlTitle,
+                                              ApiUrls.assetBaseUrl + snapshot.storyModel!.data![index].coverimage!, // Add this line
+
                                   );
                                 }
 
