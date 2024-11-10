@@ -8,6 +8,7 @@ import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/helper/url_launcher.dart';
 import 'package:zaitoon/screens/home_screen/home_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:zaitoon/screens/settings_screen/components/parental_gate.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -17,6 +18,16 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  void _showParentalGate(Function action) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => ParentalGate(
+        onSuccess: () => action(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -151,7 +162,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   )),
               InkWell(
                 onTap: () {
-                  launchEmailFeedback();
+                  _showParentalGate(() {
+                    launchEmailFeedback();
+                  });
                 },
                 child: _buildSectionTitle(
                   'Feedback',
@@ -159,7 +172,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               InkWell(
                 onTap: () {
-                  launchURL(ApiContants.privaryPolicyUrl);
+                  _showParentalGate(() {
+                    launchURL(ApiContants.privaryPolicyUrl);
+                  });
                 },
                 child: _buildSectionTitle(
                   'Privacy Policy',
