@@ -7,10 +7,10 @@ class ParentalGate extends StatefulWidget {
   final String title;
 
   const ParentalGate({
-    Key? key,
+    super.key,
     required this.onSuccess,
     this.title = 'Parental Gate',
-  }) : super(key: key);
+  });
 
   @override
   State<ParentalGate> createState() => _ParentalGateState();
