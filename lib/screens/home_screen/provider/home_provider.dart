@@ -57,7 +57,7 @@ class HomeProvider extends ChangeNotifier {
   }
 
   // save selected language locally and shared preference
-  String selectedLanguage = "en";
+  String selectedLanguage = "none";
   Future<void> saveSelectedLanguage(String language) async {
     try {
       selectedLanguage = language;

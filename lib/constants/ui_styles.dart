@@ -34,5 +34,7 @@ class UiStyles {
   }
 
   static const double fontSizeTitle = 22;
+  static const double fontSizeMedium = 18;
+
   static const double fontSizeSubTitle = 14;
 }

@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
@@ -40,121 +40,131 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: SafeArea(
-        child: Consumer<HomeProvider>(
-          builder: (context, snapshot, _) => snapshot.episodeModel == null
-              ? const Center(child: CupertinoActivityIndicator())
-              : CustomScrollView(
-                  slivers: [
-                    // Custom App Bar (unchanged)
-                    SliverAppBar(
-                      backgroundColor: Colors.transparent,
-                      expandedHeight: 300,
-                      pinned: true,
-                      flexibleSpace: FlexibleSpaceBar(
-                        background: Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            snapshot.episodeModel!.data!.isNotEmpty
-                                ? Image.network(
-                                    widget.imageUrl,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Container(color: ColorClass.grey);
-                                    },
-                                  )
-                                : Container(color: Colors.grey[900]),
-                            Container(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [
-                                    Colors.transparent,
-                                    Colors.black.withOpacity(0.7),
-                                    Colors.black,
+    return WillPopScope(
+      onWillPop: () async {
+        navigatePRTo(context, const HomeScreen());
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: SafeArea(
+          child: Consumer<HomeProvider>(
+            builder: (context, snapshot, _) => snapshot.episodeModel == null
+                ? const Center(child: CupertinoActivityIndicator())
+                : CustomScrollView(
+                    slivers: [
+                      // Custom App Bar (unchanged)
+                      SliverAppBar(
+                        backgroundColor: Colors.transparent,
+                        expandedHeight: 300,
+                        pinned: true,
+                        flexibleSpace: FlexibleSpaceBar(
+                          background: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              snapshot.episodeModel!.data!.isNotEmpty
+                                  ? Image.network(
+                                      widget.imageUrl,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                        return Container(
+                                            color: ColorClass.grey);
+                                      },
+                                    )
+                                  : Container(color: Colors.grey[900]),
+                              Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      Colors.transparent,
+                                      Colors.black.withOpacity(0.7),
+                                      Colors.black,
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                bottom: 16,
+                                left: 16,
+                                right: 16,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      widget.title,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      '${snapshot.episodeModel!.data!.length} episodes • ${snapshot.episodeModel!.data!.fold(0, (sum, item) => sum + (int.tryParse(item.readMinutes ?? "0") ?? 0))} minutes',
+                                      style: TextStyle(
+                                        color: Colors.grey[400],
+                                        fontSize: 14,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
-                            ),
-                            Positioned(
-                              bottom: 16,
-                              left: 16,
-                              right: 16,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    widget.title,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    '${snapshot.episodeModel!.data!.length} episodes • ${snapshot.episodeModel!.data!.fold(0, (sum, item) => sum + (int.tryParse(item.readMinutes ?? "0") ?? 0))} minutes',
-                                    style: TextStyle(
-                                      color: Colors.grey[400],
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                      leading: IconButton(
-                        icon: const Icon(Icons.arrow_back_ios_new),
-                        style: ButtonStyle(
-                          backgroundColor: WidgetStateProperty.all(
-                              Colors.black.withOpacity(0.2)),
-                        ),
-                        color: Colors.white,
-                        onPressed: () => Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                            builder: (context) => const HomeScreen(),
+                        leading: IconButton(
+                          icon: const Icon(Icons.arrow_back_ios_new),
+                          style: ButtonStyle(
+                            backgroundColor: WidgetStateProperty.all(
+                                Colors.black.withOpacity(0.2)),
+                          ),
+                          color: Colors.white,
+                          onPressed: () =>
+                              Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (context) => const HomeScreen(),
+                            ),
                           ),
                         ),
                       ),
-                    ),
 
-                    // Enhanced Episodes List
-                    SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      sliver: SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                            final episode = snapshot.episodeModel!.data![index];
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 16),
-                              child: _EpisodeTile(
-                                episode: episode,
-                                index: index,
-                                selectedLanguage: snapshot.selectedLanguage,
-                                onTap: () => navigatePRTo(
-                                  context,
-                                  StoryReadingScreen(
-                                    pdfUrl: snapshot.selectedLanguage == 'en'
-                                        ? ApiUrls.assetBaseUrl +
-                                            episode.storyFile!
-                                        : ApiUrls.assetBaseUrl +
-                                            episode.mlStoryFile!,
+                      // Enhanced Episodes List
+                      SliverPadding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        sliver: SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                              final episode =
+                                  snapshot.episodeModel!.data![index];
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 16),
+                                child: _EpisodeTile(
+                                  episode: episode,
+                                  index: index,
+                                  selectedLanguage: snapshot.selectedLanguage,
+                                  onTap: () => navigatePRTo(
+                                    context,
+                                    StoryReadingScreen(
+                                      pdfUrl: snapshot.selectedLanguage == 'en'
+                                          ? ApiUrls.assetBaseUrl +
+                                              episode.storyFile!
+                                          : ApiUrls.assetBaseUrl +
+                                              episode.mlStoryFile!,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            );
-                          },
-                          childCount: snapshot.episodeModel!.data!.length,
+                              );
+                            },
+                            childCount: snapshot.episodeModel!.data!.length,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
+          ),
         ),
       ),
     );
@@ -295,7 +305,7 @@ class _EpisodeTile extends StatelessWidget {
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
-                      Icons.play_arrow_rounded,
+                      Icons.chrome_reader_mode_outlined,
                       color: Colors.white,
                       size: 24,
                     ),

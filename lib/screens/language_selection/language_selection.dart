@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/aknowledge_screen/aknowledge_screen.dart';
@@ -66,7 +68,13 @@ class LanguageSelection extends StatelessWidget {
                           Expanded(
                             child: ElevatedButton(
                               onPressed: () {
-                                snapshot.saveSelectedLanguage("en");
+                                snapshot
+                                    .saveSelectedLanguage("en")
+                                    .then((value) {
+                                  navigateTo(
+                                      context: context,
+                                      route: const AknowledgeScreen());
+                                });
                               },
                               style: ElevatedButton.styleFrom(
                                 minimumSize: const Size(double.infinity, 50),
@@ -101,7 +109,13 @@ class LanguageSelection extends StatelessWidget {
                           Expanded(
                             child: ElevatedButton(
                               onPressed: () {
-                                snapshot.saveSelectedLanguage("ml");
+                                snapshot
+                                    .saveSelectedLanguage("ml")
+                                    .then((value) {
+                                  navigateTo(
+                                      context: context,
+                                      route: const AknowledgeScreen());
+                                });
                               },
                               style: ElevatedButton.styleFrom(
                                 minimumSize: const Size(double.infinity, 50),
@@ -136,34 +150,34 @@ class LanguageSelection extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: () {
-                          navigateTo(
-                              context: context,
-                              route: const AknowledgeScreen());
-                          debugPrint(snapshot.selectedLanguage.toString());
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: ColorClass.primaryColor,
-                          minimumSize: const Size(double.infinity, 50),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Continue',
-                              style: GoogleFonts.manrope(
-                                color: ColorClass.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      // ElevatedButton(
+                      //   onPressed: () {
+                      //     navigateTo(
+                      //         context: context,
+                      //         route: const AknowledgeScreen());
+                      //     debugPrint(snapshot.selectedLanguage.toString());
+                      //   },
+                      //   style: ElevatedButton.styleFrom(
+                      //     backgroundColor: ColorClass.primaryColor,
+                      //     minimumSize: const Size(double.infinity, 50),
+                      //     shape: RoundedRectangleBorder(
+                      //       borderRadius: BorderRadius.circular(8),
+                      //     ),
+                      //   ),
+                      //   child: Row(
+                      //     mainAxisAlignment: MainAxisAlignment.center,
+                      //     children: [
+                      //       Text(
+                      //         'Continue',
+                      //         style: GoogleFonts.manrope(
+                      //           color: ColorClass.white,
+                      //           fontSize: 16,
+                      //           fontWeight: FontWeight.w500,
+                      //         ),
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
                     ],
                   );
                 },
