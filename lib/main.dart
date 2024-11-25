@@ -1,7 +1,11 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:io';
+
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:zaitoon/constants/app_urls.dart';
 import 'package:zaitoon/constants/theme.dart';
+import 'package:zaitoon/helper/push_notification.dart';
 import 'package:zaitoon/screens/bookmark_screen/hive/bookmark_hive_model.dart';
 import 'package:zaitoon/screens/bookmark_screen/provider/bookmark_provider.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
@@ -14,6 +18,9 @@ import 'package:zaitoon/screens/standalone_stories/provider/story_provider.dart'
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  if (Platform.isAndroid) {
+    PushNotificationService.initializeOneSignal(ApiUrls.oneSignalAppId);
+  }
   await Hive.initFlutter();
 
   if (!Hive.isAdapterRegistered(0)) {

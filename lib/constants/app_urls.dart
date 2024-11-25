@@ -6,6 +6,8 @@ class ApiUrls {
 
   static const String assetBaseUrl = "http://139.59.20.49:8055/assets/";
 
+  static const String oneSignalAppId = "276a85c4-2c81-4340-ac7e-3155826f2e69";
+
   // wordpress
   static String getSpecificPost({required int postId}) {
     return '$wpBaseUrl/posts/$postId';
@@ -14,10 +16,10 @@ class ApiUrls {
   static String getFeaturedImage({required int imageId}) {
     return 'media/$imageId';
   }
+
   static String getEpisode(String id) {
     return '$baseUrl/items/zaitoon_episode?filter[story][_eq]=$id';
   }
 
   static String stories = "$baseUrl/items/zaitoon_stories";
-  
 }
