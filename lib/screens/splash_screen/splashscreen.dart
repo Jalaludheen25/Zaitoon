@@ -33,10 +33,11 @@ class _SplashScreenState extends State<SplashScreen> {
     Future.delayed(const Duration(seconds: 3), () {
       if (isOnboardingCompleted) {
         // Navigate to BottomNavigationScreen if onboarding is completed
-        navigateTo(context: context, route: const BottomNavigationScreen());
+        navigateAndRemove(
+            context: context, screen: const BottomNavigationScreen());
       } else {
         // Otherwise, navigate to OnboardingScreen
-        navigateTo(context: context, route: const OnboardingScreen());
+        navigateAndRemove(context: context, screen: const OnboardingScreen());
       }
     });
   }

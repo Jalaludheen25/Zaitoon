@@ -71,9 +71,9 @@ class LanguageSelection extends StatelessWidget {
                                 snapshot
                                     .saveSelectedLanguage("en")
                                     .then((value) {
-                                  navigateTo(
+                                  navigatePR(
                                       context: context,
-                                      route: const AknowledgeScreen());
+                                      screen: const AknowledgeScreen());
                                 });
                               },
                               style: ElevatedButton.styleFrom(
@@ -112,9 +112,9 @@ class LanguageSelection extends StatelessWidget {
                                 snapshot
                                     .saveSelectedLanguage("ml")
                                     .then((value) {
-                                  navigateTo(
+                                  navigatePR(
                                       context: context,
-                                      route: const AknowledgeScreen());
+                                      screen: const AknowledgeScreen());
                                 });
                               },
                               style: ElevatedButton.styleFrom(

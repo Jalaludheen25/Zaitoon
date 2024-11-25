@@ -57,9 +57,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     if (currentPage < demoData.length - 1) {
                       currentPage++;
                     } else {
-                      navigateTo(
-                          context: context, route: const LanguageSelection());
-                      // Navigate to the home screen
+                      navigateAndRemove(
+                          context: context, screen: const LanguageSelection());
                     }
                   });
                 },

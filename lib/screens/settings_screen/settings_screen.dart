@@ -78,9 +78,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             const SizedBox(height: 16.0),
             InkWell(
               onTap: () {
-                navigateTo(
+                navigatePR(
                   context: context,
-                  route: const LanguageSelection(),
+                  screen: const LanguageSelection(),
                 );
               },
               child: _buildSectionTitle(

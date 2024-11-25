@@ -59,9 +59,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       IconButton(
                         onPressed: () {
-                          navigateTo(
+                          navigatePR(
                             context: context,
-                            route: const LanguageSelection(),
+                            screen: const LanguageSelection(),
                           );
                         },
                         icon: Image.asset(
@@ -73,8 +73,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(width: 5),
                       IconButton(
                         onPressed: () {
-                          navigateTo(
-                              context: context, route: const SettingsScreen());
+                          navigatePR(
+                              context: context, screen: const SettingsScreen());
                         },
                         icon: const Icon(
                           Icons.settings,
@@ -130,9 +130,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         itemCount: snapshot.storyModel!.data!.length,
                         itemBuilder: (context, index) {
                           void onTapFunction() {
-                            navigateTo(
+                            navigatePR(
                               context: context,
-                              route: EpisodeScreen(
+                              screen: EpisodeScreen(
                                 title: snapshot.selectedLanguage == 'en'
                                     ? snapshot.storyModel!.data![index].name!
                                     : snapshot
@@ -142,6 +142,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 imageUrl: ApiUrls.assetBaseUrl +
                                     snapshot
                                         .storyModel!.data![index].coverimage!,
+                                tag:
+                                    snapshot.storyModel!.data![index].tag ?? '',
                               ),
                             );
                             pdfSnapshot.setCurrentStory(

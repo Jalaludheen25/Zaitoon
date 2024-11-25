@@ -104,9 +104,9 @@ class AknowledgeScreen extends StatelessWidget {
                       final homeProvider =
                           Provider.of<HomeProvider>(context, listen: false);
                       await homeProvider.setOnboardingCompleted();
-                      navigateTo(
+                      navigateAndRemove(
                           context: context,
-                          route: const BottomNavigationScreen());
+                          screen: const BottomNavigationScreen());
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: ColorClass.primaryColor,

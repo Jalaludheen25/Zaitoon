@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:zaitoon/constants/app_urls.dart';
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/screens/bookmark_screen/provider/bookmark_provider.dart';
 
@@ -122,9 +123,9 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                                 bottomLeft: Radius.circular(16),
                               ),
                               child: Image.network(
-                                story.thumbnail,
+                                ApiUrls.assetBaseUrl + story.thumbnail,
                                 width: 120,
-                                height: 160,
+                                height: 120,
                                 fit: BoxFit.cover,
                               ),
                             ),
@@ -142,13 +143,14 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                                         vertical: 4,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: Colors.purple.withOpacity(0.2),
+                                        color:
+                                            Colors.greenAccent.withOpacity(0.2),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Text(
                                         story.tag,
                                         style: const TextStyle(
-                                          color: Colors.purple,
+                                          color: Colors.greenAccent,
                                           fontSize: 12,
                                         ),
                                       ),
@@ -185,17 +187,23 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                                               // Implement continue reading
                                             },
                                             style: ElevatedButton.styleFrom(
-                                              backgroundColor: Colors.purple,
+                                              backgroundColor:
+                                                  Colors.deepPurpleAccent,
                                               foregroundColor: Colors.white,
                                               padding:
                                                   const EdgeInsets.symmetric(
-                                                      vertical: 12),
+                                                      vertical: 8),
                                               shape: RoundedRectangleBorder(
                                                 borderRadius:
                                                     BorderRadius.circular(8),
                                               ),
                                             ),
-                                            child: const Text('Continue'),
+                                            child: const Text('Continue',
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: ColorClass.white,
+                                                )),
                                           ),
                                         ),
                                         const SizedBox(width: 8),

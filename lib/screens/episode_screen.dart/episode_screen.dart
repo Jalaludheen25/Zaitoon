@@ -20,12 +20,13 @@ class EpisodeScreen extends StatefulWidget {
     required this.id,
     required this.title,
     required this.imageUrl,
+    required this.tag,
   });
 
   final String id;
   final String title;
   final String imageUrl;
-
+  final String tag;
   @override
   State<EpisodeScreen> createState() => _EpisodeScreenState();
 }
@@ -137,12 +138,14 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 16),
                               child: _EpisodeTile(
+                                seriesTitle: widget.title,
+                                tag: widget.tag,
                                 episode: episode,
                                 index: index,
                                 selectedLanguage: snapshot.selectedLanguage,
                                 onTap: () => navigatePR(
-                                  context,
-                                  StoryReadingScreen(
+                                  context: context,
+                                  screen: StoryReadingScreen(
                                     pdfUrl: snapshot.selectedLanguage == 'en'
                                         ? ApiUrls.assetBaseUrl +
                                             episode.storyFile!
@@ -166,16 +169,20 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
 }
 
 class _EpisodeTile extends StatelessWidget {
+  final String seriesTitle;
   final EpisodeData episode;
   final int index;
   final String selectedLanguage;
   final VoidCallback onTap;
+  final String tag;
 
   const _EpisodeTile({
     required this.episode,
     required this.index,
     required this.selectedLanguage,
     required this.onTap,
+    required this.seriesTitle,
+    required this.tag,
   });
 
   @override
@@ -310,12 +317,12 @@ class _EpisodeTile extends StatelessWidget {
                     id: episode.id.toString(),
                     thumbnail: episode.coverImage!,
                     title: selectedLanguage == 'en'
-                        ? episode.storyTile!
-                        : episode.mlTitle!,
+                        ? "$seriesTitle: ${episode.storyTile!}"
+                        : "$seriesTitle: ${episode.mlTitle!}",
                     fileUrl: selectedLanguage == 'en'
                         ? episode.storyFile!
                         : episode.mlStoryFile!,
-                    tag: 'episode_${episode.id}',
+                    tag: tag,
                   ),
                 ],
               ),
@@ -388,7 +395,7 @@ class BookmarkButton extends StatelessWidget {
             ),
             child: Icon(
               isBookmarked ? LucideIcons.bookMarked : LucideIcons.bookmark,
-              color: Colors.white,
+              color: isBookmarked ? Colors.greenAccent : Colors.white,
               size: 24,
             ),
           ),
