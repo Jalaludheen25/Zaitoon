@@ -51,7 +51,7 @@ class TextStyleClass {
       );
   static TextStyle manjariSemiBold(
           {required double fontSize, required Color color}) =>
-      GoogleFonts.manjari(
+      GoogleFonts.anekMalayalam(
         color: color,
         fontSize: fontSize,
         fontWeight: FontWeight.w600,

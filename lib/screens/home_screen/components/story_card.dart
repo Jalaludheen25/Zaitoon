@@ -110,12 +110,11 @@ class _StoryCardState extends State<StoryCard> {
                                 color: ColorClass.black,
                                 borderRadius: BorderRadius.circular(14),
                               ),
-                              child: const Text(
+                              child: Text(
                                 'Read Story',
-                                style: TextStyle(
-                                  color: ColorClass.white,
+                                style: TextStyleClass.poppinsSemiBold(
                                   fontSize: 14,
-                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
                                 ),
                               ),
                             ),

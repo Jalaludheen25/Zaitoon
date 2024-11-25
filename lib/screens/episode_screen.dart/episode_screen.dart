@@ -7,6 +7,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:zaitoon/constants/app_urls.dart';
 import 'package:zaitoon/constants/color_class.dart';
+import 'package:zaitoon/constants/textstyle_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/bookmark_screen/bookmark_screen.dart';
 import 'package:zaitoon/screens/bookmark_screen/provider/bookmark_provider.dart';
@@ -93,18 +94,22 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
                                 children: [
                                   Text(
                                     widget.title,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                    style: snapshot.selectedLanguage == 'en'
+                                        ? TextStyleClass.poppinsSemiBold(
+                                            fontSize: 24,
+                                            color: Colors.white,
+                                          )
+                                        : TextStyleClass.manjariSemiBold(
+                                            fontSize: 24,
+                                            color: Colors.white,
+                                          ),
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
                                     '${snapshot.episodeModel!.data!.length} episodes • ${snapshot.episodeModel!.data!.fold(0, (sum, item) => sum + (int.tryParse(item.readMinutes ?? "0") ?? 0))} minutes',
-                                    style: TextStyle(
-                                      color: Colors.grey[400],
+                                    style: TextStyleClass.poppinsNormal(
                                       fontSize: 14,
+                                      color: Colors.white54,
                                     ),
                                   ),
                                 ],
@@ -153,7 +158,7 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
                                         : "${widget.title}: ${episode.mlTitle!}",
                                     thumbnail:
                                         '${ApiUrls.assetBaseUrl}${episode.coverImage}',
-                                    tag: 'episode_${episode.id}',
+                                    tag: widget.tag,
                                     pdfUrl: snapshot.selectedLanguage == 'en'
                                         ? ApiUrls.assetBaseUrl +
                                             episode.storyFile!
@@ -261,11 +266,15 @@ class _EpisodeTile extends StatelessWidget {
                           selectedLanguage == 'en'
                               ? episode.storyTile!
                               : episode.mlTitle!,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: selectedLanguage == 'en'
+                              ? TextStyleClass.poppinsSemiBold(
+                                  fontSize: 16,
+                                  color: Colors.white,
+                                )
+                              : TextStyleClass.manjariSemiBold(
+                                  fontSize: 16,
+                                  color: Colors.white,
+                                ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -280,9 +289,9 @@ class _EpisodeTile extends StatelessWidget {
                             const SizedBox(width: 4),
                             Text(
                               '${episode.readMinutes} min',
-                              style: const TextStyle(
-                                color: Colors.white54,
+                              style: TextStyleClass.poppinsNormal(
                                 fontSize: 12,
+                                color: Colors.white54,
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -294,10 +303,9 @@ class _EpisodeTile extends StatelessWidget {
                             const SizedBox(width: 4),
                             Text(
                               episode.uploadDate ?? 'N/A',
-                              style: const TextStyle(
-                                color: Colors.white54,
-                                fontFamily: 'Poppins',
+                              style: TextStyleClass.poppinsNormal(
                                 fontSize: 12,
+                                color: Colors.white54,
                               ),
                             ),
                           ],

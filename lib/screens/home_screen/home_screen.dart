@@ -118,7 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           crossAxisSpacing: 16,
                           mainAxisSpacing: 16,
                           childAspectRatio:
-                              1.4, // Adjust this value to control card height
+                              1.2, // Adjust this value to control card height
                         ),
                         itemCount: snapshot.storyModel!.data!.length,
                         itemBuilder: (context, index) {

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:zaitoon/constants/app_urls.dart';
+import 'package:zaitoon/constants/textstyle_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/episode_screen.dart/episode_screen.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
@@ -79,34 +80,33 @@ class _StoriesScreenState extends State<StoriesScreen> {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          Colors.purple.withOpacity(0.4),
+                          Colors.deepPurpleAccent.withOpacity(0.4),
                           Colors.black,
                         ],
                       ),
                     ),
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.end,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Stories',
-                            style: TextStyle(
-                              fontSize: 34,
-                              fontWeight: FontWeight.bold,
+                            'Stories 📚',
+                            style: TextStyleClass.poppinsBold(
+                              fontSize: 30,
                               color: Colors.white,
                             ),
                           ),
-                          SizedBox(height: 8),
+                          const SizedBox(height: 8),
                           Text(
                             'Discover amazing stories',
-                            style: TextStyle(
+                            style: TextStyleClass.poppinsNormal(
                               fontSize: 16,
-                              color: Colors.white70,
+                              color: Colors.white,
                             ),
                           ),
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
                         ],
                       ),
                     ),
@@ -270,38 +270,44 @@ class StoryCard extends StatelessWidget {
           // Story Details
           Padding(
             padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+            child: Consumer<HomeProvider>(
+              builder: (context, data, child) => Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: data.selectedLanguage == 'en'
+                        ? TextStyleClass.poppinsSemiBold(
+                            fontSize: 16,
+                            color: Colors.white,
+                          )
+                        : TextStyleClass.manjariSemiBold(
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    const Icon(
-                      LucideIcons.clock,
-                      color: Colors.grey,
-                      size: 14,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      duration,
-                      style: const TextStyle(
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Icon(
+                        LucideIcons.clock,
                         color: Colors.grey,
-                        fontSize: 12,
+                        size: 14,
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                      const SizedBox(width: 4),
+                      Text(
+                        duration,
+                        style: TextStyleClass.poppinsNormal(
+                          fontSize: 12,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ],
