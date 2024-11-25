@@ -1,43 +1,54 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:zaitoon/constants/theme.dart';
+import 'package:zaitoon/screens/bookmark_screen/hive/bookmark_hive_model.dart';
+import 'package:zaitoon/screens/bookmark_screen/provider/bookmark_provider.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
 import 'package:zaitoon/screens/reading_screen/provider/story_provider.dart';
 import 'package:zaitoon/screens/login_screen/provider/auth_provider.dart';
 import 'package:zaitoon/screens/splash_screen/splashscreen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
 
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
-  runApp(const MyApp());
+  if (!Hive.isAdapterRegistered(0)) {
+    Hive.registerAdapter(BookmarkModelAdapter());
+  }
+
+  // Create single instance of BookmarkProvider
+  final bookmarkProvider = BookmarkProvider();
+  await bookmarkProvider.initHive();
+
+  runApp(MyApp(bookmarkProvider: bookmarkProvider));
 }
 
 class MyApp extends StatelessWidget {
+  final BookmarkProvider bookmarkProvider;
+
   const MyApp({
     super.key,
+    required this.bookmarkProvider,
   });
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (context) => AuthProvider()),
-          ChangeNotifierProvider(create: (context) => HomeProvider()),
-          ChangeNotifierProvider(create: (context) => PdfProvider()),
-        ],
-        child: MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'Zai Toon',
-          theme: AppTheme.lightTheme(context),
-          home: const SplashScreen(),
-        ));
+      providers: [
+        ChangeNotifierProvider(create: (context) => AuthProvider()),
+        ChangeNotifierProvider(create: (context) => HomeProvider()),
+        ChangeNotifierProvider(create: (context) => PdfProvider()),
+        ChangeNotifierProvider.value(value: bookmarkProvider),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Zai Toon',
+        theme: AppTheme.lightTheme(context),
+        home: const SplashScreen(),
+      ),
+    );
   }
 }

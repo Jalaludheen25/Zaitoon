@@ -49,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       const Expanded(
                         child: Text(
-                          'Zai Toon: Read, Dream, Explore',
+                          'Zai Toon',
                           style: TextStyle(
                             fontSize: 25,
                             fontWeight: FontWeight.bold,
@@ -73,7 +73,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(width: 5),
                       IconButton(
                         onPressed: () {
-                          navigatePRTo(context, const SettingsScreen());
+                          navigateTo(
+                              context: context, route: const SettingsScreen());
                         },
                         icon: const Icon(
                           Icons.settings,
@@ -124,7 +125,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           crossAxisSpacing: 16,
                           mainAxisSpacing: 16,
                           childAspectRatio:
-                              1.5, // Adjust this value to control card height
+                              1.4, // Adjust this value to control card height
                         ),
                         itemCount: snapshot.storyModel!.data!.length,
                         itemBuilder: (context, index) {

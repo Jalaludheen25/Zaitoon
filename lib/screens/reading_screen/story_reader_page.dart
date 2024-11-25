@@ -5,8 +5,8 @@ import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
+import 'package:zaitoon/screens/bottom_navigation/bottom_navigation.dart';
 import 'package:zaitoon/screens/episode_screen.dart/episode_screen.dart';
-import 'package:zaitoon/screens/home_screen/home_screen.dart';
 import 'package:zaitoon/screens/reading_screen/provider/story_provider.dart';
 
 class StoryReadingScreen extends StatefulWidget {
@@ -25,7 +25,7 @@ class _StoryReadingScreenState extends State<StoryReadingScreen> {
     return WillPopScope(
       onWillPop: () async {
         if (pdfProvider.currentStoryId != null) {
-          navigatePRTo(
+          navigatePR(
             context,
             EpisodeScreen(
               id: pdfProvider.currentStoryId.toString(),
@@ -34,7 +34,7 @@ class _StoryReadingScreenState extends State<StoryReadingScreen> {
             ),
           );
         } else {
-          navigatePRTo(context, const HomeScreen());
+          navigateAndRemove(context, const BottomNavigationScreen());
         }
         return false;
       },
@@ -62,18 +62,9 @@ class _StoryReadingScreenState extends State<StoryReadingScreen> {
                       ColorClass.black.withOpacity(0.2)),
                 ),
                 onPressed: () {
-                  if (pdfProvider.currentStoryId != null) {
-                    navigatePRTo(
-                      context,
-                      EpisodeScreen(
-                        id: pdfProvider.currentStoryId.toString(),
-                        title: pdfProvider.currentStoryTitle!,
-                        imageUrl: pdfProvider.currentStoryImage!,
-                      ),
-                    );
-                  } else {
-                    navigatePRTo(context, const HomeScreen());
-                  }
+                  navigateBack(
+                    context,
+                  );
                 },
               ),
             ),

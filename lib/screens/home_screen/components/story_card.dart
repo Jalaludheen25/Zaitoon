@@ -29,7 +29,7 @@ class _StoryCardState extends State<StoryCard> {
     return GestureDetector(
       onTap: widget.readTap,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 20),
+        margin: const EdgeInsets.only(bottom: 15),
         width: double.infinity,
         // height: 400, // Fixed height for consistency
         child: ClipRRect(
@@ -67,7 +67,7 @@ class _StoryCardState extends State<StoryCard> {
                           ],
                         ),
                       ),
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(10),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -80,11 +80,11 @@ class _StoryCardState extends State<StoryCard> {
                                   widget.name ?? '',
                                   style: const TextStyle(
                                     color: ColorClass.white,
-                                    fontSize: UiStyles.fontSizeMedium,
+                                    fontSize: UiStyles.fontSizeSubTitle,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                const SizedBox(height: 5),
+                                const SizedBox(height: 4),
 
                                 // Tag
                                 Text(
@@ -112,7 +112,7 @@ class _StoryCardState extends State<StoryCard> {
                                 'Read Story',
                                 style: TextStyle(
                                   color: ColorClass.white,
-                                  fontSize: 16,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),

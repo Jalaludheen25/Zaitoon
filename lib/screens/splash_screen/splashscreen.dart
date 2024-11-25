@@ -3,7 +3,7 @@
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/image_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
-import 'package:zaitoon/screens/home_screen/home_screen.dart';
+import 'package:zaitoon/screens/bottom_navigation/bottom_navigation.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
 import 'package:zaitoon/screens/splash_screen/onboarding_screens.dart';
 import 'package:flutter/cupertino.dart';
@@ -32,8 +32,8 @@ class _SplashScreenState extends State<SplashScreen> {
 
     Future.delayed(const Duration(seconds: 3), () {
       if (isOnboardingCompleted) {
-        // Navigate to HomeScreen if onboarding is completed
-        navigateTo(context: context, route: const HomeScreen());
+        // Navigate to BottomNavigationScreen if onboarding is completed
+        navigateTo(context: context, route: const BottomNavigationScreen());
       } else {
         // Otherwise, navigate to OnboardingScreen
         navigateTo(context: context, route: const OnboardingScreen());

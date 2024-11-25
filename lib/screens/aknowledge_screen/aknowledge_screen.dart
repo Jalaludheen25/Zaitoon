@@ -2,7 +2,7 @@
 
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
-import 'package:zaitoon/screens/home_screen/home_screen.dart';
+import 'package:zaitoon/screens/bottom_navigation/bottom_navigation.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -104,7 +104,9 @@ class AknowledgeScreen extends StatelessWidget {
                       final homeProvider =
                           Provider.of<HomeProvider>(context, listen: false);
                       await homeProvider.setOnboardingCompleted();
-                      navigateTo(context: context, route: const HomeScreen());
+                      navigateTo(
+                          context: context,
+                          route: const BottomNavigationScreen());
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: ColorClass.primaryColor,
@@ -113,7 +115,14 @@ class AknowledgeScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: const Text('Continue'),
+                    child: const Text(
+                      'Continue',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: ColorClass.white,
+                      ),
+                    ),
                   ),
                 ],
               ),
