@@ -6,10 +6,11 @@ import 'package:zaitoon/screens/bookmark_screen/hive/bookmark_hive_model.dart';
 import 'package:zaitoon/screens/bookmark_screen/provider/bookmark_provider.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
 import 'package:zaitoon/screens/reading_screen/provider/story_provider.dart';
-import 'package:zaitoon/screens/login_screen/provider/auth_provider.dart';
+import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
 import 'package:zaitoon/screens/splash_screen/splashscreen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:zaitoon/screens/standalone_stories/provider/story_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,9 +39,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => AuthProvider()),
         ChangeNotifierProvider(create: (context) => HomeProvider()),
         ChangeNotifierProvider(create: (context) => PdfProvider()),
+        ChangeNotifierProvider(create: (context) => StoriesProvider()),
+        ChangeNotifierProvider(create: (context) => UserDataProvider()),
         ChangeNotifierProvider.value(value: bookmarkProvider),
       ],
       child: MaterialApp(

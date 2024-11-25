@@ -1,10 +1,16 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+// ignore: unused_import
+import 'package:google_fonts/google_fonts.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:zaitoon/constants/app_urls.dart';
 import 'package:zaitoon/constants/color_class.dart';
+import 'package:zaitoon/constants/textstyle_class.dart';
+import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/bookmark_screen/provider/bookmark_provider.dart';
+import 'package:zaitoon/screens/reading_screen/story_reader_page.dart';
 
 class BookmarkScreen extends StatefulWidget {
   const BookmarkScreen({super.key});
@@ -123,7 +129,7 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                                 bottomLeft: Radius.circular(16),
                               ),
                               child: Image.network(
-                                ApiUrls.assetBaseUrl + story.thumbnail,
+                                story.thumbnail,
                                 width: 120,
                                 height: 120,
                                 fit: BoxFit.cover,
@@ -149,7 +155,7 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                                       ),
                                       child: Text(
                                         story.tag,
-                                        style: const TextStyle(
+                                        style: TextStyleClass.poppinsNormal(
                                           color: Colors.greenAccent,
                                           fontSize: 12,
                                         ),
@@ -159,10 +165,9 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                                     // Title
                                     Text(
                                       story.title,
-                                      style: const TextStyle(
-                                        color: ColorClass.white,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
+                                      style: TextStyleClass.poppinsBold(
+                                        fontSize: 16,
+                                        color: Colors.white,
                                       ),
                                     ),
                                     const SizedBox(height: 4),
@@ -182,9 +187,20 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                                       children: [
                                         // Continue Reading Button
                                         Expanded(
-                                          child: ElevatedButton(
+                                          child: ElevatedButton.icon(
                                             onPressed: () {
-                                              // Implement continue reading
+                                              navigatePR(
+                                                context: context,
+                                                screen: StoryReadingScreen(
+                                                  id: story.id.toString(),
+                                                  title: story.title,
+                                                  thumbnail:
+                                                      '${ApiUrls.assetBaseUrl}${story.thumbnail}',
+                                                  tag: story.tag,
+                                                  pdfUrl: ApiUrls.assetBaseUrl +
+                                                      story.fileUrl,
+                                                ),
+                                              );
                                             },
                                             style: ElevatedButton.styleFrom(
                                               backgroundColor:
@@ -198,12 +214,16 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                                                     BorderRadius.circular(8),
                                               ),
                                             ),
-                                            child: const Text('Continue',
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: ColorClass.white,
-                                                )),
+                                            icon: const Icon(
+                                                LucideIcons.bookOpen),
+                                            label: Text(
+                                              'Read Story',
+                                              style:
+                                                  TextStyleClass.poppinsNormal(
+                                                fontSize: 12,
+                                                color: Colors.white,
+                                              ),
+                                            ),
                                           ),
                                         ),
                                         const SizedBox(width: 8),

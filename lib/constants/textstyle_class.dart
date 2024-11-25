@@ -1,3 +1,4 @@
+import 'package:google_fonts/google_fonts.dart';
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:flutter/material.dart';
 
@@ -25,4 +26,34 @@ class TextStyleClass {
       color: color,
       height: textHeight,
       fontSize: size);
+
+  static TextStyle poppinsNormal(
+          {required double fontSize, required Color color}) =>
+      GoogleFonts.poppins(
+        color: color,
+        fontSize: fontSize,
+        fontWeight: FontWeight.normal,
+      );
+  static TextStyle poppinsBold(
+          {required double fontSize, required Color color}) =>
+      GoogleFonts.poppins(
+        color: color,
+        fontSize: fontSize,
+        fontWeight: FontWeight.bold,
+      );
+
+  static TextStyle poppinsSemiBold(
+          {required double fontSize, required Color color}) =>
+      GoogleFonts.poppins(
+        color: color,
+        fontSize: fontSize,
+        fontWeight: FontWeight.w600,
+      );
+  static TextStyle manjariSemiBold(
+          {required double fontSize, required Color color}) =>
+      GoogleFonts.manjari(
+        color: color,
+        fontSize: fontSize,
+        fontWeight: FontWeight.w600,
+      );
 }

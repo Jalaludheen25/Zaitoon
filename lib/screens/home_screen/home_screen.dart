@@ -2,6 +2,7 @@
 
 import 'package:zaitoon/constants/app_urls.dart';
 import 'package:zaitoon/constants/color_class.dart';
+import 'package:zaitoon/constants/textstyle_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/episode_screen.dart/episode_screen.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
@@ -12,6 +13,7 @@ import 'package:zaitoon/screens/settings_screen/settings_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -45,52 +47,43 @@ class _HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Title with Emoji
-                  Row(
-                    children: [
-                      const Expanded(
-                        child: Text(
-                          'Zai Toon',
-                          style: TextStyle(
-                            fontSize: 25,
-                            fontWeight: FontWeight.bold,
+                  Consumer<UserDataProvider>(
+                    builder: (context, data, child) => Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                              "hello, ${data.name} 👋\nLet's read some stories",
+                              style: TextStyleClass.poppinsSemiBold(
+                                fontSize: 18,
+                                color: ColorClass.white,
+                              )),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            navigatePR(
+                              context: context,
+                              screen: const LanguageSelection(),
+                            );
+                          },
+                          icon: Image.asset(
+                            'assets/icons/language.png',
                             color: ColorClass.white,
+                            height: 32,
                           ),
                         ),
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          navigatePR(
-                            context: context,
-                            screen: const LanguageSelection(),
-                          );
-                        },
-                        icon: Image.asset(
-                          'assets/icons/language.png',
-                          color: ColorClass.white,
-                          height: 32,
-                        ),
-                      ),
-                      const SizedBox(width: 5),
-                      IconButton(
-                        onPressed: () {
-                          navigatePR(
-                              context: context, screen: const SettingsScreen());
-                        },
-                        icon: const Icon(
-                          Icons.settings,
-                          color: ColorClass.white,
-                        ),
-                      )
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  // Free Story Section
-                  const Text(
-                    'Read, imagine, and explore stories',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: ColorClass.grey,
+                        const SizedBox(width: 5),
+                        IconButton(
+                          onPressed: () {
+                            navigatePR(
+                                context: context,
+                                screen: const SettingsScreen());
+                          },
+                          icon: const Icon(
+                            Icons.settings,
+                            color: ColorClass.white,
+                          ),
+                        )
+                      ],
                     ),
                   ),
                   const SizedBox(height: 8),

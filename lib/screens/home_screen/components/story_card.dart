@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:zaitoon/constants/color_class.dart';
+import 'package:zaitoon/constants/textstyle_class.dart';
 import 'dart:ui';
-
-import 'package:zaitoon/constants/ui_styles.dart';
 
 class StoryCard extends StatefulWidget {
   const StoryCard({
@@ -12,13 +11,14 @@ class StoryCard extends StatefulWidget {
     this.tag,
     this.name,
     this.discription,
+    this.language,
   });
   final String? imageUrl;
   final String? tag;
   final String? name;
   final String? discription;
   final VoidCallback readTap;
-
+  final String? language;
   @override
   State<StoryCard> createState() => _StoryCardState();
 }
@@ -78,22 +78,24 @@ class _StoryCardState extends State<StoryCard> {
                                 // Title
                                 Text(
                                   widget.name ?? '',
-                                  style: const TextStyle(
-                                    color: ColorClass.white,
-                                    fontSize: UiStyles.fontSizeSubTitle,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                  style: widget.language == 'en'
+                                      ? TextStyleClass.poppinsSemiBold(
+                                          fontSize: 18,
+                                          color: ColorClass.white,
+                                        )
+                                      : TextStyleClass.manjariSemiBold(
+                                          fontSize: 18,
+                                          color: ColorClass.white,
+                                        ),
                                 ),
                                 const SizedBox(height: 4),
 
                                 // Tag
-                                Text(
-                                  widget.tag ?? '',
-                                  style: const TextStyle(
-                                    color: ColorClass.white,
-                                    fontSize: UiStyles.fontSizeSubTitle,
-                                  ),
-                                ),
+                                Text(widget.tag ?? '',
+                                    style: TextStyleClass.poppinsNormal(
+                                      fontSize: 12,
+                                      color: ColorClass.white,
+                                    )),
                               ],
                             ),
                           ),

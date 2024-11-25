@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:zaitoon/constants/app_urls.dart';
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
+import 'package:zaitoon/screens/bookmark_screen/bookmark_screen.dart';
 import 'package:zaitoon/screens/bookmark_screen/provider/bookmark_provider.dart';
 import 'package:zaitoon/screens/bottom_navigation/bottom_navigation.dart';
 import 'package:zaitoon/screens/home_screen/models/episode_model.dart';
@@ -146,6 +147,13 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
                                 onTap: () => navigatePR(
                                   context: context,
                                   screen: StoryReadingScreen(
+                                    id: episode.id.toString(),
+                                    title: snapshot.selectedLanguage == 'en'
+                                        ? "${widget.title}: ${episode.storyTile!}"
+                                        : "${widget.title}: ${episode.mlTitle!}",
+                                    thumbnail:
+                                        '${ApiUrls.assetBaseUrl}${episode.coverImage}',
+                                    tag: 'episode_${episode.id}',
                                     pdfUrl: snapshot.selectedLanguage == 'en'
                                         ? ApiUrls.assetBaseUrl +
                                             episode.storyFile!
@@ -315,12 +323,12 @@ class _EpisodeTile extends StatelessWidget {
                   const SizedBox(width: 10),
                   BookmarkButton(
                     id: episode.id.toString(),
-                    thumbnail: episode.coverImage!,
+                    thumbnail: ApiUrls.assetBaseUrl + episode.coverImage!,
                     title: selectedLanguage == 'en'
                         ? "$seriesTitle: ${episode.storyTile!}"
                         : "$seriesTitle: ${episode.mlTitle!}",
                     fileUrl: selectedLanguage == 'en'
-                        ? episode.storyFile!
+                        ? episode.storyFile ?? ''
                         : episode.mlStoryFile!,
                     tag: tag,
                   ),
@@ -334,7 +342,7 @@ class _EpisodeTile extends StatelessWidget {
   }
 }
 
-class BookmarkButton extends StatelessWidget {
+class BookmarkButton extends StatefulWidget {
   final String id;
   final String thumbnail;
   final String title;
@@ -351,53 +359,142 @@ class BookmarkButton extends StatelessWidget {
   });
 
   @override
+  State<BookmarkButton> createState() => _BookmarkButtonState();
+}
+
+class _BookmarkButtonState extends State<BookmarkButton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+
+    _scaleAnimation = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.0, end: 0.8),
+        weight: 1,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 0.8, end: 1.2),
+        weight: 1,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.2, end: 1.0),
+        weight: 1,
+      ),
+    ]).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    ));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _playAnimation() async {
+    await _controller.forward(from: 0);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Consumer<BookmarkProvider>(
       builder: (context, bookmarkProvider, child) {
-        final isBookmarked = bookmarkProvider.isBookmarked(id);
+        final isBookmarked = bookmarkProvider.isBookmarked(widget.id);
 
         return GestureDetector(
           onTap: () async {
+            _playAnimation();
             if (isBookmarked) {
-              await bookmarkProvider.removeBookmark(id);
+              await bookmarkProvider.removeBookmark(widget.id);
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Removed from bookmarks'),
-                    duration: Duration(seconds: 1),
+                  SnackBar(
+                    content: const Text(
+                      'Removed from bookmarks',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    duration: const Duration(seconds: 1),
+                    backgroundColor: Colors.red.withOpacity(0.8),
+                    behavior: SnackBarBehavior.floating,
                   ),
                 );
               }
             } else {
               await bookmarkProvider.addBookmark(
-                id: id,
-                thumbnail: thumbnail,
-                title: title,
-                fileUrl: fileUrl,
-                tag: tag,
+                id: widget.id,
+                thumbnail: widget.thumbnail,
+                title: widget.title,
+                fileUrl: widget.fileUrl,
+                tag: widget.tag,
               );
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Added to bookmarks'),
-                    duration: Duration(seconds: 1),
+                  SnackBar(
+                    content: const Text(
+                      'Added to bookmarks',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    duration: const Duration(seconds: 2),
+                    action: SnackBarAction(
+                      label: 'View',
+                      backgroundColor: Colors.white,
+                      onPressed: () {
+                        navigatePR(
+                            context: context, screen: const BookmarkScreen());
+                      },
+                    ),
+                    backgroundColor: Colors.greenAccent.withOpacity(0.8),
+                    behavior: SnackBarBehavior.floating,
                   ),
                 );
               }
             }
           },
-          child: Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              isBookmarked ? LucideIcons.bookMarked : LucideIcons.bookmark,
-              color: isBookmarked ? Colors.greenAccent : Colors.white,
-              size: 24,
-            ),
+          child: AnimatedBuilder(
+            animation: _scaleAnimation,
+            builder: (context, child) {
+              return Transform.scale(
+                scale: _scaleAnimation.value,
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    transitionBuilder:
+                        (Widget child, Animation<double> animation) {
+                      return ScaleTransition(
+                        scale: animation,
+                        child: FadeTransition(
+                          opacity: animation,
+                          child: child,
+                        ),
+                      );
+                    },
+                    child: Icon(
+                      isBookmarked
+                          ? LucideIcons.bookMarked
+                          : LucideIcons.bookmark,
+                      key: ValueKey<bool>(isBookmarked),
+                      color: isBookmarked ? Colors.greenAccent : Colors.white,
+                      size: 24,
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
         );
       },

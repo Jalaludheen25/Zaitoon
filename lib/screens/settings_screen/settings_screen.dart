@@ -9,6 +9,7 @@ import 'package:zaitoon/helper/url_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:zaitoon/screens/language_selection/language_selection.dart';
 import 'package:zaitoon/screens/settings_screen/components/parental_gate.dart';
+import 'package:zaitoon/screens/user_data_collection_screen/user_data_collection_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -76,6 +77,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             const SizedBox(height: 16.0),
+            InkWell(
+              onTap: () {
+                navigatePR(
+                  context: context,
+                  screen: const UserDataCollection(),
+                );
+              },
+              child: _buildSectionTitle(
+                'My Profile',
+              ),
+            ),
             InkWell(
               onTap: () {
                 navigatePR(
@@ -201,14 +213,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 18.0,
-                  fontWeight: FontWeight.bold,
-                  color: ColorClass.white,
-                ),
-              ),
+              Text(title,
+                  style: TextStyleClass.poppinsNormal(
+                    fontSize: 16,
+                    color: Colors.white,
+                  )),
               const Icon(
                 Icons.keyboard_arrow_right,
                 color: ColorClass.white,

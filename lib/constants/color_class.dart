@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ColorClass {
-  static const Color primaryColor = Color(0xff7284d6);
+  static const Color primaryColor = Colors.deepPurpleAccent;
 
   static const Color secondaryColor = Colors.redAccent;
 

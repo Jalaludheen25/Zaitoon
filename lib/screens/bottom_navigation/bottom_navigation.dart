@@ -1,8 +1,13 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:provider/provider.dart';
 import 'package:zaitoon/screens/bookmark_screen/bookmark_screen.dart';
 import 'package:zaitoon/screens/home_screen/home_screen.dart';
 import 'package:zaitoon/screens/settings_screen/settings_screen.dart';
+import 'package:zaitoon/screens/standalone_stories/standalone_story_list_screen.dart';
+import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
 
 class BottomNavigationScreen extends StatefulWidget {
   final int currentIndex;
@@ -19,13 +24,21 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
   int _currentIndex = 0;
 
   @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      context.read<UserDataProvider>().initialize();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark(useMaterial3: true).copyWith(
         scaffoldBackgroundColor: const Color(0xFF121212),
         colorScheme: ColorScheme.dark(
-          primary: Colors.purple[300]!,
+          primary: Colors.deepPurpleAccent,
           secondary: Colors.amber[300]!,
           surface: const Color(0xFF1E1E1E),
         ),
@@ -74,42 +87,37 @@ class StoryAppBottomNav extends StatelessWidget {
       destinations: const [
         NavigationDestination(
           icon: Icon(LucideIcons.tv),
-          selectedIcon: Icon(LucideIcons.tv2),
+          selectedIcon: Icon(
+            LucideIcons.tv2,
+            color: Colors.white,
+          ),
           label: 'Episodes',
         ),
         NavigationDestination(
           icon: Icon(LucideIcons.book),
-          selectedIcon: Icon(LucideIcons.bookOpen),
+          selectedIcon: Icon(
+            LucideIcons.bookOpen,
+            color: Colors.white,
+          ),
           label: 'Stories',
         ),
         NavigationDestination(
           icon: Icon(LucideIcons.bookmark),
-          selectedIcon: Icon(LucideIcons.bookMarked),
+          selectedIcon: Icon(
+            LucideIcons.bookMarked,
+            color: Colors.white,
+          ),
           label: 'Bookmarks',
         ),
         NavigationDestination(
           icon: Icon(LucideIcons.settings),
-          selectedIcon: Icon(LucideIcons.settings2),
+          selectedIcon: Icon(
+            LucideIcons.settings2,
+            color: Colors.white,
+          ),
           label: 'Settings',
         ),
       ],
-    );
-  }
-}
-
-class StoriesScreen extends StatelessWidget {
-  const StoriesScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: Theme.of(context).scaffoldBackgroundColor,
-      child: const Center(
-        child: Text(
-          'Stories',
-          style: TextStyle(color: Colors.white, fontSize: 24),
-        ),
-      ),
     );
   }
 }
