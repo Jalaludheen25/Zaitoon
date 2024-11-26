@@ -4,6 +4,7 @@ import 'package:zaitoon/constants/app_urls.dart';
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/textstyle_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
+import 'package:zaitoon/screens/bottom_navigation/provider/bottom_navigation_provider.dart';
 import 'package:zaitoon/screens/episode_screen.dart/episode_screen.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
 import 'package:zaitoon/screens/home_screen/components/story_card.dart';
@@ -74,9 +75,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         const SizedBox(width: 5),
                         IconButton(
                           onPressed: () {
-                            navigatePR(
-                                context: context,
-                                screen: const SettingsScreen());
+                             context.read<NavigationProvider>().setIndex(3); // 3 is the index for settings
+
                           },
                           icon: const Icon(
                             Icons.settings,

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:zaitoon/screens/bookmark_screen/bookmark_screen.dart';
+import 'package:zaitoon/screens/bottom_navigation/provider/bottom_navigation_provider.dart';
 import 'package:zaitoon/screens/home_screen/home_screen.dart';
 import 'package:zaitoon/screens/settings_screen/settings_screen.dart';
 import 'package:zaitoon/screens/standalone_stories/standalone_story_list_screen.dart';
@@ -21,7 +22,6 @@ class BottomNavigationScreen extends StatefulWidget {
 }
 
 class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
-  int _currentIndex = 0;
 
   @override
   void initState() {
@@ -43,20 +43,24 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
           surface: const Color(0xFF1E1E1E),
         ),
       ),
-      home: Scaffold(
-        body: IndexedStack(
-          index: _currentIndex,
-          children: const [
-            HomeScreen(),
-            StoriesScreen(),
-            BookmarkScreen(),
-            SettingsScreen(),
-          ],
-        ),
-        bottomNavigationBar: StoryAppBottomNav(
-          currentIndex: _currentIndex,
-          onTap: (index) => setState(() => _currentIndex = index),
-        ),
+      home: Consumer<NavigationProvider>(
+        builder: (context,navigationProvider,child) {
+          return Scaffold(
+            body: IndexedStack(
+              index: navigationProvider.currentIndex,
+              children: const [
+                HomeScreen(),
+                StoriesScreen(),
+                BookmarkScreen(),
+                SettingsScreen(),
+              ],
+            ),
+            bottomNavigationBar: StoryAppBottomNav(
+            currentIndex: navigationProvider.currentIndex,
+            onTap: (index) => navigationProvider.setIndex(index),
+            ),
+          );
+        }
       ),
     );
   }

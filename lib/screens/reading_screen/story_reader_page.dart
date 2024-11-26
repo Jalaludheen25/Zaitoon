@@ -192,72 +192,72 @@ class _StoryReadingScreenState extends State<StoryReadingScreen> {
           ),
 
           // Read Next Button
-          AnimatedPositioned(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            bottom: _isAtBottom ? 20 : -80,
-            left: 20,
-            right: 20,
-            child: SafeArea(
-              child: Container(
-                height: 56,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.purple.shade600,
-                      Colors.purple.shade400,
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () {
-                      // Add your navigation logic here
-                      // For example:
-                      // Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(
-                      //     builder: (context) => NextStoryScreen(),
-                      //   ),
-                      // );
-                    },
-                    borderRadius: BorderRadius.circular(16),
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Read Next Story',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(width: 8),
-                          Icon(
-                            LucideIcons.moveRight,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
+          // AnimatedPositioned(
+          //   duration: const Duration(milliseconds: 300),
+          //   curve: Curves.easeInOut,
+          //   bottom: _isAtBottom ? 20 : -80,
+          //   left: 20,
+          //   right: 20,
+          //   child: SafeArea(
+          //     child: Container(
+          //       height: 56,
+          //       decoration: BoxDecoration(
+          //         gradient: LinearGradient(
+          //           colors: [
+          //             Colors.purple.shade600,
+          //             Colors.purple.shade400,
+          //           ],
+          //         ),
+          //         borderRadius: BorderRadius.circular(16),
+          //         boxShadow: [
+          //           BoxShadow(
+          //             color: Colors.black.withOpacity(0.2),
+          //             blurRadius: 8,
+          //             offset: const Offset(0, 4),
+          //           ),
+          //         ],
+          //       ),
+          //       child: Material(
+          //         color: Colors.transparent,
+          //         child: InkWell(
+          //           onTap: () {
+          //             // Add your navigation logic here
+          //             // For example:
+          //             // Navigator.push(
+          //             //   context,
+          //             //   MaterialPageRoute(
+          //             //     builder: (context) => NextStoryScreen(),
+          //             //   ),
+          //             // );
+          //           },
+          //           borderRadius: BorderRadius.circular(16),
+          //           child: const Padding(
+          //             padding: EdgeInsets.symmetric(horizontal: 20),
+          //             child: Row(
+          //               mainAxisAlignment: MainAxisAlignment.center,
+          //               children: [
+          //                 Text(
+          //                   'Read Next Story',
+          //                   style: TextStyle(
+          //                     color: Colors.white,
+          //                     fontSize: 16,
+          //                     fontWeight: FontWeight.bold,
+          //                   ),
+          //                 ),
+          //                 SizedBox(width: 8),
+          //                 Icon(
+          //                   LucideIcons.moveRight,
+          //                   color: Colors.white,
+          //                   size: 20,
+          //                 ),
+          //               ],
+          //             ),
+          //           ),
+          //         ),
+          //       ),
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );

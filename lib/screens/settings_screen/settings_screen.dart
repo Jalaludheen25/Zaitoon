@@ -87,10 +87,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
               ),
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back_ios, color: ColorClass.white),
-                onPressed: () => navigateBack(context),
-              ),
+              // leading: IconButton(
+              //   icon: const Icon(Icons.arrow_back_ios, color: ColorClass.white),
+              //   onPressed: () => navigateBack(context),
+              // ),
             ),
 
             // Settings Items
@@ -103,10 +103,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     title: 'My Profile',
                     subtitle: 'Manage your personal information',
                     onTap: () {
-                      navigatePR(
-                        context: context,
-                        screen: const UserDataCollection(),
-                      );
+                      _showParentalGate(() {
+                        navigatePR(
+                          context: context,
+                          screen: const UserDataCollection(),
+                        );
+                      });
                     },
                   ),
                   _buildSettingItem(
