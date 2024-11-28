@@ -188,7 +188,6 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                                     // Action Buttons
                                     Row(
                                       children: [
-                                        // Continue Reading Button
                                         Expanded(
                                           child: ElevatedButton.icon(
                                             onPressed: () {
