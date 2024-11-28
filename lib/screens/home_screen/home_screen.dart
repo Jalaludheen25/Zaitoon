@@ -75,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         Expanded(
                           child: Text(
-                              "hello, ${data.name} 👋\nLet's read some stories",
+                              "hello, ${data.name ?? ''} 👋\nLet's read some stories",
                               style: TextStyleClass.poppinsSemiBold(
                                 fontSize: 18,
                                 color: ColorClass.white,
