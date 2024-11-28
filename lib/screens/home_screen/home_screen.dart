@@ -14,6 +14,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
+import 'package:zaitoon/screens/version_check/force_udpate_dialog.dart';
+import 'package:zaitoon/screens/version_check/provider/version_check_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -28,9 +30,30 @@ class _HomeScreenState extends State<HomeScreen> {
     Future.microtask(() {
       HomeProvider homeProvider =
           Provider.of<HomeProvider>(context, listen: false);
-      homeProvider.fetchStories();
+      homeProvider.fetchStories().then((value) {
+        checkForUpdates();
+      });
     });
     super.initState();
+  }
+
+  void checkForUpdates() async {
+    final provider = Provider.of<VersionCheckProvider>(context, listen: false);
+    await provider.checkVersion();
+
+    if (provider.needsUpdate) {
+      showDialog(
+        context: context,
+        barrierDismissible: !provider.forceUpdate,
+        builder: (context) => FadeTransition(
+          opacity: CurvedAnimation(
+            parent: ModalRoute.of(context)!.animation!,
+            curve: Curves.easeOut,
+          ),
+          child: const UpdateDialog(),
+        ),
+      );
+    }
   }
 
   @override
@@ -74,8 +97,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         const SizedBox(width: 5),
                         IconButton(
                           onPressed: () {
-                             context.read<NavigationProvider>().setIndex(3); // 3 is the index for settings
-
+                            context
+                                .read<NavigationProvider>()
+                                .setIndex(3); // 3 is the index for settings
                           },
                           icon: const Icon(
                             Icons.settings,

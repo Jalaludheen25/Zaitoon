@@ -63,7 +63,7 @@ class _UserDataCollectionState extends State<UserDataCollection> {
               );
 
       if (success && mounted) {
-        navigateAndReplace(context, const LanguageSelection());
+        navigateAndRemove(context: context, screen: const LanguageSelection());
       }
     }
   }

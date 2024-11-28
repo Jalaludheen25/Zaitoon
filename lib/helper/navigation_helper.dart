@@ -19,18 +19,3 @@ void navigateAndRemove(
     (Route<dynamic> route) => false,
   );
 }
-
-void navigateAndReplace(BuildContext context, Widget screen) {
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(builder: (context) => screen),
-  );
-}
-
-void navigateAndReplaceAll(BuildContext context, Widget screen) {
-  Navigator.pushAndRemoveUntil(
-    context,
-    MaterialPageRoute(builder: (context) => screen),
-    (Route<dynamic> route) => false,
-  );
-}
