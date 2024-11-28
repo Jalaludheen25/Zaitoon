@@ -15,6 +15,7 @@ import 'package:zaitoon/screens/bottom_navigation/bottom_navigation.dart';
 import 'package:zaitoon/screens/home_screen/models/episode_model.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
 import 'package:zaitoon/screens/reading_screen/story_reader_page.dart';
+import 'package:zaitoon/utils/cache_manager.dart';
 
 class EpisodeScreen extends StatefulWidget {
   const EpisodeScreen({
@@ -64,12 +65,14 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
                           fit: StackFit.expand,
                           children: [
                             snapshot.episodeModel!.data!.isNotEmpty
-                                ? Image.network(
-                                    widget.imageUrl,
+                                ? CachedNetworkImage(
+                                    cacheManager: CustomCacheManager.instance,
+                                    imageUrl: widget.imageUrl,
                                     fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Container(color: ColorClass.grey);
-                                    },
+                                    placeholder: (context, url) =>
+                                        Container(color: ColorClass.grey),
+                                    errorWidget: (context, url, error) =>
+                                        Container(color: ColorClass.grey),
                                   )
                                 : Container(color: Colors.grey[900]),
                             Container(

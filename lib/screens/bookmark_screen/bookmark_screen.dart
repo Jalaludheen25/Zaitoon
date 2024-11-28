@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 // ignore: unused_import
 import 'package:google_fonts/google_fonts.dart';
@@ -11,6 +12,7 @@ import 'package:zaitoon/constants/textstyle_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/bookmark_screen/provider/bookmark_provider.dart';
 import 'package:zaitoon/screens/reading_screen/story_reader_page.dart';
+import 'package:zaitoon/utils/cache_manager.dart';
 
 class BookmarkScreen extends StatefulWidget {
   const BookmarkScreen({super.key});
@@ -128,8 +130,9 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                                 topLeft: Radius.circular(16),
                                 bottomLeft: Radius.circular(16),
                               ),
-                              child: Image.network(
-                                story.thumbnail,
+                              child: CachedNetworkImage(
+                                cacheManager: CustomCacheManager.instance,
+                                imageUrl: story.thumbnail,
                                 width: 120,
                                 height: 120,
                                 fit: BoxFit.cover,

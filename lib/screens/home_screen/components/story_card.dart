@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/textstyle_class.dart';
@@ -38,12 +39,12 @@ class _StoryCardState extends State<StoryCard> {
             children: [
               // Background Image
               Positioned.fill(
-                child: Image.network(
-                  widget.imageUrl ?? '',
+                child: CachedNetworkImage(
+                  imageUrl: widget.imageUrl ?? '',
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(color: ColorClass.grey);
-                  },
+                  errorWidget: (context, url, error) => Container(
+                    color: ColorClass.grey,
+                  ),
                 ),
               ),
 

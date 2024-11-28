@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -11,6 +12,7 @@ import 'package:zaitoon/screens/episode_screen.dart/episode_screen.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
 import 'package:zaitoon/screens/reading_screen/story_reader_page.dart';
 import 'package:zaitoon/screens/standalone_stories/provider/story_provider.dart';
+import 'package:zaitoon/utils/cache_manager.dart';
 
 class StoriesScreen extends StatefulWidget {
   const StoriesScreen({super.key});
@@ -209,13 +211,31 @@ class StoryCard extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(16)),
-                image: DecorationImage(
-                  image: NetworkImage(imageUrl),
-                  fit: BoxFit.cover,
-                ),
               ),
               child: Stack(
                 children: [
+                  // CachedNetworkImage
+                  ClipRRect(
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(16)),
+                    child: CachedNetworkImage(
+                      imageUrl: imageUrl,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                      placeholder: (context, url) => const Center(
+                        child: CupertinoActivityIndicator(),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        color: Colors.grey[800],
+                        child: const Icon(
+                          Icons.error_outline,
+                          color: Colors.white,
+                        ),
+                      ),
+                      cacheManager: CustomCacheManager.instance,
+                    ),
+                  ),
                   // Gradient Overlay
                   Container(
                     decoration: BoxDecoration(
