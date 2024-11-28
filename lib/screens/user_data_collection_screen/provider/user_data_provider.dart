@@ -75,7 +75,7 @@ class UserDataProvider with ChangeNotifier {
 
   // Validate Age
   bool _validateAge(int age) {
-    return age >= 1 && age <= 15;
+    return age >= 1;
   }
 
   // Validate Name

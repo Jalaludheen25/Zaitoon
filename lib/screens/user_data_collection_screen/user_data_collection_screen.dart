@@ -148,8 +148,8 @@ class _UserDataCollectionState extends State<UserDataCollection> {
                             return 'Please enter your age';
                           }
                           final age = int.tryParse(value);
-                          if (age == null || age < 1 || age > 15) {
-                            return 'Please enter a valid age between 1-15';
+                          if (age == null || age < 1) {
+                            return 'Please enter a valid age';
                           }
                           return null;
                         },
