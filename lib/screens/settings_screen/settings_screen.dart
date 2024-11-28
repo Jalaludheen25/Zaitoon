@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:fluttermoji/fluttermoji.dart';
+import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:zaitoon/constants/app_constants.dart';
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/image_class.dart';
@@ -6,7 +9,9 @@ import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/helper/url_launcher.dart';
 import 'package:zaitoon/screens/language_selection/language_selection.dart';
 import 'package:zaitoon/screens/settings_screen/components/parental_gate.dart';
+import 'package:zaitoon/screens/shareapp_selection/shareapp_selection.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/user_data_collection_screen.dart';
+import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -16,6 +21,15 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Load user details when screen initializes
+    Future.microtask(() {
+      context.read<UserDataProvider>().loadUserDetails();
+    });
+  }
+
   void _showParentalGate(Function action) {
     showDialog(
       context: context,
@@ -31,129 +45,176 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
       backgroundColor: ColorClass.black,
       body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            // Custom App Bar
-            SliverAppBar(
-              expandedHeight: 200,
-              floating: false,
-              pinned: true,
-              backgroundColor: ColorClass.black,
-              flexibleSpace: FlexibleSpaceBar(
-                background: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.purple.withOpacity(0.6),
-                        Colors.black,
-                      ],
-                    ),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: ColorClass.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.purple.withOpacity(0.3),
-                              blurRadius: 20,
-                              spreadRadius: 5,
-                            ),
+        child: Consumer<UserDataProvider>(
+          builder: (context, userDataProvider, child) {
+            return CustomScrollView(
+              slivers: [
+                // Custom App Bar with Avatar
+                SliverAppBar(
+                  expandedHeight: 200,
+                  floating: false,
+                  pinned: true,
+                  backgroundColor: ColorClass.black,
+                  flexibleSpace: FlexibleSpaceBar(
+                    background: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.purple.withOpacity(0.6),
+                            Colors.black,
                           ],
                         ),
-                        child: ClipOval(
-                          child: Image.asset(
-                            ImageClass.appIcon,
-                            height: 100,
-                            width: 100,
-                            fit: BoxFit.cover,
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.purple.withOpacity(0.3),
+                                  blurRadius: 20,
+                                  spreadRadius: 5,
+                                ),
+                              ],
+                            ),
+                            child: FluttermojiCircleAvatar(
+                              radius: 50,
+                              backgroundColor: ColorClass.grey,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          if (userDataProvider.name != null)
+                            Text(
+                              userDataProvider.name!,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Settings Items
+                SliverPadding(
+                  padding: const EdgeInsets.all(16),
+                  sliver: SliverList(
+                    delegate: SliverChildListDelegate([
+                      _buildSettingItem(
+                        icon: Icons.person_outline,
+                        title: 'My Profile',
+                        subtitle: 'Manage your personal information',
+                        onTap: () {
+                          _showParentalGate(() {
+                            navigatePR(
+                              context: context,
+                              screen: const UserDataCollection(),
+                            );
+                          });
+                        },
+                      ),
+                      _buildSettingItem(
+                        icon: Icons.language,
+                        title: 'Language',
+                        subtitle: 'Change your preferred language',
+                        onTap: () {
+                          navigatePR(
+                            context: context,
+                            screen: const LanguageSelection(),
+                          );
+                        },
+                      ),
+                      _buildSettingItem(
+                        icon: Icons.language,
+                        title: 'Share App',
+                        subtitle: 'Share Zai Toon with your friends',
+                        onTap: () async {
+                          // Using the share_plus package
+                          await Share.share('Check out Zai Toon app!',
+                              subject: 'Share Zai Toon');
+                        },
+                      ),
+                      _buildSettingItem(
+                        icon: Icons.info_outline,
+                        title: 'About Us',
+                        subtitle: 'Learn more about Zai Toon',
+                        onTap: () {
+                          _showAboutUsBottomSheet(context);
+                        },
+                      ),
+                      _buildSettingItem(
+                        icon: Icons.feedback_outlined,
+                        title: 'Feedback',
+                        subtitle: 'Help us improve your experience',
+                        onTap: () {
+                          _showParentalGate(() {
+                            launchEmailFeedback();
+                          });
+                        },
+                      ),
+                      _buildSettingItem(
+                        icon: Icons.privacy_tip_outlined,
+                        title: 'Privacy Policy',
+                        subtitle: 'Read our privacy policy',
+                        onTap: () {
+                          _showParentalGate(() {
+                            launchURL(ApiContants.privaryPolicyUrl);
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 10),
+                      const Center(
+                        child: Text(
+                          'version ${ApiContants.appVersion}',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.white70,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      const Text(
-                        'version ${ApiContants.appVersion}',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.white70,
-                        ),
+                      const SizedBox(height: 16),
+                      Column(
+                        children: [
+                          const Text(
+                            'Powered by',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: ColorClass.white,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                ImageClass.d4Logo,
+                                height: 100,
+                                fit: BoxFit.contain,
+                                color: ColorClass.white,
+                              ),
+                              Image.asset(
+                                ImageClass.d4dxLogo,
+                                height: 100,
+                                fit: BoxFit.contain,
+                                color: ColorClass.white,
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                    ],
+                    ]),
                   ),
                 ),
-              ),
-              // leading: IconButton(
-              //   icon: const Icon(Icons.arrow_back_ios, color: ColorClass.white),
-              //   onPressed: () => navigateBack(context),
-              // ),
-            ),
-
-            // Settings Items
-            SliverPadding(
-              padding: const EdgeInsets.all(16),
-              sliver: SliverList(
-                delegate: SliverChildListDelegate([
-                  _buildSettingItem(
-                    icon: Icons.person_outline,
-                    title: 'My Profile',
-                    subtitle: 'Manage your personal information',
-                    onTap: () {
-                      _showParentalGate(() {
-                        navigatePR(
-                          context: context,
-                          screen: const UserDataCollection(),
-                        );
-                      });
-                    },
-                  ),
-                  _buildSettingItem(
-                    icon: Icons.language,
-                    title: 'Language',
-                    subtitle: 'Change your preferred language',
-                    onTap: () {
-                      navigatePR(
-                        context: context,
-                        screen: const LanguageSelection(),
-                      );
-                    },
-                  ),
-                  _buildSettingItem(
-                    icon: Icons.info_outline,
-                    title: 'About Us',
-                    subtitle: 'Learn more about Zai Toon',
-                    onTap: () {
-                      _showAboutUsBottomSheet(context);
-                    },
-                  ),
-                  _buildSettingItem(
-                    icon: Icons.feedback_outlined,
-                    title: 'Feedback',
-                    subtitle: 'Help us improve your experience',
-                    onTap: () {
-                      _showParentalGate(() {
-                        launchEmailFeedback();
-                      });
-                    },
-                  ),
-                  _buildSettingItem(
-                    icon: Icons.privacy_tip_outlined,
-                    title: 'Privacy Policy',
-                    subtitle: 'Read our privacy policy',
-                    onTap: () {
-                      _showParentalGate(() {
-                        launchURL(ApiContants.privaryPolicyUrl);
-                      });
-                    },
-                  ),
-                ]),
-              ),
-            ),
-          ],
+              ],
+            );
+          },
         ),
       ),
     );
@@ -288,7 +349,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         height: 1.5,
                       ),
                     ),
-                    // Add more content...
                   ],
                 ),
               ),
