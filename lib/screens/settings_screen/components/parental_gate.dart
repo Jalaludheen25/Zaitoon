@@ -41,7 +41,7 @@ class _ParentalGateState extends State<ParentalGate> {
       return;
     }
 
-    if (userAnswer == num1 * num2) {
+    if (userAnswer == num1 + num2) {
       Navigator.of(context).pop();
       widget.onSuccess();
     } else {
@@ -82,7 +82,7 @@ class _ParentalGateState extends State<ParentalGate> {
             ),
             const SizedBox(height: 20),
             Text(
-              '$num1 × $num2 = ?',
+              '$num1 + $num2 = ?',
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,

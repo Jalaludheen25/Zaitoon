@@ -1,13 +1,21 @@
 // lib/screens/user_data_collection/screens/user_data_collection_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
+import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/language_selection/language_selection.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
+import 'package:fluttermoji/fluttermoji.dart';
+
+// Import your custom widgets if they are in separate files
+// import 'custom_text_field.dart';
+// import 'gender_card.dart';
+// import 'submit_button.dart';
 
 class UserDataCollection extends StatefulWidget {
-  const UserDataCollection({super.key});
+  const UserDataCollection({Key? key}) : super(key: key);
 
   @override
   State<UserDataCollection> createState() => _UserDataCollectionState();
@@ -18,24 +26,21 @@ class _UserDataCollectionState extends State<UserDataCollection> {
   final _nameController = TextEditingController();
   final _ageController = TextEditingController();
 
+  bool _isCustomizerVisible = false;
+
   @override
   void initState() {
     super.initState();
-    // Print user details
+    // Load user details if available
     Future.microtask(() async {
-      await _printUserDetails();
+      await _loadUserDetails();
     });
   }
 
-  Future<void> _printUserDetails() async {
+  Future<void> _loadUserDetails() async {
     final provider = Provider.of<UserDataProvider>(context, listen: false);
     await provider.loadUserDetails(); // Load details from SharedPreferences
 
-    debugPrint('User Details:');
-    debugPrint('Name: ${provider.name ?? 'Not set'}');
-    debugPrint('Age: ${provider.age ?? 'Not set'}');
-    debugPrint(
-        'Gender: ${provider.gender.isEmpty ? 'Not set' : provider.gender}');
     if (provider.name != null) {
       _nameController.text = provider.name!;
     }
@@ -72,6 +77,18 @@ class _UserDataCollectionState extends State<UserDataCollection> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: const Text(
+          'User Data Collection',
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Colors.black,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
       body: Consumer<UserDataProvider>(
         builder: (context, provider, child) {
           return SafeArea(
@@ -84,26 +101,102 @@ class _UserDataCollectionState extends State<UserDataCollection> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 40),
+                      // const SizedBox(height: 40),
                       // Header
-                      const Text(
-                        'Welcome to\nZai Toon! 👋',
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          height: 1.2,
+                      // const Text(
+                      //   'Welcome to\nZai Toon! 👋',
+                      //   style: TextStyle(
+                      //     fontSize: 32,
+                      //     fontWeight: FontWeight.bold,
+                      //     color: Colors.white,
+                      //     height: 1.2,
+                      //   ),
+                      // ),
+                      // const SizedBox(height: 12),
+                      // Text(
+                      //   'Let\'s get to know you better',
+                      //   style: TextStyle(
+                      //     fontSize: 16,
+                      //     color: Colors.grey[400],
+                      //   ),
+                      // ),
+                      // const SizedBox(height: 40),
+
+                      // Avatar Display
+                      Center(
+                        child: FluttermojiCircleAvatar(
+                          backgroundColor: ColorClass.grey,
+                          radius: 75,
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Let\'s get to know you better',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey[400],
+                      const SizedBox(height: 20),
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 300),
+                        child: _isCustomizerVisible
+                            ? Column(
+                                key: const ValueKey('customizer'),
+                                children: [
+                                  const SizedBox(height: 20),
+                                  FluttermojiCustomizer(
+                                    autosave: true,
+                                    scaffoldWidth:
+                                        MediaQuery.of(context).size.width,
+                                    theme: FluttermojiThemeData(
+                                      primaryBgColor: Colors.black,
+                                      secondaryBgColor: Colors.grey[900],
+                                      iconColor: Colors.white,
+                                      selectedIconColor:
+                                          Colors.deepPurpleAccent,
+                                      unselectedIconColor: Colors.grey[600],
+                                      labelTextStyle:
+                                          const TextStyle(color: Colors.white),
+                                      selectedTileDecoration: BoxDecoration(
+                                        color: Colors.deepPurpleAccent
+                                            .withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      unselectedTileDecoration: BoxDecoration(
+                                        color: Colors.grey[900],
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 20),
+                                ],
+                              )
+                            : const SizedBox.shrink(),
+                      ),
+
+                      // Customize Avatar Button
+                      Center(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              _isCustomizerVisible = !_isCustomizerVisible;
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.deepPurpleAccent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          child: Text(
+                            _isCustomizerVisible
+                                ? 'Close Customizer'
+                                : 'Customize Avatar',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 40),
+
+                      // Animated Switcher for Customizer
+
+                      const SizedBox(height: 20),
 
                       // Name Input
                       const Text(
@@ -216,51 +309,6 @@ class _UserDataCollectionState extends State<UserDataCollection> {
   }
 }
 
-// lib/screens/user_data_collection/widgets/custom_text_field.dart
-
-class CustomTextField extends StatelessWidget {
-  final TextEditingController controller;
-  final String hint;
-  final IconData icon;
-  final TextInputType? keyboardType;
-  final String? Function(String?)? validator;
-
-  const CustomTextField({
-    super.key,
-    required this.controller,
-    required this.hint,
-    required this.icon,
-    this.keyboardType,
-    this.validator,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      style: const TextStyle(color: Colors.white),
-      keyboardType: keyboardType,
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: TextStyle(color: Colors.grey[600]),
-        prefixIcon: Icon(icon, color: Colors.grey[600]),
-        filled: true,
-        fillColor: Colors.grey[900],
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide.none,
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 20,
-          vertical: 16,
-        ),
-        errorStyle: const TextStyle(color: Colors.redAccent),
-      ),
-      validator: validator,
-    );
-  }
-}
-
 // lib/screens/user_data_collection/widgets/gender_card.dart
 
 class GenderCard extends StatelessWidget {
@@ -271,13 +319,13 @@ class GenderCard extends StatelessWidget {
   final Function(String) onSelect;
 
   const GenderCard({
-    super.key,
+    Key? key,
     required this.icon,
     required this.label,
     required this.value,
     required this.selectedGender,
     required this.onSelect,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -319,17 +367,58 @@ class GenderCard extends StatelessWidget {
   }
 }
 
-// lib/screens/user_data_collection/widgets/submit_button.dart
+class CustomTextField extends StatelessWidget {
+  final TextEditingController controller;
+  final String hint;
+  final IconData icon;
+  final TextInputType? keyboardType;
+  final String? Function(String?)? validator;
+
+  const CustomTextField({
+    Key? key,
+    required this.controller,
+    required this.hint,
+    required this.icon,
+    this.keyboardType,
+    this.validator,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      controller: controller,
+      style: const TextStyle(color: Colors.white),
+      keyboardType: keyboardType,
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: TextStyle(color: Colors.grey[600]),
+        prefixIcon: Icon(icon, color: Colors.grey[600]),
+        filled: true,
+        fillColor: Colors.grey[900],
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 16,
+        ),
+        errorStyle: const TextStyle(color: Colors.redAccent),
+      ),
+      validator: validator,
+    );
+  }
+}
 
 class SubmitButton extends StatelessWidget {
   final bool isLoading;
   final VoidCallback onPressed;
 
   const SubmitButton({
-    super.key,
+    Key? key,
     required this.isLoading,
     required this.onPressed,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
