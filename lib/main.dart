@@ -23,7 +23,10 @@ import 'package:zaitoon/screens/version_check/provider/version_check_provider.da
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp();
+  Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   if (Platform.isAndroid) {
     PushNotificationService.initializeOneSignal(ApiUrls.oneSignalAppId);

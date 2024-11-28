@@ -63,6 +63,9 @@ class DefaultFirebaseOptions {
     messagingSenderId: '357999967222',
     projectId: 'zai-toon-dc9fc',
     storageBucket: 'zai-toon-dc9fc.firebasestorage.app',
+    androidClientId: '357999967222-1atoieqvn81e8c2g6hj2b3mn7lk2om69.apps.googleusercontent.com',
+    iosClientId: '357999967222-gsr6ojm7mnqvb18a628nhi53ovvt8fqk.apps.googleusercontent.com',
     iosBundleId: 'co.d4dx.zaitoon',
   );
+
 }
