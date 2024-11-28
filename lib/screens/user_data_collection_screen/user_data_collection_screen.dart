@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:zaitoon/constants/color_class.dart';
+import 'package:zaitoon/constants/textstyle_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/language_selection/language_selection.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
@@ -15,7 +16,7 @@ import 'package:fluttermoji/fluttermoji.dart';
 // import 'submit_button.dart';
 
 class UserDataCollection extends StatefulWidget {
-  const UserDataCollection({Key? key}) : super(key: key);
+  const UserDataCollection({super.key});
 
   @override
   State<UserDataCollection> createState() => _UserDataCollectionState();
@@ -79,10 +80,11 @@ class _UserDataCollectionState extends State<UserDataCollection> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text(
-          'User Data Collection',
-          style: TextStyle(
+        title: Text(
+          'My Profile',
+          style: TextStyleClass.poppinsNormal(
             color: Colors.white,
+            fontSize: 18,
           ),
         ),
         backgroundColor: Colors.black,
@@ -319,13 +321,13 @@ class GenderCard extends StatelessWidget {
   final Function(String) onSelect;
 
   const GenderCard({
-    Key? key,
+    super.key,
     required this.icon,
     required this.label,
     required this.value,
     required this.selectedGender,
     required this.onSelect,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -375,13 +377,13 @@ class CustomTextField extends StatelessWidget {
   final String? Function(String?)? validator;
 
   const CustomTextField({
-    Key? key,
+    super.key,
     required this.controller,
     required this.hint,
     required this.icon,
     this.keyboardType,
     this.validator,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -415,10 +417,10 @@ class SubmitButton extends StatelessWidget {
   final VoidCallback onPressed;
 
   const SubmitButton({
-    Key? key,
+    super.key,
     required this.isLoading,
     required this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

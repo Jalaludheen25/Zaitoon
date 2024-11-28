@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:fluttermoji/fluttermoji.dart';
 import 'package:provider/provider.dart';
@@ -8,8 +10,9 @@ import 'package:zaitoon/constants/image_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/helper/url_launcher.dart';
 import 'package:zaitoon/screens/language_selection/language_selection.dart';
+import 'package:zaitoon/screens/login_screen/provider/auth_provider.dart';
 import 'package:zaitoon/screens/settings_screen/components/parental_gate.dart';
-import 'package:zaitoon/screens/shareapp_selection/shareapp_selection.dart';
+import 'package:zaitoon/screens/settings_screen/components/shareapp_selection.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/user_data_collection_screen.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
 
@@ -132,13 +135,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         },
                       ),
                       _buildSettingItem(
-                        icon: Icons.language,
+                        icon: Icons.ios_share,
                         title: 'Share App',
                         subtitle: 'Share Zai Toon with your friends',
                         onTap: () async {
-                          // Using the share_plus package
-                          await Share.share('Check out Zai Toon app!',
-                              subject: 'Share Zai Toon');
+                          shareApp(context);
                         },
                       ),
                       _buildSettingItem(
@@ -168,6 +169,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             launchURL(ApiContants.privaryPolicyUrl);
                           });
                         },
+                      ),
+                      Consumer<AuthProvider>(
+                        builder: (context, value, child) => _buildSettingItem(
+                          icon: Icons.logout,
+                          title: 'Logout',
+                          subtitle: 'Sign out of your account',
+                          onTap: () {
+                            _showParentalGate(() {
+                              value.signOut(context);
+                            });
+                          },
+                        ),
                       ),
                       const SizedBox(height: 10),
                       const Center(
@@ -342,7 +355,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   padding: const EdgeInsets.all(16),
                   children: const [
                     Text(
-                      "Zai Toon is an engaging digital platform designed especially for young readers and children, presented by the Malarvadi Children's Organization in Kerala...",
+                      '''
+📚 Zai Toon is an engaging digital platform crafted for young minds by Malarvadi Children's Organization in Kerala! 🌟
+
+🎨 We transform storytelling into magical adventures with:
+• Vibrant animations & delightful sounds
+• Stories in multiple languages 🗣️
+• Regular updates with new stories ✨
+• Educational & fun content for kids 🎯
+
+👨‍👩‍👧‍👦 Perfect for family reading time, bedtime stories, or learning sessions!
+
+🏆 From Malarvadi Children's Organization: Where learning meets imagination.
+
+Join us in making reading fun for every child! 📖✨''',
                       style: TextStyle(
                         fontSize: 16,
                         color: ColorClass.white,

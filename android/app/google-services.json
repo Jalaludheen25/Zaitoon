@@ -1,0 +1,70 @@
+{
+  "project_info": {
+    "project_number": "357999967222",
+    "project_id": "zai-toon-dc9fc",
+    "storage_bucket": "zai-toon-dc9fc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:357999967222:android:d1154a514bbb59a2da65d7",
+        "android_client_info": {
+          "package_name": "co.d4dx.zaitoon"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "357999967222-1atoieqvn81e8c2g6hj2b3mn7lk2om69.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "co.d4dx.zaitoon",
+            "certificate_hash": "00a93384c0e93e8fbca85893f9d3a6bc795ccdcd"
+          }
+        },
+        {
+          "client_id": "357999967222-9vtigvv1kdv68s3bji6pmdnpobhtv9cu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "co.d4dx.zaitoon",
+            "certificate_hash": "620960c448612fd0cb8bbab2541b03c285fb6130"
+          }
+        },
+        {
+          "client_id": "357999967222-faii2qgkvjomq146kmja7fonkc6pvokm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "co.d4dx.zaitoon",
+            "certificate_hash": "bd06439f8772e8cb1584dfaf84f11432c31973d5"
+          }
+        },
+        {
+          "client_id": "357999967222-lslen6il7369mgkv8q2i9r081r0cuvnv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDGfP3bxCad40oMY02uLZ8eLay_-jlED1c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "357999967222-lslen6il7369mgkv8q2i9r081r0cuvnv.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "357999967222-gsr6ojm7mnqvb18a628nhi53ovvt8fqk.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "co.d4dx.zaitoon"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -75,15 +75,15 @@ class VersionCheckProvider extends ChangeNotifier {
 
   void launchAppStore({required BuildContext context}) async {
     // Replace these URLs with your actual app store URLs
-    const String androidUrl = 'market://details?id=net.thafheem.app';
+    const String androidUrl = 'market://details?id=co.d4dx.zaitoon';
     const String iOSUrl =
-        'https://apps.apple.com/in/app/thafheemul-quran/id1292572556';
+        'https://apps.apple.com/in/app/zai-toon-kids/id6737912105';
 
     if (Theme.of(context).platform == TargetPlatform.android) {
       if (!await launchUrl(Uri.parse(androidUrl))) {
         // If market:// scheme fails, try https:// scheme
         await launchUrl(Uri.parse(
-            'https://play.google.com/store/apps/details?id=net.thafheem.app'));
+            'https://play.google.com/store/apps/details?id=co.d4dx.zaitoon'));
       }
     } else {
       await launchUrl(Uri.parse(iOSUrl));

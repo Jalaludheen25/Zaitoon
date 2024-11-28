@@ -1,6 +1,7 @@
 class ImageClass {
   static const String imageRoot = 'assets/images/';
   static const String appIcon = '${imageRoot}appicon.png';
+  static const String appIconPlain = '${imageRoot}appicon_plain.png';
   static const String splashBg = '${imageRoot}spalsh-bg.png';
   static const String jihLogo = '${imageRoot}jih-logo.png';
   static const String darkBg = '${imageRoot}dark-bg.jpg';
@@ -14,7 +15,5 @@ class ImageClass {
   static const String onboarding3 = '${imageRoot}onboarding3.png';
   static const String malarvadiLogo = '${imageRoot}malarvadi-logo.png';
   static const String d4Logo = '${imageRoot}D4DX _logo.png';
-    static const String d4dxLogo = '${imageRoot}D4media_logo.png';
-
-
+  static const String d4dxLogo = '${imageRoot}D4media_logo.png';
 }
