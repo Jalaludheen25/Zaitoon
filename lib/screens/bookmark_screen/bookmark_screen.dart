@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:developer';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 // ignore: unused_import
@@ -200,8 +202,7 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                                                   thumbnail:
                                                       '${ApiUrls.assetBaseUrl}${story.thumbnail}',
                                                   tag: story.tag,
-                                                  pdfUrl: ApiUrls.assetBaseUrl +
-                                                      story.fileUrl,
+                                                  pdfUrl: story.fileUrl,
                                                 ),
                                               );
                                             },
