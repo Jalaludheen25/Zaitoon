@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:fluttermoji/fluttermoji.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:zaitoon/constants/app_constants.dart';
 import 'package:zaitoon/constants/color_class.dart';
+import 'package:zaitoon/constants/image_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/helper/url_launcher.dart';
 import 'package:zaitoon/screens/language_selection/language_selection.dart';
@@ -130,6 +132,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         },
                       ),
                       _buildSettingItem(
+                        icon: Icons.language,
+                        title: 'Share App',
+                        subtitle: 'Share Zai Toon with your friends',
+                        onTap: () async {
+                          // Using the share_plus package
+                          await Share.share('Check out Zai Toon app!',
+                              subject: 'Share Zai Toon');
+                        },
+                      ),
+                      _buildSettingItem(
                         icon: Icons.info_outline,
                         title: 'About Us',
                         subtitle: 'Learn more about Zai Toon',
@@ -166,6 +178,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             color: Colors.white70,
                           ),
                         ),
+                      ),
+                      const SizedBox(height: 16),
+                      Column(
+                        children: [
+                          const Text(
+                            'Powered by',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: ColorClass.white,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                ImageClass.d4Logo,
+                                height: 100,
+                                fit: BoxFit.contain,
+                                color: ColorClass.white,
+                              ),
+                              Image.asset(
+                                ImageClass.d4dxLogo,
+                                height: 100,
+                                fit: BoxFit.contain,
+                                color: ColorClass.white,
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ]),
                   ),
