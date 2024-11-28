@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/gestures.dart';
 import 'package:zaitoon/constants/app_constants.dart';
 import 'package:zaitoon/constants/color_class.dart';
@@ -63,30 +65,33 @@ class AuthScreen extends StatelessWidget {
                 builder: (context, auth, child) {
                   return Column(
                     children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          auth.signInWithApple(context);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: ColorClass.white,
-                          minimumSize: const Size(double.infinity, 50),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.apple, color: ColorClass.black),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Continue with Apple',
-                              style: TextStyleClass.poppinsNormal(
-                                color: ColorClass.black,
-                                fontSize: 16,
-                              ),
+                      Visibility(
+                        visible: Platform.isIOS,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            auth.signInWithApple(context);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: ColorClass.white,
+                            minimumSize: const Size(double.infinity, 50),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                          ],
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.apple, color: ColorClass.black),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Continue with Apple',
+                                style: TextStyleClass.poppinsNormal(
+                                  color: ColorClass.black,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),
