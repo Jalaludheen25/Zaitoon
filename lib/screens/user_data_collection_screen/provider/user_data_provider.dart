@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -6,10 +8,14 @@ class UserDataProvider with ChangeNotifier {
   static const String _nameKey = 'user_name';
   static const String _ageKey = 'user_age';
   static const String _genderKey = 'user_gender';
+  static const String _uidKey = 'uidKey';
+  static const String _emailKey = 'emailKey';
 
   // State Variables
   String? _name;
   int? _age;
+  String? _uid;
+  String? _email;
   String _gender = 'boy';
   bool _isLoading = false;
   String _error = '';
@@ -17,6 +23,8 @@ class UserDataProvider with ChangeNotifier {
 
   // Getters
   String? get name => _name;
+  String? get uid => _uid;
+  String? get email => _email;
   int? get age => _age;
   String get gender => _gender;
   bool get isLoading => _isLoading;
@@ -175,6 +183,9 @@ class UserDataProvider with ChangeNotifier {
       _name = prefs.getString(_nameKey);
       _age = prefs.getInt(_ageKey);
       _gender = prefs.getString(_genderKey) ?? '';
+      _uid = prefs.getString(_uidKey);
+      _email = prefs.getString(_emailKey);
+      log('User Data Loaded: $uid, $email, $name, $age, $gender');
 
       notifyListeners();
     } catch (e) {

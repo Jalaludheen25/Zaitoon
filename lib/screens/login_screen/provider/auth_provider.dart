@@ -91,7 +91,6 @@ class AuthProvider with ChangeNotifier {
 
         _user = UserModel(
           uid: firebaseUser.uid,
-          name: firebaseUser.displayName,
           email: firebaseUser.email,
         );
         final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -191,7 +190,6 @@ class AuthProvider with ChangeNotifier {
 
         _user = UserModel(
           uid: firebaseUser.uid,
-          name: displayName,
           email: firebaseUser.email,
         );
         final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -249,7 +247,9 @@ class AuthProvider with ChangeNotifier {
         // Navigate to user collection screen if any details are missing
         navigateAndRemove(
           context: context,
-          screen: const UserDataCollection(),
+          screen: const UserDataCollection(
+            isFromOnboarding: true,
+          ),
         );
       } else {
         // All details exist, navigate to home screen
@@ -263,7 +263,9 @@ class AuthProvider with ChangeNotifier {
       // On error, direct to user collection screen
       navigateAndRemove(
         context: context,
-        screen: const UserDataCollection(),
+        screen: const UserDataCollection(
+          isFromOnboarding: true,
+        ),
       );
     }
   }
@@ -305,7 +307,12 @@ class AuthProvider with ChangeNotifier {
     User? currentUser = FirebaseAuth.instance.currentUser;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? uid = prefs.getString('uidKey');
-    dev.log('User signed in: ${currentUser != null && uid != null}');
+    String? email = prefs.getString('emailKey');
+    _user = UserModel(
+      uid: uid ?? currentUser?.uid ?? '',
+      email: email,
+    );
+    dev.log('User signed in: ${currentUser != null}');
     dev.log('User UID: $uid');
     return currentUser != null && uid != null;
   }
@@ -350,19 +357,16 @@ class AuthProvider with ChangeNotifier {
 
 class UserModel {
   final String uid;
-  final String? name;
   final String? email;
 
   UserModel({
     required this.uid,
-    this.name,
     this.email,
   });
 
   factory UserModel.fromFirebase(dynamic user) {
     return UserModel(
       uid: user.uid,
-      name: user.displayName,
       email: user.email,
     );
   }

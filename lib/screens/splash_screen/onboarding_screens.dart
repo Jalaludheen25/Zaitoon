@@ -2,7 +2,7 @@ import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/image_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:zaitoon/screens/user_data_collection_screen/user_data_collection_screen.dart';
+import 'package:zaitoon/screens/login_screen/login_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -58,7 +58,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       currentPage++;
                     } else {
                       navigateAndRemove(
-                          context: context, screen: const UserDataCollection());
+                        context: context,
+                        screen: const AuthScreen(),
+                      );
                     }
                   });
                 },

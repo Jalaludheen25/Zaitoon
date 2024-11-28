@@ -115,13 +115,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         title: 'My Profile',
                         subtitle: 'Manage your personal information',
                         onTap: () {
-                          AuthProvider authProvider =
-                              Provider.of<AuthProvider>(context, listen: false);
                           _showParentalGate(() {
-                            if (authProvider.isSignedIn) {
+                            // ignore: unrelated_type_equality_checks
+                            if (userDataProvider.uid != null) {
                               navigatePR(
                                 context: context,
-                                screen: const UserDataCollection(),
+                                screen: const UserDataCollection(
+                                  isFromOnboarding: false,
+                                ),
                               );
                             } else {
                               navigatePR(

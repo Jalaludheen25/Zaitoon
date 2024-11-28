@@ -16,7 +16,8 @@ import 'package:fluttermoji/fluttermoji.dart';
 // import 'submit_button.dart';
 
 class UserDataCollection extends StatefulWidget {
-  const UserDataCollection({super.key});
+  final bool isFromOnboarding;
+  const UserDataCollection({super.key, required this.isFromOnboarding});
 
   @override
   State<UserDataCollection> createState() => _UserDataCollectionState();
@@ -69,7 +70,14 @@ class _UserDataCollectionState extends State<UserDataCollection> {
               );
 
       if (success && mounted) {
-        navigateAndRemove(context: context, screen: const LanguageSelection());
+        if (widget.isFromOnboarding) {
+          navigateAndRemove(
+            context: context,
+            screen: const LanguageSelection(),
+          );
+        } else {
+          navigateBack(context);
+        }
       }
     }
   }
