@@ -208,9 +208,8 @@ class StoryCard extends StatelessWidget {
           // Story Image
           Expanded(
             child: Container(
-              decoration: BoxDecoration(
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(16)),
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
               ),
               child: Stack(
                 children: [
