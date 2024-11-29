@@ -12,7 +12,6 @@ import 'package:zaitoon/screens/language_selection/language_selection.dart';
 import 'package:zaitoon/screens/login_screen/login_screen.dart';
 import 'package:zaitoon/screens/login_screen/provider/auth_provider.dart';
 import 'package:zaitoon/screens/settings_screen/components/parental_gate.dart';
-import 'package:zaitoon/screens/settings_screen/components/reward_screen.dart';
 import 'package:zaitoon/screens/settings_screen/components/shareapp_selection.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/user_data_collection_screen.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
