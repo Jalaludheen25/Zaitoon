@@ -40,8 +40,6 @@ class UserDataProvider with ChangeNotifier {
       setLoading(true);
       await loadUserDetails();
       await checkOnboardingStatus();
-
-      await _syncWithFirestore();
     } catch (e) {
       setError('Failed to initialize: $e');
     } finally {

@@ -1,10 +1,10 @@
 class ApiUrls {
   // ignore: constant_identifier_names
-  static const String baseUrl = "http://139.59.20.49:8055";
+  static const String baseUrl = "https://directus.jihkerala.org";
   static String wpBaseUrl =
       "https://wordpress-1197187-4979850.cloudwaysapps.com/wp-json/wp/v2";
 
-  static const String assetBaseUrl = "http://139.59.20.49:8055/assets/";
+  static const String assetBaseUrl = "https://directus.jihkerala.org/assets/";
 
   static const String oneSignalAppId = "276a85c4-2c81-4340-ac7e-3155826f2e69";
 
