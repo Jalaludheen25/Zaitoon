@@ -37,7 +37,7 @@ class AuthProvider with ChangeNotifier {
       await _firestore.collection('users').doc(user.uid).set({
         'uid': user.uid,
         'email': user.email,
-        'name': displayName,
+        // 'name': displayName,
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
@@ -114,7 +114,8 @@ class AuthProvider with ChangeNotifier {
           email: firebaseUser.email,
         );
 
-        await _saveUserToFirestore(_user!, displayName: firebaseUser.displayName);
+        await _saveUserToFirestore(_user!,
+            displayName: firebaseUser.displayName);
 
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('uidKey', firebaseUser.uid);
@@ -222,7 +223,7 @@ class AuthProvider with ChangeNotifier {
       await _firestore.collection('users').doc(firebaseUser.uid).set({
         'uid': firebaseUser.uid,
         'email': _user?.email,
-        'name': displayName,
+        // 'name': displayName,
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 

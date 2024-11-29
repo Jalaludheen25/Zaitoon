@@ -194,12 +194,10 @@ class AuthScreen extends StatelessWidget {
           Consumer<AuthProvider>(
             builder: (context, auth, child) {
               if (auth.isLoading) {
-                return Container(
-                  color: ColorClass.grey, 
-                  child: const Center(
-                    child: CupertinoActivityIndicator(
-                      radius: 10, // Adjust size if needed
-                    ),
+                return const Center(
+                  child: CupertinoActivityIndicator(
+                    radius: 10,
+                    color: ColorClass.white,
                   ),
                 );
               } else {

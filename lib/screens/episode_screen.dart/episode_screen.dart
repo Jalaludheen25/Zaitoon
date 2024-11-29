@@ -109,7 +109,7 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    '${snapshot.episodeModel!.data!.length} episodes • ${snapshot.episodeModel!.data!.fold(0, (sum, item) => sum + (int.tryParse(item.readMinutes ?? "0") ?? 0))} minutes',
+                                    '${snapshot.episodeModel!.data!.length} episodes • ${snapshot.episodeModel!.data!.fold(0, (sum, item) => sum + (int.tryParse(item.readMinutes ?? "0") ?? 0))} minutes read',
                                     style: TextStyleClass.poppinsNormal(
                                       fontSize: 14,
                                       color: Colors.white54,
