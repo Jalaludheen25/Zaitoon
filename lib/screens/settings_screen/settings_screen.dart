@@ -117,26 +117,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         onTap: () {
                           _showParentalGate(() {
                             // ignore: unrelated_type_equality_checks
-                            if (userDataProvider.uid != null) {
-                              navigatePR(
-                                context: context,
-                                screen: const UserDataCollection(
-                                  isFromOnboarding: false,
-                                ),
-                              );
-                            } else {
-                              navigatePR(
-                                context: context,
-                                screen: const AuthScreen(),
-                              );
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Please sign in to access this feature',
-                                  ),
-                                ),
-                              );
-                            }
+                            // if (userDataProvider.uid != null) {
+                            navigatePR(
+                              context: context,
+                              screen: const UserDataCollection(
+                                isFromOnboarding: false,
+                              ),
+                            );
+                            // } else {
+                            // navigatePR(
+                            //   context: context,
+                            //   screen: const AuthScreen(),
+                            // );
+                            // ScaffoldMessenger.of(context).showSnackBar(
+                            //   const SnackBar(
+                            //     content: Text(
+                            //       'Please sign in to access this feature',
+                            //     ),
+                            //   ),
+                            // );
+                            // }
                           });
                         },
                       ),
