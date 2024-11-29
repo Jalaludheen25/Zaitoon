@@ -3,10 +3,10 @@
 import 'dart:convert';
 import 'dart:developer' as dev;
 import 'dart:math';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,13 +20,33 @@ import 'package:zaitoon/screens/user_data_collection_screen/user_data_collection
 class AuthProvider with ChangeNotifier {
   /// firebase auth
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance; // Add this
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   UserModel? _user;
   bool _isLoading = false;
+  bool _isSignedIn = false;
 
   UserModel? get user => _user;
   bool get isLoading => _isLoading;
+  bool get isSignedIn => _isSignedIn;
+
+  Future<void> _saveUserToFirestore(UserModel user,
+      {String? displayName}) async {
+    try {
+      await _firestore.collection('users').doc(user.uid).set({
+        'uid': user.uid,
+        'email': user.email,
+        'name': displayName,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      dev.log('User data saved to Firestore successfully');
+    } catch (e) {
+      dev.log('Error saving user data to Firestore: $e');
+      throw Exception('Failed to save user data');
+    }
+  }
 
   Future<UserModel?> signInWithGoogle(BuildContext context) async {
     try {
@@ -93,6 +113,9 @@ class AuthProvider with ChangeNotifier {
           uid: firebaseUser.uid,
           email: firebaseUser.email,
         );
+
+        await _saveUserToFirestore(_user!, displayName: firebaseUser.displayName);
+
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('uidKey', firebaseUser.uid);
         await prefs.setString('emailKey', firebaseUser.email!);
@@ -126,83 +149,93 @@ class AuthProvider with ChangeNotifier {
       _isLoading = true;
       notifyListeners();
 
+      // Generate nonce
       final rawNonce = generateNonce();
       final nonce = _sha256ofString(rawNonce);
 
-      // First, check if Apple Sign In is available
-      final isAvailable = await SignInWithApple.isAvailable();
-      if (!isAvailable) {
-        throw PlatformException(
-          code: 'APPLE_SIGN_IN_NOT_AVAILABLE',
-          message: 'Apple Sign In is not available on this device',
-        );
-      }
+      dev.log('Requesting Apple credentials...');
 
-      // Request credential with explicit webAuthenticationOptions
-      final appleCredential = await SignInWithApple.getAppleIDCredential(
+      // Request credential for Apple Sign In
+      final credential = await SignInWithApple.getAppleIDCredential(
         scopes: [
           AppleIDAuthorizationScopes.email,
           AppleIDAuthorizationScopes.fullName,
         ],
-        webAuthenticationOptions: WebAuthenticationOptions(
-          clientId: 'co.d4dx.zaitoon.signin', // Your Service ID
-          redirectUri: Uri.parse(
-              'https://zai-toon-dc9fc.firebaseapp.com/__/auth/handler'),
-        ),
         nonce: nonce,
       );
 
-      if (appleCredential.identityToken == null) {
-        throw PlatformException(
-          code: 'MISSING_TOKEN',
-          message: 'Identity token is missing',
-        );
+      dev.log('Apple credentials received');
+
+      // Verify we have the required token
+      if (credential.identityToken == null) {
+        throw Exception('Apple Sign In failed - identity token is null');
       }
 
-      // Create OAuthCredential
-      final oauthCredential = OAuthProvider("apple.com").credential(
-        idToken: appleCredential.identityToken!,
-        rawNonce: rawNonce,
-        accessToken: appleCredential.authorizationCode,
+      dev.log('Creating Firebase credential');
+
+      // Create Firebase credential
+      final oauthCredential = OAuthProvider('apple.com').credential(
+        idToken: credential.identityToken!,
+        accessToken: credential.authorizationCode,
+        rawNonce: rawNonce, // Important: Pass the raw nonce
       );
 
-      // Sign in with Firebase
+      dev.log('Signing in to Firebase');
+
+      // Sign in to Firebase
       final userCredential = await _auth.signInWithCredential(oauthCredential);
       final firebaseUser = userCredential.user;
 
-      if (firebaseUser != null) {
-        String? displayName;
+      if (firebaseUser == null) {
+        throw Exception('Firebase user is null after sign in');
+      }
 
-        // Handle name
-        if (appleCredential.givenName != null ||
-            appleCredential.familyName != null) {
-          displayName =
-              '${appleCredential.givenName ?? ''} ${appleCredential.familyName ?? ''}'
-                  .trim();
+      dev.log('Firebase sign in successful, UID: ${firebaseUser.uid}');
+
+      // Create display name from Apple credential if available
+      String? displayName;
+      if (credential.givenName != null || credential.familyName != null) {
+        displayName =
+            '${credential.givenName ?? ''} ${credential.familyName ?? ''}'
+                .trim();
+        if (displayName.isNotEmpty) {
           await firebaseUser.updateDisplayName(displayName);
         }
-
-        displayName = displayName?.isNotEmpty == true
-            ? displayName
-            : (firebaseUser.displayName ?? 'Apple User');
-
-        debugPrint('Successfully signed in with Apple: ${firebaseUser.uid}');
-
-        _user = UserModel(
-          uid: firebaseUser.uid,
-          email: firebaseUser.email,
-        );
-        final SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('uidKey', firebaseUser.uid);
-        await prefs.setString('emailKey', firebaseUser.email!);
-
-        checkAndLoadUserData(context: context);
-        notifyListeners();
-        return _user;
       }
+
+      // Create user model
+      _user = UserModel(
+        uid: firebaseUser.uid,
+        email: firebaseUser.email ?? credential.email,
+      );
+
+      // Save to SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('uidKey', firebaseUser.uid);
+      if (_user?.email != null) {
+        await prefs.setString('emailKey', _user!.email!);
+      }
+
+      dev.log('Local storage updated');
+
+      // Save to Firestore
+      await _firestore.collection('users').doc(firebaseUser.uid).set({
+        'uid': firebaseUser.uid,
+        'email': _user?.email,
+        'name': displayName,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      dev.log('Firestore updated');
+
+      await checkAndLoadUserData(context: context);
+
+      _isSignedIn = true;
+      notifyListeners();
+      return _user;
     } on SignInWithAppleAuthorizationException catch (e) {
-      debugPrint('Apple Sign In Authorization Error: ${e.code} - ${e.message}');
-      if (e.code != AuthorizationErrorCode.canceled) {
+      dev.log('Apple Sign In Authorization Error: ${e.code} - ${e.message}');
+      if (e.code != AuthorizationErrorCode.canceled && context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Apple Sign In failed: ${e.message}'),
@@ -211,21 +244,25 @@ class AuthProvider with ChangeNotifier {
         );
       }
     } on FirebaseAuthException catch (e) {
-      debugPrint('Firebase Auth Error: ${e.code} - ${e.message}');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Firebase Auth Error: ${e.message}'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      dev.log('Firebase Auth Error: ${e.code} - ${e.message}');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Authentication failed: ${e.message}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     } catch (e) {
-      debugPrint('Generic Error during Apple Sign In: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Sign in failed: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      dev.log('Error in signInWithApple: $e');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Sign in failed: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -294,10 +331,6 @@ class AuthProvider with ChangeNotifier {
     return prefs.getString('token');
   }
 
-  bool _isSignedIn = false;
-
-  bool get isSignedIn => _isSignedIn;
-
   Future<void> checkUserStatus() async {
     _isSignedIn = await isUserSignedIn();
     notifyListeners();
@@ -339,7 +372,7 @@ class AuthProvider with ChangeNotifier {
 
   // apple sign in
   /// Generate a random string that will be used as the state parameter for Apple Sign In
-  String _generateNonce([int length = 32]) {
+  String generateNonce([int length = 32]) {
     const charset =
         '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
     final random = Random.secure();
@@ -347,7 +380,6 @@ class AuthProvider with ChangeNotifier {
         .join();
   }
 
-  /// Returns the sha256 hash of [input] in hex notation.
   String _sha256ofString(String input) {
     final bytes = utf8.encode(input);
     final digest = sha256.convert(bytes);
