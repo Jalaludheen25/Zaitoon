@@ -12,6 +12,7 @@ import 'package:zaitoon/screens/language_selection/language_selection.dart';
 import 'package:zaitoon/screens/login_screen/login_screen.dart';
 import 'package:zaitoon/screens/login_screen/provider/auth_provider.dart';
 import 'package:zaitoon/screens/settings_screen/components/parental_gate.dart';
+import 'package:zaitoon/screens/settings_screen/components/reward_screen.dart';
 import 'package:zaitoon/screens/settings_screen/components/shareapp_selection.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/user_data_collection_screen.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
@@ -140,6 +141,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           });
                         },
                       ),
+                      // _buildSettingItem(
+                      //   icon: Icons.golf_course_rounded,
+                      //   title: 'Reward',
+                      //   subtitle: 'View your reading progress',
+                      //   onTap: () {
+                      //     navigatePR(
+                      //         context: context,
+                      //         screen: const RewardScreen(
+                      //           storiesCompleted:
+                      //               15, // Number of completed stories
+                      //           totalReadingMinutes:
+                      //               240, // Total reading time in minutes
+                      //           currentStreak: 5, // Current daily streak
+                      //           longestStreak: 7, // Longest streak achieved
+                      //           completionRate: 75.5, // Completion percentage
+                      //         ));
+                      //   },
+                      // ),
                       _buildSettingItem(
                         icon: Icons.language,
                         title: 'Language',
