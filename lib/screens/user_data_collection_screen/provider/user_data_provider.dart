@@ -1,9 +1,11 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserDataProvider with ChangeNotifier {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   // SharedPreferences Keys
   static const String _nameKey = 'user_name';
   static const String _ageKey = 'user_age';
@@ -38,6 +40,8 @@ class UserDataProvider with ChangeNotifier {
       setLoading(true);
       await loadUserDetails();
       await checkOnboardingStatus();
+
+      await _syncWithFirestore();
     } catch (e) {
       setError('Failed to initialize: $e');
     } finally {
@@ -45,7 +49,40 @@ class UserDataProvider with ChangeNotifier {
     }
   }
 
-  // Check Onboarding Status
+  Future<void> _syncWithFirestore() async {
+    if (_uid == null) {
+      log('_syncWithFirestore: No UID available');
+      return;
+    }
+
+    try {
+      log('_syncWithFirestore: Starting sync for UID: $_uid');
+      log('_syncWithFirestore: Firestore instance: ${_firestore.toString()}');
+
+      final doc = await _firestore.collection('users').doc(_uid).get();
+      log('_syncWithFirestore: Document fetch completed');
+
+      if (doc.exists) {
+        log('_syncWithFirestore: Document exists');
+        final data = doc.data();
+        if (data != null) {
+          log('_syncWithFirestore: Data found: ${data.toString()}');
+          await updateUserDetails(
+            name: data['name'] as String?,
+            age: data['age'] as int?,
+            gender: data['gender'] as String?,
+            updateFirestore: false,
+          );
+        }
+      } else {
+        log('_syncWithFirestore: No document exists for this UID');
+      }
+    } catch (e, stackTrace) {
+      log('_syncWithFirestore error: $e');
+      log('Stack trace: $stackTrace');
+    }
+  }
+
   Future<void> checkOnboardingStatus() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -56,42 +93,30 @@ class UserDataProvider with ChangeNotifier {
     }
   }
 
-  // Update Gender
   void updateGender(String value) {
     _gender = value;
-    _error = ''; // Clear error when gender is selected
+    _error = '';
     notifyListeners();
   }
 
-  // Set Loading State
   void setLoading(bool value) {
     _isLoading = value;
     notifyListeners();
   }
 
-  // Set Error Message
   void setError(String errorMessage) {
     _error = errorMessage;
     notifyListeners();
   }
 
-  // Clear Error
   void clearError() {
     _error = '';
     notifyListeners();
   }
 
-  // Validate Age
-  bool _validateAge(int age) {
-    return age >= 1;
-  }
+  bool _validateAge(int age) => age >= 1;
+  bool _validateName(String name) => name.trim().isNotEmpty;
 
-  // Validate Name
-  bool _validateName(String name) {
-    return name.trim().isNotEmpty;
-  }
-
-  // Validate Form Data
   bool _validateFormData({
     required String name,
     required int age,
@@ -114,7 +139,6 @@ class UserDataProvider with ChangeNotifier {
     return true;
   }
 
-  // Save User Details with Validation
   Future<bool> validateAndSaveUserDetails({
     required String name,
     required String age,
@@ -150,7 +174,6 @@ class UserDataProvider with ChangeNotifier {
     }
   }
 
-  // Save User Details to SharedPreferences
   Future<void> saveUserDetails({
     required String name,
     required int age,
@@ -169,13 +192,23 @@ class UserDataProvider with ChangeNotifier {
       _age = age;
       _gender = gender;
 
+      if (_uid != null) {
+        await _firestore.collection('users').doc(_uid).set({
+          'uid': _uid,
+          'email': _email,
+          'name': name,
+          'age': age,
+          'gender': gender,
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      }
+
       notifyListeners();
     } catch (e) {
       throw Exception('Failed to save user details: $e');
     }
   }
 
-  // Load User Details from SharedPreferences
   Future<void> loadUserDetails() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -185,7 +218,9 @@ class UserDataProvider with ChangeNotifier {
       _gender = prefs.getString(_genderKey) ?? '';
       _uid = prefs.getString(_uidKey);
       _email = prefs.getString(_emailKey);
+
       log('User Data Loaded: $uid, $email, $name, $age, $gender');
+      await _syncWithFirestore();
 
       notifyListeners();
     } catch (e) {
@@ -193,7 +228,6 @@ class UserDataProvider with ChangeNotifier {
     }
   }
 
-  // Clear User Details
   Future<void> clearUserDetails() async {
     try {
       setLoading(true);
@@ -204,6 +238,10 @@ class UserDataProvider with ChangeNotifier {
         prefs.remove(_ageKey),
         prefs.remove(_genderKey),
       ]);
+
+      if (_uid != null) {
+        await _firestore.collection('users').doc(_uid).delete();
+      }
 
       _name = null;
       _age = null;
@@ -218,11 +256,11 @@ class UserDataProvider with ChangeNotifier {
     }
   }
 
-  // Update User Details
   Future<bool> updateUserDetails({
     String? name,
     int? age,
     String? gender,
+    bool updateFirestore = true,
   }) async {
     try {
       setLoading(true);
@@ -243,6 +281,15 @@ class UserDataProvider with ChangeNotifier {
         _gender = gender;
       }
 
+      if (_uid != null && updateFirestore) {
+        await _firestore.collection('users').doc(_uid).update({
+          if (name != null) 'name': name,
+          if (age != null) 'age': age,
+          if (gender != null) 'gender': gender,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+      }
+
       notifyListeners();
       return true;
     } catch (e) {
@@ -253,7 +300,6 @@ class UserDataProvider with ChangeNotifier {
     }
   }
 
-  // Check if specific detail exists
   Future<bool> hasUserDetail(String key) async {
     try {
       final prefs = await SharedPreferences.getInstance();

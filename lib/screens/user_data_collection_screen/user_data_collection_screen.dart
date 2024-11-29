@@ -1,19 +1,18 @@
-// lib/screens/user_data_collection/screens/user_data_collection_screen.dart
+// ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
-import 'package:zaitoon/constants/color_class.dart';
-import 'package:zaitoon/constants/textstyle_class.dart';
-import 'package:zaitoon/helper/navigation_helper.dart';
-import 'package:zaitoon/screens/language_selection/language_selection.dart';
-import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
 import 'package:fluttermoji/fluttermoji.dart';
+import 'package:zaitoon/screens/language_selection/language_selection.dart';
+import 'package:zaitoon/screens/user_data_collection_screen/components/custom_text_field.dart';
+import 'package:zaitoon/screens/user_data_collection_screen/components/gender_card.dart';
+import 'package:zaitoon/screens/user_data_collection_screen/components/submit_button.dart';
+import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
 
-// Import your custom widgets if they are in separate files
-// import 'custom_text_field.dart';
-// import 'gender_card.dart';
-// import 'submit_button.dart';
+import '../../../constants/color_class.dart';
+import '../../../constants/textstyle_class.dart';
+import '../../../helper/navigation_helper.dart';
 
 class UserDataCollection extends StatefulWidget {
   final bool isFromOnboarding;
@@ -27,22 +26,20 @@ class _UserDataCollectionState extends State<UserDataCollection> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _ageController = TextEditingController();
-
   bool _isCustomizerVisible = false;
 
   @override
   void initState() {
     super.initState();
-    // Load user details if available
     Future.microtask(() async {
+      final provider = Provider.of<UserDataProvider>(context, listen: false);
+      await provider.initialize();
       await _loadUserDetails();
     });
   }
 
   Future<void> _loadUserDetails() async {
     final provider = Provider.of<UserDataProvider>(context, listen: false);
-    await provider.loadUserDetails(); // Load details from SharedPreferences
-
     if (provider.name != null) {
       _nameController.text = provider.name!;
     }
@@ -63,21 +60,30 @@ class _UserDataCollectionState extends State<UserDataCollection> {
 
   Future<void> _handleSubmit() async {
     if (_formKey.currentState!.validate()) {
-      final success =
-          await context.read<UserDataProvider>().validateAndSaveUserDetails(
-                name: _nameController.text,
-                age: _ageController.text,
-              );
+      try {
+        final success =
+            await context.read<UserDataProvider>().validateAndSaveUserDetails(
+                  name: _nameController.text.trim(),
+                  age: _ageController.text,
+                );
 
-      if (success && mounted) {
-        if (widget.isFromOnboarding) {
-          navigateAndRemove(
-            context: context,
-            screen: const LanguageSelection(),
-          );
-        } else {
-          navigateBack(context);
+        if (!mounted) return;
+
+        if (success) {
+          if (widget.isFromOnboarding) {
+            navigateAndRemove(
+              context: context,
+              screen: const LanguageSelection(),
+            );
+          } else {
+            navigateBack(context);
+          }
         }
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${e.toString()}')),
+        );
       }
     }
   }
@@ -101,6 +107,15 @@ class _UserDataCollectionState extends State<UserDataCollection> {
       ),
       body: Consumer<UserDataProvider>(
         builder: (context, provider, child) {
+          if (provider.isLoading &&
+              (_nameController.text.isEmpty && _ageController.text.isEmpty)) {
+            return const Center(
+              child: CircularProgressIndicator(
+                color: Colors.deepPurpleAccent,
+              ),
+            );
+          }
+
           return SafeArea(
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
@@ -111,28 +126,6 @@ class _UserDataCollectionState extends State<UserDataCollection> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // const SizedBox(height: 40),
-                      // Header
-                      // const Text(
-                      //   'Welcome to\nZai Toon! 👋',
-                      //   style: TextStyle(
-                      //     fontSize: 32,
-                      //     fontWeight: FontWeight.bold,
-                      //     color: Colors.white,
-                      //     height: 1.2,
-                      //   ),
-                      // ),
-                      // const SizedBox(height: 12),
-                      // Text(
-                      //   'Let\'s get to know you better',
-                      //   style: TextStyle(
-                      //     fontSize: 16,
-                      //     color: Colors.grey[400],
-                      //   ),
-                      // ),
-                      // const SizedBox(height: 40),
-
-                      // Avatar Display
                       Center(
                         child: FluttermojiCircleAvatar(
                           backgroundColor: ColorClass.grey,
@@ -140,154 +133,14 @@ class _UserDataCollectionState extends State<UserDataCollection> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
-                        child: _isCustomizerVisible
-                            ? Column(
-                                key: const ValueKey('customizer'),
-                                children: [
-                                  const SizedBox(height: 20),
-                                  FluttermojiCustomizer(
-                                    autosave: true,
-                                    scaffoldWidth:
-                                        MediaQuery.of(context).size.width,
-                                    theme: FluttermojiThemeData(
-                                      primaryBgColor: Colors.black,
-                                      secondaryBgColor: Colors.grey[900],
-                                      iconColor: Colors.white,
-                                      selectedIconColor:
-                                          Colors.deepPurpleAccent,
-                                      unselectedIconColor: Colors.grey[600],
-                                      labelTextStyle:
-                                          const TextStyle(color: Colors.white),
-                                      selectedTileDecoration: BoxDecoration(
-                                        color: Colors.deepPurpleAccent
-                                            .withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      unselectedTileDecoration: BoxDecoration(
-                                        color: Colors.grey[900],
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 20),
-                                ],
-                              )
-                            : const SizedBox.shrink(),
-                      ),
-
-                      // Customize Avatar Button
-                      Center(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              _isCustomizerVisible = !_isCustomizerVisible;
-                            });
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.deepPurpleAccent,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                          child: Text(
-                            _isCustomizerVisible
-                                ? 'Close Customizer'
-                                : 'Customize Avatar',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      // Animated Switcher for Customizer
-
+                      _buildAvatarCustomizer(context),
+                      _buildCustomizeButton(),
                       const SizedBox(height: 20),
-
-                      // Name Input
-                      const Text(
-                        'What\'s your name?',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      CustomTextField(
-                        controller: _nameController,
-                        hint: 'Enter your name',
-                        icon: LucideIcons.user,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your name';
-                          }
-                          return null;
-                        },
-                      ),
+                      _buildNameSection(provider),
                       const SizedBox(height: 24),
-
-                      // Age Input
-                      const Text(
-                        'How old are you?',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      CustomTextField(
-                        controller: _ageController,
-                        hint: 'Enter your age',
-                        icon: LucideIcons.cake,
-                        keyboardType: TextInputType.number,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your age';
-                          }
-                          final age = int.tryParse(value);
-                          if (age == null || age < 1) {
-                            return 'Please enter a valid age';
-                          }
-                          return null;
-                        },
-                      ),
+                      _buildAgeSection(provider),
                       const SizedBox(height: 24),
-
-                      // Gender Selection
-                      const Text(
-                        'What\'s your gender?',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          GenderCard(
-                            icon: LucideIcons.baby,
-                            label: "I'm a Boy",
-                            value: 'boy',
-                            selectedGender: provider.gender,
-                            onSelect: provider.updateGender,
-                          ),
-                          const SizedBox(width: 16),
-                          GenderCard(
-                            icon: LucideIcons.baby,
-                            label: "I'm a Girl",
-                            value: 'girl',
-                            selectedGender: provider.gender,
-                            onSelect: provider.updateGender,
-                          ),
-                        ],
-                      ),
+                      _buildGenderSection(provider),
                       if (provider.error.isNotEmpty) ...[
                         const SizedBox(height: 8),
                         Text(
@@ -299,13 +152,10 @@ class _UserDataCollectionState extends State<UserDataCollection> {
                         ),
                       ],
                       const SizedBox(height: 40),
-
-                      // Submit Button
                       SubmitButton(
                         isLoading: provider.isLoading,
                         onPressed: _handleSubmit,
                       ),
-
                       const SizedBox(height: 20),
                     ],
                   ),
@@ -317,150 +167,166 @@ class _UserDataCollectionState extends State<UserDataCollection> {
       ),
     );
   }
-}
 
-// lib/screens/user_data_collection/widgets/gender_card.dart
-
-class GenderCard extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final String selectedGender;
-  final Function(String) onSelect;
-
-  const GenderCard({
-    super.key,
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.selectedGender,
-    required this.onSelect,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isSelected = selectedGender == value;
-    return Expanded(
-      child: InkWell(
-        onTap: () => onSelect(value),
-        borderRadius: BorderRadius.circular(16),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(vertical: 20),
-          decoration: BoxDecoration(
-            color: isSelected ? Colors.deepPurpleAccent : Colors.grey[900],
-            borderRadius: BorderRadius.circular(16),
-            border: isSelected
-                ? Border.all(color: Colors.deepPurpleAccent, width: 2)
-                : null,
-          ),
-          child: Column(
-            children: [
-              Icon(
-                icon,
-                color: isSelected ? Colors.white : Colors.grey[600],
-                size: 32,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                label,
-                style: TextStyle(
-                  color: isSelected ? Colors.white : Colors.grey[600],
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+  Widget _buildAvatarCustomizer(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 300),
+      child: _isCustomizerVisible
+          ? Column(
+              key: const ValueKey('customizer'),
+              children: [
+                const SizedBox(height: 20),
+                FluttermojiCustomizer(
+                  autosave: true,
+                  scaffoldWidth: MediaQuery.of(context).size.width,
+                  theme: FluttermojiThemeData(
+                    primaryBgColor: Colors.black,
+                    secondaryBgColor: Colors.grey[900],
+                    iconColor: Colors.white,
+                    selectedIconColor: Colors.deepPurpleAccent,
+                    unselectedIconColor: Colors.grey[600],
+                    labelTextStyle: const TextStyle(color: Colors.white),
+                    selectedTileDecoration: BoxDecoration(
+                      color: Colors.deepPurpleAccent.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    unselectedTileDecoration: BoxDecoration(
+                      color: Colors.grey[900],
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ),
-      ),
+                const SizedBox(height: 20),
+              ],
+            )
+          : const SizedBox.shrink(),
     );
   }
-}
 
-class CustomTextField extends StatelessWidget {
-  final TextEditingController controller;
-  final String hint;
-  final IconData icon;
-  final TextInputType? keyboardType;
-  final String? Function(String?)? validator;
-
-  const CustomTextField({
-    super.key,
-    required this.controller,
-    required this.hint,
-    required this.icon,
-    this.keyboardType,
-    this.validator,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      style: const TextStyle(color: Colors.white),
-      keyboardType: keyboardType,
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: TextStyle(color: Colors.grey[600]),
-        prefixIcon: Icon(icon, color: Colors.grey[600]),
-        filled: true,
-        fillColor: Colors.grey[900],
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide.none,
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 20,
-          vertical: 16,
-        ),
-        errorStyle: const TextStyle(color: Colors.redAccent),
-      ),
-      validator: validator,
-    );
-  }
-}
-
-class SubmitButton extends StatelessWidget {
-  final bool isLoading;
-  final VoidCallback onPressed;
-
-  const SubmitButton({
-    super.key,
-    required this.isLoading,
-    required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 56,
+  Widget _buildCustomizeButton() {
+    return Center(
       child: ElevatedButton(
-        onPressed: isLoading ? null : onPressed,
+        onPressed: () {
+          setState(() {
+            _isCustomizerVisible = !_isCustomizerVisible;
+          });
+        },
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.deepPurpleAccent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
         ),
-        child: isLoading
-            ? const SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                  strokeWidth: 2,
-                ),
-              )
-            : const Text(
-                'Let\'s Start Reading!',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
+        child: Text(
+          _isCustomizerVisible ? 'Close Customizer' : 'Customize Avatar',
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
       ),
+    );
+  }
+
+  Widget _buildNameSection(UserDataProvider provider) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'What\'s your name?',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: Colors.white,
+          ),
+        ),
+        const SizedBox(height: 8),
+        CustomTextField(
+          controller: _nameController,
+          hint: 'Enter your name',
+          icon: LucideIcons.user,
+          enabled: !provider.isLoading,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your name';
+            }
+            return null;
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAgeSection(UserDataProvider provider) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'How old are you?',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: Colors.white,
+          ),
+        ),
+        const SizedBox(height: 8),
+        CustomTextField(
+          controller: _ageController,
+          hint: 'Enter your age',
+          icon: LucideIcons.cake,
+          enabled: !provider.isLoading,
+          keyboardType: TextInputType.number,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your age';
+            }
+            final age = int.tryParse(value);
+            if (age == null || age < 1) {
+              return 'Please enter a valid age';
+            }
+            return null;
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGenderSection(UserDataProvider provider) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'What\'s your gender?',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: Colors.white,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            GenderCard(
+              icon: LucideIcons.baby,
+              label: "I'm a Boy",
+              value: 'boy',
+              selectedGender: provider.gender,
+              onSelect: provider.isLoading ? null : provider.updateGender,
+              enabled: !provider.isLoading,
+            ),
+            const SizedBox(width: 16),
+            GenderCard(
+              icon: LucideIcons.baby,
+              label: "I'm a Girl",
+              value: 'girl',
+              selectedGender: provider.gender,
+              onSelect: provider.isLoading ? null : provider.updateGender,
+              enabled: !provider.isLoading,
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
