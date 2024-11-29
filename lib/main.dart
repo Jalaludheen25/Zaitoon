@@ -23,14 +23,12 @@ import 'package:zaitoon/screens/version_check/provider/version_check_provider.da
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  Firebase.initializeApp(
+  await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  if (Platform.isAndroid) {
-    PushNotificationService.initializeOneSignal(ApiUrls.oneSignalAppId);
-  }
+  PushNotificationService.initializeOneSignal(ApiUrls.oneSignalAppId);
+
   await Hive.initFlutter();
 
   if (!Hive.isAdapterRegistered(0)) {
