@@ -181,7 +181,7 @@ class _UserDataCollectionState extends State<UserDataCollection> {
                   scaffoldWidth: MediaQuery.of(context).size.width,
                   theme: FluttermojiThemeData(
                     primaryBgColor: Colors.black,
-                    secondaryBgColor: Colors.grey[900],
+                    secondaryBgColor: ColorClass.grey800,
                     iconColor: Colors.white,
                     selectedIconColor: Colors.deepPurpleAccent,
                     unselectedIconColor: Colors.grey[600],
@@ -191,7 +191,7 @@ class _UserDataCollectionState extends State<UserDataCollection> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     unselectedTileDecoration: BoxDecoration(
-                      color: Colors.grey[900],
+                      color: ColorClass.grey400,
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
