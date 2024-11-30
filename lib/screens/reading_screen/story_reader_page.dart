@@ -1,5 +1,4 @@
-// ignore_for_file: deprecated_member_use, use_build_context_synchronously
-
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
@@ -29,21 +28,34 @@ class StoryReadingScreen extends StatefulWidget {
   State<StoryReadingScreen> createState() => _StoryReadingScreenState();
 }
 
-class _StoryReadingScreenState extends State<StoryReadingScreen> {
+class _StoryReadingScreenState extends State<StoryReadingScreen>
+    with SingleTickerProviderStateMixin {
   final PdfViewerController _pdfViewerController = PdfViewerController();
+  late AnimationController _animationController;
+  late Animation<double> _bounceAnimation;
   bool _isAtBottom = false;
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _pdfViewerController.addListener(_checkIfAtBottom);
+    _initializeAnimations();
   }
 
-  @override
-  void dispose() {
-    _pdfViewerController.removeListener(_checkIfAtBottom);
-    _pdfViewerController.dispose();
-    super.dispose();
+  void _initializeAnimations() {
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    )..repeat(reverse: true);
+
+    _bounceAnimation = Tween<double>(
+      begin: 0,
+      end: 8,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    ));
   }
 
   void _checkIfAtBottom() {
@@ -62,204 +74,442 @@ class _StoryReadingScreenState extends State<StoryReadingScreen> {
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          // PDF Viewer
-          SfPdfViewer.network(
-            widget.pdfUrl,
-            controller: _pdfViewerController,
-            enableDoubleTapZooming: false,
-            canShowScrollHead: false,
-            maxZoomLevel: 1,
-            pageLayoutMode: PdfPageLayoutMode.continuous,
-            onPageChanged: (PdfPageChangedDetails details) {
-              _checkIfAtBottom();
-            },
-          ),
-
-          // Top Bar with Back and Bookmark buttons
+          // Progress Indicator
           Positioned(
             top: 0,
             left: 0,
             right: 0,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.black.withOpacity(0.7),
-                    Colors.black.withOpacity(0),
-                  ],
-                ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 20,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Back Button
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: IconButton(
-                        icon: const Icon(
-                          Icons.arrow_back_ios_new,
-                          color: ColorClass.white,
-                          size: 20,
-                        ),
-                        onPressed: () => navigateBack(context),
-                      ),
-                    ),
-
-                    // Bookmark Button
-                    Consumer<BookmarkProvider>(
-                      builder: (context, bookmarkProvider, child) {
-                        final isBookmarked =
-                            bookmarkProvider.isBookmarked(widget.id);
-
-                        return Container(
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.3),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: IconButton(
-                            icon: Icon(
-                              isBookmarked
-                                  ? LucideIcons.bookMarked
-                                  : LucideIcons.bookmark,
-                              color: isBookmarked
-                                  ? Colors.greenAccent
-                                  : ColorClass.white,
-                              size: 20,
-                            ),
-                            onPressed: () async {
-                              if (isBookmarked) {
-                                await bookmarkProvider
-                                    .removeBookmark(widget.id);
-                                if (mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        'Removed from bookmarks',
-                                        style: TextStyleClass.poppinsSemiBold(
-                                          fontSize: 14,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                      duration: const Duration(seconds: 1),
-                                      backgroundColor: Colors.red,
-                                      behavior: SnackBarBehavior.floating,
-                                    ),
-                                  );
-                                }
-                              } else {
-                                await bookmarkProvider.addBookmark(
-                                  id: widget.id,
-                                  thumbnail: widget.thumbnail,
-                                  title: widget.title,
-                                  fileUrl: widget.pdfUrl,
-                                  tag: widget.tag,
-                                );
-                                if (mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('Added to bookmarks',
-                                          style: TextStyleClass.poppinsSemiBold(
-                                            fontSize: 14,
-                                            color: Colors.white,
-                                          )),
-                                      duration: const Duration(seconds: 1),
-                                      backgroundColor: Colors.green,
-                                      behavior: SnackBarBehavior.floating,
-                                    ),
-                                  );
-                                }
-                              }
-                            },
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
+            child: LinearProgressIndicator(
+              value: _pdfViewerController.pageNumber /
+                  (_pdfViewerController.pageCount == 0
+                      ? 1
+                      : _pdfViewerController.pageCount),
+              backgroundColor: ColorClass.primaryColor.withOpacity(0.1),
+              color: ColorClass.primaryColor,
+              minHeight: 3,
             ),
           ),
 
-          // Read Next Button
-          // AnimatedPositioned(
-          //   duration: const Duration(milliseconds: 300),
-          //   curve: Curves.easeInOut,
-          //   bottom: _isAtBottom ? 20 : -80,
-          //   left: 20,
-          //   right: 20,
-          //   child: SafeArea(
-          //     child: Container(
-          //       height: 56,
-          //       decoration: BoxDecoration(
-          //         gradient: LinearGradient(
-          //           colors: [
-          //             Colors.purple.shade600,
-          //             Colors.purple.shade400,
-          //           ],
-          //         ),
-          //         borderRadius: BorderRadius.circular(16),
-          //         boxShadow: [
-          //           BoxShadow(
-          //             color: Colors.black.withOpacity(0.2),
-          //             blurRadius: 8,
-          //             offset: const Offset(0, 4),
-          //           ),
-          //         ],
-          //       ),
-          //       child: Material(
-          //         color: Colors.transparent,
-          //         child: InkWell(
-          //           onTap: () {
-          //             // Add your navigation logic here
-          //             // For example:
-          //             // Navigator.push(
-          //             //   context,
-          //             //   MaterialPageRoute(
-          //             //     builder: (context) => NextStoryScreen(),
-          //             //   ),
-          //             // );
-          //           },
-          //           borderRadius: BorderRadius.circular(16),
-          //           child: const Padding(
-          //             padding: EdgeInsets.symmetric(horizontal: 20),
-          //             child: Row(
-          //               mainAxisAlignment: MainAxisAlignment.center,
-          //               children: [
-          //                 Text(
-          //                   'Read Next Story',
-          //                   style: TextStyle(
-          //                     color: Colors.white,
-          //                     fontSize: 16,
-          //                     fontWeight: FontWeight.bold,
-          //                   ),
-          //                 ),
-          //                 SizedBox(width: 8),
-          //                 Icon(
-          //                   LucideIcons.moveRight,
-          //                   color: Colors.white,
-          //                   size: 20,
-          //                 ),
-          //               ],
-          //             ),
-          //           ),
-          //         ),
-          //       ),
-          //     ),
-          //   ),
-          // ),
+          // PDF Viewer
+          Theme(
+            data: ThemeData.dark().copyWith(
+              scrollbarTheme: ScrollbarThemeData(
+                thumbColor: WidgetStateProperty.all(
+                  ColorClass.primaryColor.withOpacity(0.5),
+                ),
+              ),
+            ),
+            child: SfPdfViewer.network(
+              widget.pdfUrl,
+              controller: _pdfViewerController,
+              enableDoubleTapZooming: false,
+              canShowScrollHead: true,
+              maxZoomLevel: 2,
+              pageLayoutMode: PdfPageLayoutMode.continuous,
+              onDocumentLoaded: (PdfDocumentLoadedDetails details) {
+                setState(() => _isLoading = false);
+              },
+              onPageChanged: (PdfPageChangedDetails details) {
+                _checkIfAtBottom();
+              },
+              pageSpacing: 8,
+            ),
+          ),
+
+          // Loading Overlay
+          if (_isLoading) _buildLoadingOverlay(),
+
+          // Top Bar
+          _buildTopBar(),
+
+          // Reading Helper
+          if (_isAtBottom) _buildReadingCompleteBadge(),
+
+          // Reading Guide Mascot
+          if (!_isLoading && !_isAtBottom) _buildReadingGuide(),
         ],
       ),
     );
+  }
+
+  Widget _buildTopBar() {
+    return Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(20, 40, 20, 10),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.black.withOpacity(0.9),
+              Colors.black.withOpacity(0),
+            ],
+          ),
+        ),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildActionButton(
+                  icon: Icons.arrow_back_ios_new,
+                  onPressed: () => navigateBack(context),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      widget.title,
+                      style: TextStyleClass.poppinsSemiBold(
+                        fontSize: 16,
+                        color: ColorClass.white,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+                _buildBookmarkButton(),
+              ],
+            ),
+            // if (!_isLoading) ...[
+            //   const SizedBox(height: 8),
+            //   Text(
+            //     'Page ${_pdfViewerController.pageNumber} of ${_pdfViewerController.pageCount}',
+            //     style: TextStyleClass.poppinsRegular(
+            //       fontSize: 12,
+            //       color: ColorClass.white.withOpacity(0.7),
+            //     ),
+            //   ),
+            // ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildReadingGuide() {
+    return Positioned(
+      bottom: 20,
+      right: 20,
+      child: AnimatedBuilder(
+        animation: _bounceAnimation,
+        builder: (context, child) {
+          return Transform.translate(
+            offset: Offset(0, -_bounceAnimation.value),
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: ColorClass.primaryColor.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: ColorClass.primaryColor.withOpacity(0.2),
+                    blurRadius: 10,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('📖', style: TextStyle(fontSize: 20)),
+                  SizedBox(width: 8),
+                  Text(
+                    'Keep Reading!',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildLoadingOverlay() {
+    return Container(
+      color: Colors.black,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                color: ColorClass.primaryColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  TweenAnimationBuilder(
+                    duration: const Duration(seconds: 2),
+                    tween: Tween(begin: 0.0, end: 2.0 * 3.14159),
+                    builder: (context, double value, child) {
+                      return Transform.rotate(
+                        angle: value,
+                        child: const Icon(
+                          Icons.auto_stories,
+                          size: 40,
+                          color: ColorClass.primaryColor,
+                        ),
+                      );
+                    },
+                  ),
+                  TweenAnimationBuilder(
+                    duration: const Duration(seconds: 1),
+                    tween: Tween(begin: 0.8, end: 1.2),
+                    builder: (context, double value, child) {
+                      return Transform.scale(
+                        scale: value,
+                        child: Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: ColorClass.primaryColor.withOpacity(0.3),
+                              width: 2,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            const DefaultTextStyle(
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.white,
+                fontWeight: FontWeight.w500,
+              ),
+              child: LoadingText(),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              width: 200,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(2),
+              ),
+              child: const LinearProgressIndicator(
+                backgroundColor: Colors.transparent,
+                color: ColorClass.primaryColor,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionButton({
+    required IconData icon,
+    required VoidCallback onPressed,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: ColorClass.primaryColor.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: ColorClass.primaryColor.withOpacity(0.3),
+        ),
+      ),
+      child: IconButton(
+        icon: Icon(icon, color: ColorClass.white, size: 20),
+        onPressed: onPressed,
+      ),
+    );
+  }
+
+  Widget _buildBookmarkButton() {
+    return Consumer<BookmarkProvider>(
+      builder: (context, bookmarkProvider, child) {
+        final isBookmarked = bookmarkProvider.isBookmarked(widget.id);
+        return Container(
+          decoration: BoxDecoration(
+            color: ColorClass.primaryColor.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: ColorClass.primaryColor.withOpacity(0.3),
+            ),
+          ),
+          child: IconButton(
+            icon: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: Icon(
+                isBookmarked ? LucideIcons.bookMarked : LucideIcons.bookmark,
+                key: ValueKey(isBookmarked),
+                color:
+                    isBookmarked ? ColorClass.primaryColor : ColorClass.white,
+                size: 20,
+              ),
+            ),
+            onPressed: () => _handleBookmark(bookmarkProvider, isBookmarked),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildReadingCompleteBadge() {
+    return Positioned(
+      bottom: 20,
+      left: 0,
+      right: 0,
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                ColorClass.primaryColor,
+                ColorClass.primaryColor.withOpacity(0.2),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: ColorClass.primaryColor.withOpacity(0.2),
+                blurRadius: 10,
+                spreadRadius: 2,
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('🎉', style: TextStyle(fontSize: 20)),
+              const SizedBox(width: 8),
+              TextButton(
+                onPressed: () => navigateBack(context),
+                child: Text(
+                  'Great job! You finished the story!',
+                  style: TextStyleClass.poppinsSemiBold(
+                    fontSize: 14,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _handleBookmark(BookmarkProvider provider, bool isBookmarked) async {
+    if (isBookmarked) {
+      await provider.removeBookmark(widget.id);
+      _showSnackBar('Bookmark removed', Colors.red);
+    } else {
+      await provider.addBookmark(
+        id: widget.id,
+        thumbnail: widget.thumbnail,
+        title: widget.title,
+        fileUrl: widget.pdfUrl,
+        tag: widget.tag,
+      );
+      _showSnackBar('Bookmark added', Colors.green);
+    }
+  }
+
+  void _showSnackBar(String message, Color color) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(
+                message.contains('added') ? Icons.check_circle : Icons.info,
+                color: Colors.white,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                message,
+                style: TextStyleClass.poppinsSemiBold(
+                  fontSize: 14,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+          duration: const Duration(seconds: 2),
+          backgroundColor: color,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          margin: const EdgeInsets.all(16),
+        ),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _pdfViewerController.removeListener(_checkIfAtBottom);
+    _pdfViewerController.dispose();
+    _animationController.dispose();
+    super.dispose();
+  }
+}
+
+class LoadingText extends StatefulWidget {
+  const LoadingText({super.key});
+
+  @override
+  State<LoadingText> createState() => _LoadingTextState();
+}
+
+class _LoadingTextState extends State<LoadingText> {
+  final List<String> _loadingTexts = [
+    'Preparing your story...',
+    'Getting everything ready...',
+    'Almost there...',
+    'Loading magical pages...',
+  ];
+  int _currentIndex = 0;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(seconds: 2), (timer) {
+      setState(() {
+        _currentIndex = (_currentIndex + 1) % _loadingTexts.length;
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 500),
+      child: Text(
+        _loadingTexts[_currentIndex],
+        key: ValueKey(_currentIndex),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 }
