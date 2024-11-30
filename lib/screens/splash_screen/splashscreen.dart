@@ -77,7 +77,7 @@ class _SplashScreenState extends State<SplashScreen>
         await homeProvider.isOnboardingCompleted();
 
     if (authProvider.isSignedIn) {
-      if (!isOnboardingCompleted) {
+      if (isOnboardingCompleted) {
         navigateAndRemove(context: context, screen: const OnboardingScreen());
       } else {
         navigateAndRemove(
