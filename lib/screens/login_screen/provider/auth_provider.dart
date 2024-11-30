@@ -338,17 +338,38 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<bool> isUserSignedIn() async {
-    User? currentUser = FirebaseAuth.instance.currentUser;
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? uid = prefs.getString('uidKey');
-    String? email = prefs.getString('emailKey');
-    _user = UserModel(
-      uid: uid ?? currentUser?.uid ?? '',
-      email: email,
-    );
-    dev.log('User signed in: ${currentUser != null}');
-    dev.log('User UID: $uid');
-    return currentUser != null && uid != null;
+    try {
+      // Get current Firebase user
+      User? currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) {
+        dev.log('No Firebase user found');
+        return false;
+      }
+
+      // Get stored preferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? storedUid = prefs.getString('uidKey');
+      String? storedEmail = prefs.getString('emailKey');
+
+      // Verify stored UID matches current Firebase user
+      if (storedUid != currentUser.uid) {
+        dev.log('Stored UID does not match Firebase UID');
+        return false;
+      }
+
+      // If we reach here, user is properly authenticated
+      _user = UserModel(
+        uid: currentUser.uid,
+        email: storedEmail ?? currentUser.email,
+      );
+
+      dev.log('User authenticated successfully');
+      dev.log('User UID: ${currentUser.uid}');
+      return true;
+    } catch (e) {
+      dev.log('Error checking user sign-in status: $e');
+      return false;
+    }
   }
 
   // check if user is signed in or not if not then show snackbar as login required for bookmark

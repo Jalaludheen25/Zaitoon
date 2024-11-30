@@ -9,6 +9,7 @@ import 'package:zaitoon/constants/image_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/helper/url_launcher.dart';
 import 'package:zaitoon/screens/language_selection/language_selection.dart';
+import 'package:zaitoon/screens/login_screen/login_screen.dart';
 import 'package:zaitoon/screens/login_screen/provider/auth_provider.dart';
 import 'package:zaitoon/screens/settings_screen/components/parental_gate.dart';
 import 'package:zaitoon/screens/settings_screen/components/shareapp_selection.dart';
@@ -28,7 +29,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     super.initState();
     // Load user details when screen initializes
     Future.microtask(() {
-      context.read<UserDataProvider>().loadUserDetails();
+      // context.read<UserDataProvider>().loadUserDetails();
     });
   }
 
@@ -47,8 +48,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
       backgroundColor: ColorClass.black,
       body: SafeArea(
-        child: Consumer<UserDataProvider>(
-          builder: (context, userDataProvider, child) {
+        child: Consumer2<UserDataProvider, AuthProvider>(
+          builder: (context, userDataProvider, authProvider, child) {
             return CustomScrollView(
               slivers: [
                 // Custom App Bar with Avatar
@@ -116,26 +117,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         onTap: () {
                           _showParentalGate(() {
                             // ignore: unrelated_type_equality_checks
-                            // if (userDataProvider.uid != null) {
-                            navigatePR(
-                              context: context,
-                              screen: const UserDataCollection(
-                                isFromOnboarding: false,
-                              ),
-                            );
-                            // } else {
-                            // navigatePR(
-                            //   context: context,
-                            //   screen: const AuthScreen(),
-                            // );
-                            // ScaffoldMessenger.of(context).showSnackBar(
-                            //   const SnackBar(
-                            //     content: Text(
-                            //       'Please sign in to access this feature',
-                            //     ),
-                            //   ),
-                            // );
-                            // }
+                            if (authProvider.isSignedIn) {
+                              navigatePR(
+                                context: context,
+                                screen: const UserDataCollection(
+                                  isFromOnboarding: false,
+                                ),
+                              );
+                            } else {
+                              navigatePR(
+                                context: context,
+                                screen: const AuthScreen(),
+                              );
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Please sign in to access this feature',
+                                  ),
+                                ),
+                              );
+                            }
                           });
                         },
                       ),
@@ -206,12 +207,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       Consumer<AuthProvider>(
                         builder: (context, value, child) => _buildSettingItem(
-                          icon: Icons.logout,
-                          title: 'Logout',
-                          subtitle: 'Sign out of your account',
+                          icon: !authProvider.isSignedIn
+                              ? Icons.login
+                              : Icons.logout,
+                          title:
+                              !authProvider.isSignedIn ? 'Sign In' : 'Sign Out',
+                          subtitle: !authProvider.isSignedIn
+                              ? 'Sign in to your account'
+                              : 'Sign out of your account',
                           onTap: () {
                             _showParentalGate(() {
-                              value.signOut(context);
+                              !authProvider.isSignedIn
+                                  ? navigatePR(
+                                      context: context,
+                                      screen: const AuthScreen(),
+                                    )
+                                  : value.signOut(context);
                             });
                           },
                         ),

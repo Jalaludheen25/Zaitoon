@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:zaitoon/screens/bookmark_screen/bookmark_screen.dart';
 import 'package:zaitoon/screens/bottom_navigation/provider/bottom_navigation_provider.dart';
 import 'package:zaitoon/screens/home_screen/home_screen.dart';
+import 'package:zaitoon/screens/login_screen/provider/auth_provider.dart';
 import 'package:zaitoon/screens/settings_screen/settings_screen.dart';
 import 'package:zaitoon/screens/standalone_stories/standalone_story_list_screen.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
@@ -22,12 +23,15 @@ class BottomNavigationScreen extends StatefulWidget {
 }
 
 class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
-
   @override
   void initState() {
     super.initState();
+    AuthProvider authProvider =
+        Provider.of<AuthProvider>(context, listen: false);
     Future.microtask(() {
-      context.read<UserDataProvider>().initialize();
+      if (authProvider.isSignedIn) {
+        context.read<UserDataProvider>().initialize();
+      }
     });
   }
 
@@ -44,24 +48,23 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
         ),
       ),
       home: Consumer<NavigationProvider>(
-        builder: (context,navigationProvider,child) {
-          return Scaffold(
-            body: IndexedStack(
-              index: navigationProvider.currentIndex,
-              children: const [
-                HomeScreen(),
-                StoriesScreen(),
-                BookmarkScreen(),
-                SettingsScreen(),
-              ],
-            ),
-            bottomNavigationBar: StoryAppBottomNav(
+          builder: (context, navigationProvider, child) {
+        return Scaffold(
+          body: IndexedStack(
+            index: navigationProvider.currentIndex,
+            children: const [
+              HomeScreen(),
+              StoriesScreen(),
+              BookmarkScreen(),
+              SettingsScreen(),
+            ],
+          ),
+          bottomNavigationBar: StoryAppBottomNav(
             currentIndex: navigationProvider.currentIndex,
             onTap: (index) => navigationProvider.setIndex(index),
-            ),
-          );
-        }
-      ),
+          ),
+        );
+      }),
     );
   }
 }
