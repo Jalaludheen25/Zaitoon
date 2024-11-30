@@ -123,4 +123,19 @@ class HomeProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  // Function to set onboarding as completed
+  int _currentPage = 0;
+
+  int get currentPage => _currentPage;
+
+  void setCurrentPage(int page) {
+    _currentPage = page;
+    notifyListeners();
+  }
+
+  void nextPage() {
+    _currentPage++;
+    notifyListeners();
+  }
 }

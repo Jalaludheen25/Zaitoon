@@ -1,18 +1,16 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'package:provider/provider.dart';
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/image_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
 import 'package:zaitoon/screens/login_screen/login_screen.dart';
 
-class OnboardingScreen extends StatefulWidget {
+class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
 
-  @override
-  State<OnboardingScreen> createState() => _OnboardingScreenState();
-}
-
-class _OnboardingScreenState extends State<OnboardingScreen> {
-  int currentPage = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,56 +21,61 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             const Spacer(flex: 2),
             Expanded(
               flex: 14,
-              child: PageView.builder(
-                itemCount: demoData.length,
-                onPageChanged: (value) {
-                  setState(() {
-                    currentPage = value;
-                  });
-                },
-                itemBuilder: (context, index) => AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
-                  child: OnboardContent(
-                    illustration: demoData[currentPage]["illustration"],
-                    title: demoData[currentPage]["title"],
-                    text: demoData[currentPage]["text"],
+              child: Consumer<HomeProvider>(
+                builder: (context, provider, child) => PageView.builder(
+                  itemCount: demoData.length,
+                  onPageChanged: (value) {
+                    provider.setCurrentPage(value);
+                  },
+                  itemBuilder: (context, index) => AnimatedContainer(
+                    duration: const Duration(milliseconds: 250),
+                    child: OnboardContent(
+                      illustration: demoData[provider.currentPage]
+                          ["illustration"],
+                      title: demoData[provider.currentPage]["title"],
+                      text: demoData[provider.currentPage]["text"],
+                    ),
                   ),
                 ),
               ),
             ),
             const Spacer(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                demoData.length,
-                (index) => DotIndicator(isActive: index == currentPage),
+            Consumer<HomeProvider>(
+              builder: (context, provider, child) => Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(
+                  demoData.length,
+                  (index) =>
+                      DotIndicator(isActive: index == provider.currentPage),
+                ),
               ),
             ),
             const Spacer(flex: 2),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    if (currentPage < demoData.length - 1) {
-                      currentPage++;
+            Consumer<HomeProvider>(
+              builder: (context, provider, child) => Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: ElevatedButton(
+                  onPressed: () async {
+                    if (provider.currentPage < demoData.length - 1) {
+                      provider.nextPage();
                     } else {
+                      await provider.setOnboardingCompleted();
                       navigateAndRemove(
                         context: context,
                         screen: const AuthScreen(),
                       );
                     }
-                  });
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: ColorClass.primaryColor,
-                  foregroundColor: ColorClass.white,
-                  minimumSize: const Size(double.infinity, 40),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: ColorClass.primaryColor,
+                    foregroundColor: ColorClass.white,
+                    minimumSize: const Size(double.infinity, 40),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
+                  child: Text("Get Started".toUpperCase()),
                 ),
-                child: Text("Get Started".toUpperCase()),
               ),
             ),
             const Spacer(),

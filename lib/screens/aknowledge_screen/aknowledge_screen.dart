@@ -3,9 +3,7 @@
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/bottom_navigation/bottom_navigation.dart';
-import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class AknowledgeScreen extends StatelessWidget {
   const AknowledgeScreen({super.key});
@@ -101,9 +99,6 @@ class AknowledgeScreen extends StatelessWidget {
                   const SizedBox(height: 24),
                   ElevatedButton(
                     onPressed: () async {
-                      final homeProvider =
-                          Provider.of<HomeProvider>(context, listen: false);
-                      await homeProvider.setOnboardingCompleted();
                       navigateAndRemove(
                           context: context,
                           screen: const BottomNavigationScreen());
