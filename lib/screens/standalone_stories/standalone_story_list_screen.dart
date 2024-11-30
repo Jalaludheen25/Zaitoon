@@ -103,7 +103,7 @@ class _StoriesScreenState extends State<StoriesScreen> {
                           const SizedBox(height: 8),
                           Text(
                             'Discover amazing stories',
-                            style: TextStyleClass.poppinsNormal(
+                            style: TextStyleClass.poppinsRegular(
                               fontSize: 16,
                               color: Colors.white,
                             ),
@@ -318,7 +318,7 @@ class StoryCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         duration,
-                        style: TextStyleClass.poppinsNormal(
+                        style: TextStyleClass.poppinsRegular(
                           fontSize: 12,
                           color: Colors.white,
                         ),

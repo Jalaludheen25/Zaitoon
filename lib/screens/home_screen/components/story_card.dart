@@ -93,7 +93,7 @@ class _StoryCardState extends State<StoryCard> {
 
                                 // Tag
                                 Text(widget.tag ?? '',
-                                    style: TextStyleClass.poppinsNormal(
+                                    style: TextStyleClass.poppinsRegular(
                                       fontSize: 12,
                                       color: ColorClass.white,
                                     )),

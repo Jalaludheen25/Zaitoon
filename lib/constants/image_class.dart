@@ -16,4 +16,5 @@ class ImageClass {
   static const String malarvadiLogo = '${imageRoot}malarvadi-logo.png';
   static const String d4Logo = '${imageRoot}D4DX _logo.png';
   static const String d4dxLogo = '${imageRoot}D4media_logo.png';
+  static const String language = '${imageRoot}language-icon.png';
 }

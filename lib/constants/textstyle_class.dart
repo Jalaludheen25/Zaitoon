@@ -27,12 +27,20 @@ class TextStyleClass {
       height: textHeight,
       fontSize: size);
 
-  static TextStyle poppinsNormal(
+  static TextStyle poppinsRegular(
           {required double fontSize, required Color color}) =>
       GoogleFonts.poppins(
         color: color,
         fontSize: fontSize,
         fontWeight: FontWeight.normal,
+      );
+
+  static TextStyle poppinsMedium(
+          {required double fontSize, required Color color}) =>
+      GoogleFonts.poppins(
+        color: color,
+        fontSize: fontSize,
+        fontWeight: FontWeight.w500,
       );
   static TextStyle poppinsBold(
           {required double fontSize, required Color color}) =>

@@ -46,7 +46,7 @@ class AuthScreen extends StatelessWidget {
                   // Headline text
                   Text(
                     'Welcome to Zai Toon',
-                    style: TextStyleClass.poppinsNormal(
+                    style: TextStyleClass.poppinsRegular(
                       fontSize: 22,
                       color: Colors.white,
                     ),
@@ -56,7 +56,7 @@ class AuthScreen extends StatelessWidget {
                   // Subtitle
                   Text(
                     'Interactive stories with sound effects as you read along',
-                    style: TextStyleClass.poppinsNormal(
+                    style: TextStyleClass.poppinsRegular(
                       fontSize: 16,
                       color: ColorClass.white70,
                     ),
@@ -88,7 +88,7 @@ class AuthScreen extends StatelessWidget {
                                   const SizedBox(width: 8),
                                   Text(
                                     'Continue with Apple',
-                                    style: TextStyleClass.poppinsNormal(
+                                    style: TextStyleClass.poppinsRegular(
                                       color: ColorClass.black,
                                       fontSize: 16,
                                     ),
@@ -118,7 +118,7 @@ class AuthScreen extends StatelessWidget {
                                 const SizedBox(width: 8),
                                 Text(
                                   'Continue with Google',
-                                  style: TextStyleClass.poppinsNormal(
+                                  style: TextStyleClass.poppinsRegular(
                                     color: ColorClass.black,
                                     fontSize: 16,
                                   ),
@@ -141,7 +141,7 @@ class AuthScreen extends StatelessWidget {
                     },
                     child: Text(
                       'Continue without account',
-                      style: TextStyleClass.poppinsNormal(
+                      style: TextStyleClass.poppinsRegular(
                         color: ColorClass.white70,
                         fontSize: 14,
                       ),
@@ -152,7 +152,7 @@ class AuthScreen extends StatelessWidget {
                     child: RichText(
                       textAlign: TextAlign.center,
                       text: TextSpan(
-                        style: TextStyleClass.poppinsNormal(
+                        style: TextStyleClass.poppinsRegular(
                           color: ColorClass.white70,
                           fontSize: 12,
                         ),

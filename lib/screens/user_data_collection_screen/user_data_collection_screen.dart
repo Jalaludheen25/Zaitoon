@@ -33,12 +33,12 @@ class _UserDataCollectionState extends State<UserDataCollection> {
     super.initState();
     Future.microtask(() async {
       final provider = Provider.of<UserDataProvider>(context, listen: false);
-      await provider.initialize();
-      await _loadUserDetails();
+      await provider.loadUserDetails();
+      await retriveUserData();
     });
   }
 
-  Future<void> _loadUserDetails() async {
+  Future<void> retriveUserData() async {
     final provider = Provider.of<UserDataProvider>(context, listen: false);
     if (provider.name != null) {
       _nameController.text = provider.name!;
@@ -96,7 +96,7 @@ class _UserDataCollectionState extends State<UserDataCollection> {
         automaticallyImplyLeading: false,
         title: Text(
           'My Profile',
-          style: TextStyleClass.poppinsNormal(
+          style: TextStyleClass.poppinsRegular(
             color: Colors.white,
             fontSize: 18,
           ),

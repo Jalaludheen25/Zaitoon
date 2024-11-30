@@ -110,7 +110,7 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
                                   const SizedBox(height: 8),
                                   Text(
                                     '${snapshot.episodeModel!.data!.length} episodes • ${snapshot.episodeModel!.data!.fold(0, (sum, item) => sum + (int.tryParse(item.readMinutes ?? "0") ?? 0))} minutes read',
-                                    style: TextStyleClass.poppinsNormal(
+                                    style: TextStyleClass.poppinsRegular(
                                       fontSize: 14,
                                       color: Colors.white54,
                                     ),
@@ -292,7 +292,7 @@ class _EpisodeTile extends StatelessWidget {
                             const SizedBox(width: 4),
                             Text(
                               '${episode.readMinutes} min',
-                              style: TextStyleClass.poppinsNormal(
+                              style: TextStyleClass.poppinsRegular(
                                 fontSize: 12,
                                 color: Colors.white54,
                               ),
@@ -306,7 +306,7 @@ class _EpisodeTile extends StatelessWidget {
                             const SizedBox(width: 4),
                             Text(
                               episode.uploadDate ?? 'N/A',
-                              style: TextStyleClass.poppinsNormal(
+                              style: TextStyleClass.poppinsRegular(
                                 fontSize: 12,
                                 color: Colors.white54,
                               ),

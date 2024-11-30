@@ -158,7 +158,7 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                                       ),
                                       child: Text(
                                         story.tag,
-                                        style: TextStyleClass.poppinsNormal(
+                                        style: TextStyleClass.poppinsRegular(
                                           color: Colors.greenAccent,
                                           fontSize: 12,
                                         ),
@@ -220,7 +220,7 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                                             label: Text(
                                               'Read Story',
                                               style:
-                                                  TextStyleClass.poppinsNormal(
+                                                  TextStyleClass.poppinsRegular(
                                                 fontSize: 12,
                                                 color: Colors.white,
                                               ),
