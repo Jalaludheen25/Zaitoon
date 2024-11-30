@@ -89,7 +89,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       builder: (context, data, child) => Row(
                         children: [
                           _buildGreetingSection(data.name ?? ''),
-                          const Spacer(),
                           _buildActionButtons(context),
                         ],
                       ),
@@ -126,13 +125,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 Text(
                   "Hello, ${name.length > 10 ? '${name.substring(0, 10)}...' : name}", // Add text truncation
                   style: TextStyleClass.poppinsSemiBold(
-                    fontSize: 24,
+                    fontSize: 20,
                     color: ColorClass.white,
                   ),
                   maxLines: 1, // Limit to single line
                   overflow: TextOverflow.ellipsis, // Add ellipsis for overflow
                 ),
-                const Text(" 👋", style: TextStyle(fontSize: 24)),
+                const Text(" 👋", style: TextStyle(fontSize: 20)),
               ],
             ),
           ),
@@ -140,7 +139,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           Text(
             "Ready for today's adventure?",
             style: TextStyleClass.poppinsRegular(
-              fontSize: 16,
+              fontSize: 14,
               color: ColorClass.white.withOpacity(0.7),
             ),
             maxLines: 1, // Limit to single line

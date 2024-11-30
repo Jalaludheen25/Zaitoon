@@ -65,7 +65,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            Colors.purple.withOpacity(0.6),
+                            ColorClass.primaryColor.withOpacity(0.6),
                             Colors.black,
                           ],
                         ),
@@ -78,7 +78,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.purple.withOpacity(0.3),
+                                  color:
+                                      ColorClass.primaryColor.withOpacity(0.3),
                                   blurRadius: 20,
                                   spreadRadius: 5,
                                 ),
@@ -306,12 +307,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.purple.withOpacity(0.2),
+                    color: ColorClass.primaryColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
                     icon,
-                    color: Colors.purple[300],
+                    color: ColorClass.primaryColor,
                     size: 24,
                   ),
                 ),
