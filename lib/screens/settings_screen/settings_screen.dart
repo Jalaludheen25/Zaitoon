@@ -175,7 +175,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         title: 'Share App',
                         subtitle: 'Share Zai Toon with your friends',
                         onTap: () async {
-                          shareApp(context);
+                          _showParentalGate(() {
+                            shareApp(context);
+                          });
+                          // shareApp(context);
                         },
                       ),
                       _buildSettingItem(
@@ -205,6 +208,69 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             launchURL(ApiContants.privaryPolicyUrl);
                           });
                         },
+                      ),
+                      Consumer<AuthProvider>(
+                        builder: (context, value, child) => _buildSettingItem(
+                          icon: !authProvider.isSignedIn
+                              ? Icons.login
+                              : Icons.delete_forever,
+                          title: !authProvider.isSignedIn
+                              ? 'Sign In'
+                              : 'Delete Account',
+                          subtitle: !authProvider.isSignedIn
+                              ? 'Sign in to your account'
+                              : 'Permanently delete your account',
+                          onTap: () {
+                            _showParentalGate(() {
+                              !authProvider.isSignedIn
+                                  ? navigatePR(
+                                      context: context,
+                                      screen: const AuthScreen(),
+                                    )
+                                  : showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          backgroundColor: ColorClass.black,
+                                          title: const Text(
+                                            'Delete Account',
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                          content: const Text(
+                                            'Are you sure you want to delete your account? This action cannot be undone.',
+                                            style: TextStyle(
+                                                color: Colors.white70),
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.of(context).pop(),
+                                              child: const Text('Cancel'),
+                                            ),
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                                // value.deleteAccount(context);
+                                                value.signOut(context);
+                                                navigatePR(
+                                                  context: context,
+                                                  screen: const AuthScreen(),
+                                                );
+                                              },
+                                              child: const Text(
+                                                'Delete',
+                                                style: TextStyle(
+                                                    color: Colors.red),
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+                            });
+                          },
+                        ),
                       ),
                       Consumer<AuthProvider>(
                         builder: (context, value, child) => _buildSettingItem(
