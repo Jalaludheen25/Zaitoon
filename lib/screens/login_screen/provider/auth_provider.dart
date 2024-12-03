@@ -223,7 +223,7 @@ class AuthProvider with ChangeNotifier {
       await _firestore.collection('users').doc(firebaseUser.uid).set({
         'uid': firebaseUser.uid,
         'email': _user?.email,
-        // 'name': displayName,
+        'name': displayName,
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 
