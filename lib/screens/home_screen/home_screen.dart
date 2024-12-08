@@ -15,6 +15,7 @@ import 'package:provider/provider.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
 import 'package:zaitoon/screens/version_check/force_udpate_dialog.dart';
 import 'package:zaitoon/screens/version_check/provider/version_check_provider.dart';
+import 'package:zaitoon/screens/cbz_viewer/cbz_viewer_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -160,9 +161,19 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             screen: const LanguageSelection(),
           ),
         ),
-        _buildIconButton(
-          icon: Icons.settings,
-          onPressed: () => context.read<NavigationProvider>().setIndex(3),
+        GestureDetector(
+          onLongPress: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const CbzViewerScreen(),
+              ),
+            );
+          },
+          child: _buildIconButton(
+            icon: Icons.settings,
+            onPressed: () => context.read<NavigationProvider>().setIndex(3),
+          ),
         ),
       ],
     );

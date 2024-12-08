@@ -19,16 +19,25 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:zaitoon/screens/standalone_stories/provider/story_provider.dart';
 import 'package:zaitoon/screens/version_check/provider/version_check_provider.dart';
+import 'package:zaitoon/screens/cbz_viewer/cbz_viewer_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  // Lock orientation to portrait only
+  // Remove or comment out the orientation lock
+  // await SystemChrome.setPreferredOrientations([
+  //   DeviceOrientation.portraitUp,
+  //   DeviceOrientation.portraitDown,
+  // ]);
+
+  // Add support for all orientations
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
   ]);
 
   PushNotificationService.initializeOneSignal(ApiUrls.oneSignalAppId);

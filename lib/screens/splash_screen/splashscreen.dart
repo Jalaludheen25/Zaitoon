@@ -124,117 +124,131 @@ class _SplashScreenState extends State<SplashScreen>
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Animated mascot with glow and bounce
-                  FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: AnimatedBuilder(
-                      animation: _bounceAnimation,
-                      builder: (context, child) {
-                        return Transform.translate(
-                          offset: Offset(0, _bounceAnimation.value),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow: [
-                                BoxShadow(
-                                  color:
-                                      ColorClass.primaryColor.withOpacity(0.3),
-                                  spreadRadius: 10,
-                                  blurRadius: 30,
-                                ),
-                              ],
+              child: SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: MediaQuery.of(context).size.height - 
+                               MediaQuery.of(context).padding.top - 
+                               MediaQuery.of(context).padding.bottom,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        children: [
+                          // First section - mascot and animations
+                          FadeTransition(
+                            opacity: _fadeAnimation,
+                            child: AnimatedBuilder(
+                              animation: _bounceAnimation,
+                              builder: (context, child) {
+                                return Transform.translate(
+                                  offset: Offset(0, _bounceAnimation.value),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(20),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color:
+                                              ColorClass.primaryColor.withOpacity(0.3),
+                                          spreadRadius: 10,
+                                          blurRadius: 30,
+                                        ),
+                                      ],
+                                    ),
+                                    child: ScaleTransition(
+                                      scale: _scaleAnimation,
+                                      child: Image.asset(
+                                        ImageClass.appIconPlain,
+                                        height:
+                                            MediaQuery.of(context).size.height * 0.25,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
-                            child: ScaleTransition(
-                              scale: _scaleAnimation,
+                          ),
+                          const SizedBox(height: 20),
+
+                          // Animated logo
+                          ScaleTransition(
+                            scale: _scaleAnimation,
+                            child: ShaderMask(
+                              shaderCallback: (bounds) => LinearGradient(
+                                colors: [
+                                  ColorClass.primaryColor,
+                                  ColorClass.primaryColor.withOpacity(0.8),
+                                ],
+                              ).createShader(bounds),
                               child: Image.asset(
-                                ImageClass.appIconPlain,
-                                height:
-                                    MediaQuery.of(context).size.height * 0.35,
+                                ImageClass.malarvadiLogo,
+                                height: MediaQuery.of(context).size.height * 0.08,
                               ),
                             ),
                           ),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 40),
+                          const SizedBox(height: 30),
 
-                  // Animated logo with gradient
-                  ScaleTransition(
-                    scale: _scaleAnimation,
-                    child: ShaderMask(
-                      shaderCallback: (bounds) => LinearGradient(
-                        colors: [
-                          ColorClass.primaryColor,
-                          ColorClass.primaryColor.withOpacity(0.8),
+                          // Welcome text and sparkles
+                          ShaderMask(
+                            shaderCallback: (bounds) => LinearGradient(
+                              colors: [
+                                ColorClass.primaryColor,
+                                Colors.white,
+                              ],
+                            ).createShader(bounds),
+                            child: AnimatedTextKit(
+                              animatedTexts: [
+                                TypewriterAnimatedText(
+                                  'Welcome to Zai Toon',
+                                  textStyle: const TextStyle(
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                  speed: const Duration(milliseconds: 100),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                              totalRepeatCount: 1,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Subtitle with sparkles
+                          FadeTransition(
+                            opacity: _fadeAnimation,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                _buildSparkle(),
+                                const Text(
+                                  'Magical stories await you',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    color: ColorClass.white70,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                                _buildSparkle(),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 30),
+
+                          // Custom loading indicator
+                          _buildCustomLoader(),
                         ],
-                      ).createShader(bounds),
-                      child: Image.asset(
-                        ImageClass.malarvadiLogo,
-                        height: MediaQuery.of(context).size.height * 0.08,
                       ),
-                    ),
+
+                      // Powered by section
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 20),
+                        child: _buildPoweredBySection(),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 30),
-
-                  // Animated welcome text
-                  ShaderMask(
-                    shaderCallback: (bounds) => LinearGradient(
-                      colors: [
-                        ColorClass.primaryColor,
-                        Colors.white,
-                      ],
-                    ).createShader(bounds),
-                    child: AnimatedTextKit(
-                      animatedTexts: [
-                        TypewriterAnimatedText(
-                          'Welcome to Zai Toon',
-                          textStyle: const TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                          speed: const Duration(milliseconds: 100),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                      totalRepeatCount: 1,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Subtitle with sparkles
-                  FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _buildSparkle(),
-                        const Text(
-                          'Magical stories await you',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: ColorClass.white70,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                        _buildSparkle(),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-
-                  // Custom loading indicator
-                  _buildCustomLoader(),
-                  const Spacer(),
-
-                  // Powered by section with gradient
-                  _buildPoweredBySection(),
-                  const SizedBox(height: 20),
-                ],
+                ),
               ),
             ),
           ),
