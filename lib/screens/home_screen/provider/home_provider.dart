@@ -12,12 +12,16 @@ class HomeProvider extends ChangeNotifier {
   EpisodeModel? _episodeModel;
   bool _isLoading = false;
   String? _error;
+  EpisodeModel? _highlightedEpisodes;
+  bool _isHighlightedLoading = false;
 
   StoryModel? get storyModel => _storyModel;
   bool get isStoryLoading => _isLoading;
   EpisodeModel? get episodeModel => _episodeModel;
   bool get isepisodeLoading => _isLoading;
   String? get error => _error;
+  EpisodeModel? get highlightedEpisodes => _highlightedEpisodes;
+  bool get isHighlightedLoading => _isHighlightedLoading;
 
   Future<void> fetchStories() async {
     _isLoading = true;
@@ -137,5 +141,32 @@ class HomeProvider extends ChangeNotifier {
   void nextPage() {
     _currentPage++;
     notifyListeners();
+  }
+
+  Future<void> fetchHighlightedEpisodes() async {
+    _isHighlightedLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final response = await http
+          .get(Uri.parse(ApiUrls.highlightedEpisodes))
+          .timeout(const Duration(seconds: 15));
+
+      if (response.statusCode == 200) {
+        log("Highlighted episodes fetched successfully");
+        _highlightedEpisodes = episodeModelFromJson(response.body);
+        _error = null;
+      } else {
+        _error = "Failed to load highlighted episodes: ${response.statusCode}";
+        log(_error!);
+      }
+    } catch (e) {
+      _error = "Something went wrong. Please try again.";
+      log("Error fetching highlighted episodes: $e");
+    } finally {
+      _isHighlightedLoading = false;
+      notifyListeners();
+    }
   }
 }

@@ -12,10 +12,12 @@ import 'package:zaitoon/screens/language_selection/language_selection.dart';
 import 'package:zaitoon/screens/reading_screen/provider/pdf_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:zaitoon/screens/reading_screen/story_reader_page.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
 import 'package:zaitoon/screens/version_check/force_udpate_dialog.dart';
 import 'package:zaitoon/screens/version_check/provider/version_check_provider.dart';
 import 'package:zaitoon/screens/cbz_viewer/cbz_viewer_screen.dart';
+import 'package:zaitoon/screens/home_screen/components/highlighted_episodes.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -39,6 +41,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       HomeProvider homeProvider =
           Provider.of<HomeProvider>(context, listen: false);
       homeProvider.fetchStories().then((value) {
+        homeProvider.fetchHighlightedEpisodes();
         checkForUpdates();
       });
     });
@@ -85,7 +88,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                 child: Column(
                   children: [
-                    // Header Section
                     Consumer<UserDataProvider>(
                       builder: (context, data, child) => Row(
                         children: [
@@ -94,16 +96,46 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         ],
                       ),
                     ),
-                    // const SizedBox(height: 16),
-                    // Reading Stats Card
-                    // _buildReadingStatsCard(),
                   ],
                 ),
               ),
             ),
-            // Stories Grid
             Expanded(
-              child: _buildStoriesGrid(),
+              child: ListView(
+                children: [
+                  Consumer<HomeProvider>(
+                    builder: (context, provider, _) {
+                      if (provider.isHighlightedLoading ||
+                          provider.highlightedEpisodes == null) {
+                        return const SizedBox.shrink();
+                      }
+                      return HighlightedEpisodes(
+                        storyModel: provider.storyModel,
+                        episodes: provider.highlightedEpisodes!.data!,
+                        selectedLanguage: provider.selectedLanguage,
+                        onEpisodeTap: (episode) {
+                          navigatePR(
+                            context: context,
+                            screen: StoryReadingScreen(
+                              id: episode.id.toString(),
+                              title: provider.selectedLanguage == 'en'
+                                  ? episode.storyTile!
+                                  : episode.mlTitle!,
+                              thumbnail:
+                                  ApiUrls.assetBaseUrl + episode.coverImage!,
+                              tag: '',
+                              pdfUrl: provider.selectedLanguage == 'en'
+                                  ? ApiUrls.assetBaseUrl + episode.storyFile!
+                                  : ApiUrls.assetBaseUrl + episode.mlStoryFile!,
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                  _buildStoriesGrid(),
+                ],
+              ),
             ),
           ],
         ),
@@ -208,21 +240,20 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         return LayoutBuilder(
           builder: (context, constraints) {
             int crossAxisCount = constraints.maxWidth > 600 ? 2 : 1;
-            // Create a reversed list of indices
-            final itemCount = snapshot.storyModel!.data!.length;
 
             return GridView.builder(
               padding: const EdgeInsets.all(16),
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: crossAxisCount,
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
                 childAspectRatio: 1.2,
               ),
-              itemCount: itemCount,
+              itemCount: snapshot.storyModel!.data!.length,
               itemBuilder: (context, index) => _buildAnimatedStoryCard(
-                // Reverse the index here
-                index: itemCount - 1 - index,
+                index: index,
                 snapshot: snapshot,
                 pdfSnapshot: pdfSnapshot,
               ),

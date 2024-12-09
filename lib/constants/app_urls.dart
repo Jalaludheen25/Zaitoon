@@ -22,4 +22,6 @@ class ApiUrls {
   }
 
   static String stories = "$baseUrl/items/zaitoon_stories";
+
+  static String highlightedEpisodes = "$baseUrl/items/zaitoon_episode?filter[isHighlighted][_eq]=true";
 }
