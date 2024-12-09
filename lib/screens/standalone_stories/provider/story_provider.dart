@@ -7,11 +7,13 @@ class StoriesProvider extends ChangeNotifier {
   SingleStoryModel? _singleStoryModel;
   bool _isLoading = false;
   String _error = '';
+  bool _isBookmarkLoading = false;
 
   // Getters
   SingleStoryModel? get singleStoryModel => _singleStoryModel;
   bool get isLoading => _isLoading;
   String get error => _error;
+  bool get isBookmarkLoading => _isBookmarkLoading;
 
   Future<void> fetchStories() async {
     _isLoading = true;
@@ -33,5 +35,10 @@ class StoriesProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  void setBookmarkLoading(bool value) {
+    _isBookmarkLoading = value;
+    notifyListeners();
   }
 }

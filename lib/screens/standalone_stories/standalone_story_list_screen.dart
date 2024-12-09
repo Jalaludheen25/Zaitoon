@@ -65,7 +65,8 @@ class _StoriesScreenState extends State<StoriesScreen> {
             );
           }
 
-          final stories = provider.singleStoryModel?.data ?? [];
+          final stories =
+              (provider.singleStoryModel?.data ?? []).reversed.toList();
 
           return CustomScrollView(
             slivers: [
@@ -274,12 +275,23 @@ class StoryCard extends StatelessWidget {
                   Positioned(
                     top: 8,
                     right: 8,
-                    child: BookmarkButton(
-                      id: id,
-                      thumbnail: imageUrl,
-                      title: title,
-                      fileUrl: fileUrl,
-                      tag: category,
+                    child: Consumer<StoriesProvider>(
+                      builder: (context, provider, child) => provider.isBookmarkLoading 
+                          ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : BookmarkButton(
+                              id: id,
+                              thumbnail: imageUrl,
+                              title: title,
+                              fileUrl: fileUrl,
+                              tag: category,
+                            ),
                     ),
                   ),
                 ],

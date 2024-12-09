@@ -52,7 +52,25 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
       body: SafeArea(
         child: Consumer<HomeProvider>(
           builder: (context, snapshot, _) => snapshot.episodeModel == null
-              ? const Center(child: CupertinoActivityIndicator())
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const CupertinoActivityIndicator(
+                        color: Colors.white,
+                        radius: 16,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Loading episodes...',
+                        style: TextStyleClass.poppinsRegular(
+                          fontSize: 14,
+                          color: Colors.white54,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
               : CustomScrollView(
                   slivers: [
                     // Custom App Bar (unchanged)
@@ -143,14 +161,18 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
                       sliver: SliverList(
                         delegate: SliverChildBuilderDelegate(
                           (context, index) {
-                            final episode = snapshot.episodeModel!.data![index];
+                            // Reverse the index to show latest episodes first
+                            final reversedIndex =
+                                snapshot.episodeModel!.data!.length - 1 - index;
+                            final episode =
+                                snapshot.episodeModel!.data![reversedIndex];
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 16),
                               child: _EpisodeTile(
                                 seriesTitle: widget.title,
                                 tag: widget.tag,
                                 episode: episode,
-                                index: index,
+                                index: reversedIndex,
                                 selectedLanguage: snapshot.selectedLanguage,
                                 onTap: () => navigatePR(
                                   context: context,
@@ -448,7 +470,7 @@ class _BookmarkButtonState extends State<BookmarkButton>
                 fileUrl: widget.fileUrl,
                 tag: widget.tag,
               );
-              
+
               if (success && context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -461,7 +483,8 @@ class _BookmarkButtonState extends State<BookmarkButton>
                       label: 'View',
                       backgroundColor: Colors.white,
                       onPressed: () {
-                        navigatePR(context: context, screen: const BookmarkScreen());
+                        navigatePR(
+                            context: context, screen: const BookmarkScreen());
                       },
                     ),
                     backgroundColor: Colors.greenAccent.withOpacity(0.8),

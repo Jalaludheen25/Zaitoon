@@ -195,9 +195,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
- 
-
-
   Widget _buildStoriesGrid() {
     return Consumer2<HomeProvider, PdfProvider>(
       builder: (context, snapshot, pdfSnapshot, child) {
@@ -211,6 +208,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         return LayoutBuilder(
           builder: (context, constraints) {
             int crossAxisCount = constraints.maxWidth > 600 ? 2 : 1;
+            // Create a reversed list of indices
+            final itemCount = snapshot.storyModel!.data!.length;
 
             return GridView.builder(
               padding: const EdgeInsets.all(16),
@@ -220,9 +219,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 mainAxisSpacing: 16,
                 childAspectRatio: 1.2,
               ),
-              itemCount: snapshot.storyModel!.data!.length,
+              itemCount: itemCount,
               itemBuilder: (context, index) => _buildAnimatedStoryCard(
-                index: index,
+                // Reverse the index here
+                index: itemCount - 1 - index,
                 snapshot: snapshot,
                 pdfSnapshot: pdfSnapshot,
               ),
