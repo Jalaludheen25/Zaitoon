@@ -215,7 +215,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ? Icons.login
                               : Icons.delete_forever,
                           title: !authProvider.isSignedIn
-                              ? 'Sign In'
+                              ? 'Create Account'
                               : 'Delete Account',
                           subtitle: !authProvider.isSignedIn
                               ? 'Sign in to your account'

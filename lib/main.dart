@@ -19,7 +19,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:zaitoon/screens/standalone_stories/provider/story_provider.dart';
 import 'package:zaitoon/screens/version_check/provider/version_check_provider.dart';
-import 'package:zaitoon/screens/cbz_viewer/cbz_viewer_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

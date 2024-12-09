@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -6,6 +8,7 @@ import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/textstyle_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
+import 'package:zaitoon/screens/bookmark_screen/bookmark_screen.dart';
 import 'package:zaitoon/screens/bookmark_screen/provider/bookmark_provider.dart';
 
 class StoryReadingScreen extends StatefulWidget {
@@ -414,49 +417,50 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
 
   void _handleBookmark(BookmarkProvider provider, bool isBookmarked) async {
     if (isBookmarked) {
-      await provider.removeBookmark(widget.id);
-      _showSnackBar('Bookmark removed', Colors.red);
+      await provider.removeBookmark(context, widget.id);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text(
+              'Removed from bookmarks',
+              style: TextStyle(color: Colors.white),
+            ),
+            duration: const Duration(seconds: 1),
+            backgroundColor: Colors.red.withOpacity(0.8),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     } else {
-      await provider.addBookmark(
+      final success = await provider.addBookmark(
+        context: context,
         id: widget.id,
         thumbnail: widget.thumbnail,
         title: widget.title,
         fileUrl: widget.pdfUrl,
         tag: widget.tag,
       );
-      _showSnackBar('Bookmark added', Colors.green);
-    }
-  }
 
-  void _showSnackBar(String message, Color color) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              Icon(
-                message.contains('added') ? Icons.check_circle : Icons.info,
-                color: Colors.white,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                message,
-                style: TextStyleClass.poppinsSemiBold(
-                  fontSize: 14,
-                  color: Colors.white,
-                ),
-              ),
-            ],
+      if (success && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text(
+              'Added to bookmarks',
+              style: TextStyle(color: Colors.white),
+            ),
+            duration: const Duration(seconds: 2),
+            action: SnackBarAction(
+              label: 'View',
+              backgroundColor: Colors.white,
+              onPressed: () {
+                navigatePR(context: context, screen: const BookmarkScreen());
+              },
+            ),
+            backgroundColor: Colors.greenAccent.withOpacity(0.8),
+            behavior: SnackBarBehavior.floating,
           ),
-          duration: const Duration(seconds: 2),
-          backgroundColor: color,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          margin: const EdgeInsets.all(16),
-        ),
-      );
+        );
+      }
     }
   }
 

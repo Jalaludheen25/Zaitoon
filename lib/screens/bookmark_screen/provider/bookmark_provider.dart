@@ -1,13 +1,19 @@
-import 'package:flutter/foundation.dart';
+// ignore_for_file: use_build_context_synchronously
+
+import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:zaitoon/screens/bookmark_screen/hive/bookmark_hive_model.dart';
+import 'package:zaitoon/screens/login_screen/login_screen.dart';
+import 'package:zaitoon/helper/navigation_helper.dart';
+import 'package:zaitoon/screens/login_screen/provider/auth_provider.dart';
 
 class BookmarkProvider extends ChangeNotifier {
   static const String _boxName = 'bookmarks';
-  Box<BookmarkModel>? _bookmarkBox; // Make nullable
+  Box<BookmarkModel>? _bookmarkBox;
   List<BookmarkModel> _bookmarks = [];
   bool _isLoading = false;
-  bool _isInitialized = false; // Track initialization state
+  bool _isInitialized = false;
 
   // Getters
   List<BookmarkModel> get bookmarks => _bookmarks;
@@ -16,7 +22,7 @@ class BookmarkProvider extends ChangeNotifier {
 
   // Initialize Hive
   Future<void> initHive() async {
-    if (_isInitialized) return; // Prevent multiple initializations
+    if (_isInitialized) return;
 
     _isLoading = true;
     notifyListeners();
@@ -24,13 +30,36 @@ class BookmarkProvider extends ChangeNotifier {
     try {
       _bookmarkBox = await Hive.openBox<BookmarkModel>(_boxName);
       _isInitialized = true;
-      await loadBookmarks(); // Load bookmarks after initialization
+      await loadBookmarks();
     } catch (e) {
       debugPrint('Error initializing Hive: $e');
     }
 
     _isLoading = false;
     notifyListeners();
+  }
+
+  // Check login status and show login prompt if needed
+  Future<bool> _checkLoginStatus(BuildContext context) async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    await authProvider.checkUserStatus();
+
+    if (!authProvider.isSignedIn) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Please login to manage bookmarks'),
+          action: SnackBarAction(
+            label: 'Login',
+            onPressed: () {
+              navigateAndRemove(context: context, screen: const AuthScreen());
+            },
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+      return false;
+    }
+    return true;
   }
 
   // Load all bookmarks
@@ -48,17 +77,19 @@ class BookmarkProvider extends ChangeNotifier {
     }
   }
 
-  // Add bookmark
-  Future<void> addBookmark({
+  // Add bookmark with login check
+  Future<bool> addBookmark({
+    required BuildContext context,
     required String id,
     required String thumbnail,
     required String title,
     required String fileUrl,
     required String tag,
   }) async {
+    if (!await _checkLoginStatus(context)) return false;
     if (_bookmarkBox == null) {
       debugPrint('Bookmark box not initialized');
-      return;
+      return false;
     }
 
     try {
@@ -72,23 +103,59 @@ class BookmarkProvider extends ChangeNotifier {
 
       await _bookmarkBox!.put(id, bookmark);
       await loadBookmarks();
+      return true;
     } catch (e) {
       debugPrint('Error adding bookmark: $e');
+      return false;
     }
   }
 
-  // Remove bookmark
-  Future<void> removeBookmark(String id) async {
+  // Remove bookmark with login check
+  Future<bool> removeBookmark(BuildContext context, String id) async {
+    if (!await _checkLoginStatus(context)) return false;
     if (_bookmarkBox == null) {
       debugPrint('Bookmark box not initialized');
-      return;
+      return false;
     }
 
     try {
       await _bookmarkBox!.delete(id);
       await loadBookmarks();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Bookmark removed successfully'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return true;
     } catch (e) {
       debugPrint('Error removing bookmark: $e');
+      return false;
+    }
+  }
+
+  // Toggle bookmark status
+  Future<bool> toggleBookmark({
+    required BuildContext context,
+    required String id,
+    required String thumbnail,
+    required String title,
+    required String fileUrl,
+    required String tag,
+  }) async {
+    if (!await _checkLoginStatus(context)) return false;
+
+    if (isBookmarked(id)) {
+      return await removeBookmark(context, id);
+    } else {
+      return await addBookmark(
+        context: context,
+        id: id,
+        thumbnail: thumbnail,
+        title: title,
+        fileUrl: fileUrl,
+        tag: tag,
+      );
     }
   }
 
@@ -98,18 +165,27 @@ class BookmarkProvider extends ChangeNotifier {
     return _bookmarkBox!.containsKey(id);
   }
 
-  // Clear all bookmarks
-  Future<void> clearAllBookmarks() async {
+  // Clear all bookmarks with login check
+  Future<bool> clearAllBookmarks(BuildContext context) async {
+    if (!await _checkLoginStatus(context)) return false;
     if (_bookmarkBox == null) {
       debugPrint('Bookmark box not initialized');
-      return;
+      return false;
     }
 
     try {
       await _bookmarkBox!.clear();
       await loadBookmarks();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('All bookmarks cleared successfully'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return true;
     } catch (e) {
       debugPrint('Error clearing bookmarks: $e');
+      return false;
     }
   }
 

@@ -11,8 +11,11 @@ import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/textstyle_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/bookmark_screen/provider/bookmark_provider.dart';
+import 'package:zaitoon/screens/login_screen/login_screen.dart';
+import 'package:zaitoon/screens/login_screen/provider/auth_provider.dart';
 import 'package:zaitoon/screens/reading_screen/story_reader_page.dart';
 import 'package:zaitoon/utils/cache_manager.dart';
+
 
 class BookmarkScreen extends StatefulWidget {
   const BookmarkScreen({super.key});
@@ -27,7 +30,10 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
     Future.microtask(() {
       final bookmarkProvider =
           Provider.of<BookmarkProvider>(context, listen: false);
-      bookmarkProvider.loadBookmarks();
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      if (authProvider.isSignedIn) {
+        bookmarkProvider.loadBookmarks();
+      }
     });
     super.initState();
   }
@@ -37,229 +43,289 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
     return Scaffold(
       backgroundColor: ColorClass.black,
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Bookmarks',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: ColorClass.white,
+        child: Consumer<AuthProvider>(
+          builder: (context, authProvider, child) {
+            if (!authProvider.isSignedIn) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.bookmark_border_rounded,
+                      size: 64,
+                      color: ColorClass.grey.withOpacity(0.5),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Consumer<BookmarkProvider>(
-                    builder: (context, provider, child) {
-                      return Text(
-                        '${provider.bookmarks.length} saved stories',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: ColorClass.grey,
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-
-            // Main Content
-            Expanded(
-              child: Consumer<BookmarkProvider>(
-                builder: (context, provider, child) {
-                  if (provider.bookmarks.isEmpty) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.bookmark_border_rounded,
-                            size: 64,
-                            color: ColorClass.grey.withOpacity(0.5),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'No bookmarks yet',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: ColorClass.grey.withOpacity(0.8),
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Your bookmarked stories will appear here',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: ColorClass.grey.withOpacity(0.6),
-                            ),
-                          ),
-                        ],
+                    const SizedBox(height: 16),
+                    Text(
+                      'Login Required',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: ColorClass.grey.withOpacity(0.8),
+                        fontWeight: FontWeight.w500,
                       ),
-                    );
-                  }
-
-                  return ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: provider.bookmarks.length,
-                    itemBuilder: (context, index) {
-                      final story = provider.bookmarks[index];
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 16),
-                        decoration: BoxDecoration(
-                          color: ColorClass.black.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: Colors.grey.withOpacity(0.1),
-                            width: 1,
-                          ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Please login to view your bookmarks',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: ColorClass.grey.withOpacity(0.6),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton(
+                      onPressed: () {
+                        navigatePR(
+                            context: context, screen: const AuthScreen());
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.deepPurpleAccent,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 32,
+                          vertical: 12,
                         ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Story Image
-                            ClipRRect(
-                              borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(16),
-                                bottomLeft: Radius.circular(16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text('Login'),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Bookmarks',
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: ColorClass.white,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Consumer<BookmarkProvider>(
+                        builder: (context, provider, child) {
+                          return Text(
+                            '${provider.bookmarks.length} saved stories',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: ColorClass.grey,
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Main Content
+                Expanded(
+                  child: Consumer<BookmarkProvider>(
+                    builder: (context, provider, child) {
+                      if (provider.bookmarks.isEmpty) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.bookmark_border_rounded,
+                                size: 64,
+                                color: ColorClass.grey.withOpacity(0.5),
                               ),
-                              child: CachedNetworkImage(
-                                cacheManager: CustomCacheManager.instance,
-                                imageUrl: story.thumbnail,
-                                width: 120,
-                                height: 120,
-                                fit: BoxFit.cover,
+                              const SizedBox(height: 16),
+                              Text(
+                                'No bookmarks yet',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: ColorClass.grey.withOpacity(0.8),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Your bookmarked stories will appear here',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: ColorClass.grey.withOpacity(0.6),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+
+                      return ListView.builder(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: provider.bookmarks.length,
+                        itemBuilder: (context, index) {
+                          final story = provider.bookmarks[index];
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 16),
+                            decoration: BoxDecoration(
+                              color: ColorClass.black.withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: Colors.grey.withOpacity(0.1),
+                                width: 1,
                               ),
                             ),
-                            // Story Details
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // Tag
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color:
-                                            Colors.greenAccent.withOpacity(0.2),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Text(
-                                        story.tag,
-                                        style: TextStyleClass.poppinsRegular(
-                                          color: Colors.greenAccent,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    // Title
-                                    Text(
-                                      story.title,
-                                      style: TextStyleClass.poppinsBold(
-                                        fontSize: 16,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    // Description
-                                    // Text(
-                                    //   story.description,
-                                    //   maxLines: 2,
-                                    //   overflow: TextOverflow.ellipsis,
-                                    //   style: TextStyle(
-                                    //     color: ColorClass.grey.withOpacity(0.8),
-                                    //     fontSize: 14,
-                                    //   ),
-                                    // ),
-                                    // const SizedBox(height: 12),
-                                    // Action Buttons
-                                    Row(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Story Image
+                                ClipRRect(
+                                  borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(16),
+                                    bottomLeft: Radius.circular(16),
+                                  ),
+                                  child: CachedNetworkImage(
+                                    cacheManager: CustomCacheManager.instance,
+                                    imageUrl: story.thumbnail,
+                                    width: 120,
+                                    height: 120,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                // Story Details
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(12),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Expanded(
-                                          child: ElevatedButton.icon(
-                                            onPressed: () {
-                                              navigatePR(
-                                                context: context,
-                                                screen: StoryReadingScreen(
-                                                  id: story.id.toString(),
-                                                  title: story.title,
-                                                  thumbnail:
-                                                      '${ApiUrls.assetBaseUrl}${story.thumbnail}',
-                                                  tag: story.tag,
-                                                  pdfUrl: story.fileUrl,
-                                                ),
-                                              );
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor:
-                                                  Colors.deepPurpleAccent,
-                                              foregroundColor: Colors.white,
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: 8),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                              ),
-                                            ),
-                                            icon: const Icon(
-                                                LucideIcons.bookOpen),
-                                            label: Text(
-                                              'Read Story',
-                                              style:
-                                                  TextStyleClass.poppinsRegular(
-                                                fontSize: 12,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        // Remove Bookmark Button
+                                        // Tag
                                         Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 4,
+                                          ),
                                           decoration: BoxDecoration(
-                                            color: Colors.red.withOpacity(0.1),
+                                            color: Colors.greenAccent
+                                                .withOpacity(0.2),
                                             borderRadius:
                                                 BorderRadius.circular(8),
                                           ),
-                                          child: IconButton(
-                                            onPressed: () {
-                                              provider.removeBookmark(story.id);
-                                            },
-                                            icon: const Icon(
-                                              Icons.bookmark_remove,
-                                              color: Colors.red,
+                                          child: Text(
+                                            story.tag,
+                                            style:
+                                                TextStyleClass.poppinsRegular(
+                                              color: Colors.greenAccent,
+                                              fontSize: 12,
                                             ),
                                           ),
                                         ),
+                                        const SizedBox(height: 8),
+                                        // Title
+                                        Text(
+                                          story.title,
+                                          style: TextStyleClass.poppinsBold(
+                                            fontSize: 16,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        // Description
+                                        // Text(
+                                        //   story.description,
+                                        //   maxLines: 2,
+                                        //   overflow: TextOverflow.ellipsis,
+                                        //   style: TextStyle(
+                                        //     color: ColorClass.grey.withOpacity(0.8),
+                                        //     fontSize: 14,
+                                        //   ),
+                                        // ),
+                                        // const SizedBox(height: 12),
+                                        // Action Buttons
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: ElevatedButton.icon(
+                                                onPressed: () {
+                                                  navigatePR(
+                                                    context: context,
+                                                    screen: StoryReadingScreen(
+                                                      id: story.id.toString(),
+                                                      title: story.title,
+                                                      thumbnail:
+                                                          '${ApiUrls.assetBaseUrl}${story.thumbnail}',
+                                                      tag: story.tag,
+                                                      pdfUrl: story.fileUrl,
+                                                    ),
+                                                  );
+                                                },
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor:
+                                                      Colors.deepPurpleAccent,
+                                                  foregroundColor: Colors.white,
+                                                  padding: const EdgeInsets
+                                                      .symmetric(vertical: 8),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8),
+                                                  ),
+                                                ),
+                                                icon: const Icon(
+                                                    LucideIcons.bookOpen),
+                                                label: Text(
+                                                  'Read Story',
+                                                  style: TextStyleClass
+                                                      .poppinsRegular(
+                                                    fontSize: 12,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            // Remove Bookmark Button
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                color:
+                                                    Colors.red.withOpacity(0.1),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              child: IconButton(
+                                                onPressed: () {
+                                                  provider.removeBookmark(
+                                                      context, story.id);
+                                                },
+                                                icon: const Icon(
+                                                  Icons.bookmark_remove,
+                                                  color: Colors.red,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ],
                                     ),
-                                  ],
+                                  ),
                                 ),
-                              ),
+                              ],
                             ),
-                          ],
-                        ),
+                          );
+                        },
                       );
                     },
-                  );
-                },
-              ),
-            ),
-          ],
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );

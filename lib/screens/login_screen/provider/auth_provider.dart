@@ -123,6 +123,7 @@ class AuthProvider with ChangeNotifier {
 
         checkAndLoadUserData(context: context);
 
+        _isSignedIn = true;
         notifyListeners();
         return _user;
       } else {
@@ -315,10 +316,12 @@ class AuthProvider with ChangeNotifier {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.clear();
       print('User signed out');
-      navigateAndRemove(context: context, screen: const AuthScreen());
 
+      _isSignedIn = false;
       _user = null;
       notifyListeners();
+
+      navigateAndRemove(context: context, screen: const AuthScreen());
     } catch (e) {
       print('Error signing out: $e');
     }
@@ -333,8 +336,16 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> checkUserStatus() async {
-    _isSignedIn = await isUserSignedIn();
-    notifyListeners();
+    try {
+      _isSignedIn = await isUserSignedIn();
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _isSignedIn = false;
+      _isLoading = false;
+      notifyListeners();
+      dev.log('Error checking user status: $e');
+    }
   }
 
   Future<bool> isUserSignedIn() async {

@@ -425,7 +425,7 @@ class _BookmarkButtonState extends State<BookmarkButton>
           onTap: () async {
             _playAnimation();
             if (isBookmarked) {
-              await bookmarkProvider.removeBookmark(widget.id);
+              await bookmarkProvider.removeBookmark(context, widget.id);
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -440,14 +440,16 @@ class _BookmarkButtonState extends State<BookmarkButton>
                 );
               }
             } else {
-              await bookmarkProvider.addBookmark(
+              final success = await bookmarkProvider.addBookmark(
+                context: context,
                 id: widget.id,
                 thumbnail: widget.thumbnail,
                 title: widget.title,
                 fileUrl: widget.fileUrl,
                 tag: widget.tag,
               );
-              if (context.mounted) {
+              
+              if (success && context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: const Text(
@@ -459,8 +461,7 @@ class _BookmarkButtonState extends State<BookmarkButton>
                       label: 'View',
                       backgroundColor: Colors.white,
                       onPressed: () {
-                        navigatePR(
-                            context: context, screen: const BookmarkScreen());
+                        navigatePR(context: context, screen: const BookmarkScreen());
                       },
                     ),
                     backgroundColor: Colors.greenAccent.withOpacity(0.8),

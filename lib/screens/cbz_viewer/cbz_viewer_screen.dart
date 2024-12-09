@@ -1,7 +1,7 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:archive/archive.dart';
-import 'package:photo_view/photo_view.dart';
-import 'dart:typed_data';
 import 'package:flutter/services.dart';
 
 class CbzViewerScreen extends StatefulWidget {
@@ -47,7 +47,7 @@ class _CbzViewerScreenState extends State<CbzViewerScreen> {
         _isLoading = false;
       });
     } catch (e) {
-      print('Error loading CBZ file: $e');
+      log('Error loading CBZ file: $e');
       setState(() {
         _isLoading = false;
       });

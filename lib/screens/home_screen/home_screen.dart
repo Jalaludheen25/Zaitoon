@@ -195,75 +195,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  // TODO: Shared preference fn needs to be added
-  Widget _buildReadingStatsCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            ColorClass.primaryColor.withOpacity(0.2),
-            ColorClass.primaryColor.withOpacity(0.1),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: ColorClass.primaryColor.withOpacity(0.2),
-        ),
-      ),
-      child: Row(
-        children: [
-          _buildStatItem(
-            icon: '📚',
-            title: 'Stories Read',
-            value: '5',
-          ),
-          const VerticalDivider(color: Colors.white30),
-          _buildStatItem(
-            icon: '⭐',
-            title: 'Reading Streak',
-            value: '3 days',
-          ),
-          const VerticalDivider(color: Colors.white30),
-          _buildStatItem(
-            icon: '🎯',
-            title: 'Daily Goal',
-            value: '1/1',
-          ),
-        ],
-      ),
-    );
-  }
+ 
 
-  Widget _buildStatItem({
-    required String icon,
-    required String title,
-    required String value,
-  }) {
-    return Expanded(
-      child: Column(
-        children: [
-          Text(icon, style: const TextStyle(fontSize: 24)),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: TextStyleClass.poppinsSemiBold(
-              fontSize: 18,
-              color: ColorClass.white,
-            ),
-          ),
-          Text(
-            title,
-            style: TextStyleClass.poppinsRegular(
-              fontSize: 12,
-              color: ColorClass.white.withOpacity(0.7),
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildStoriesGrid() {
     return Consumer2<HomeProvider, PdfProvider>(
