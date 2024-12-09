@@ -133,6 +133,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       );
                     },
                   ),
+                  SizedBox(height: 30),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16.0),
+                    child: Text(
+                      'All Stories',
+                      style: TextStyleClass.poppinsSemiBold(
+                        fontSize: 16,
+                        color: ColorClass.white,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20),
                   _buildStoriesGrid(),
                 ],
               ),
@@ -246,7 +258,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: crossAxisCount,
+                crossAxisCount: 2,
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
                 childAspectRatio: 1.2,
@@ -290,17 +302,25 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             curve: Curves.easeOut,
           ),
         )),
-        child: StoryCard(
-          name: snapshot.selectedLanguage == 'en'
-              ? snapshot.storyModel!.data![index].name
-              : snapshot.storyModel!.data![index].mlTitle,
-          discription: snapshot.selectedLanguage == 'en'
-              ? snapshot.storyModel!.data![index].description
-              : snapshot.storyModel!.data![index].mlDescription,
-          tag: snapshot.storyModel!.data![index].tag,
-          imageUrl: ApiUrls.assetBaseUrl +
-              snapshot.storyModel!.data![index].coverimage!,
-          readTap: () => _handleStoryTap(index, snapshot, pdfSnapshot),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: ColorClass.primaryColor.withOpacity(0.1),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: StoryCard(
+            name: snapshot.selectedLanguage == 'en'
+                ? snapshot.storyModel!.data![index].name ?? ''
+                : snapshot.storyModel!.data![index].mlTitle ?? '',
+            imageUrl: ApiUrls.assetBaseUrl +
+                snapshot.storyModel!.data![index].coverimage!,
+            readTap: () => _handleStoryTap(index, snapshot, pdfSnapshot),
+          ),
         ),
       ),
     );

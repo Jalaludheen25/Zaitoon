@@ -4,132 +4,111 @@ import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/textstyle_class.dart';
 import 'dart:ui';
 
-class StoryCard extends StatefulWidget {
-  const StoryCard({
-    super.key,
-    this.imageUrl,
-    required this.readTap,
-    this.tag,
-    this.name,
-    this.discription,
-    this.language,
-  });
-  final String? imageUrl;
-  final String? tag;
-  final String? name;
-  final String? discription;
+class StoryCard extends StatelessWidget {
+  final String name;
+  final String imageUrl;
   final VoidCallback readTap;
-  final String? language;
-  @override
-  State<StoryCard> createState() => _StoryCardState();
-}
 
-class _StoryCardState extends State<StoryCard> {
+  const StoryCard({
+    Key? key,
+    required this.name,
+    required this.imageUrl,
+    required this.readTap,
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: widget.readTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 15),
-        width: double.infinity,
-        // height: 400, // Fixed height for consistency
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: Stack(
-            children: [
-              // Background Image
-              Positioned.fill(
-                child: CachedNetworkImage(
-                  imageUrl: widget.imageUrl ?? '',
-                  fit: BoxFit.cover,
-                  errorWidget: (context, url, error) => Container(
-                    color: ColorClass.grey,
+      onTap: readTap,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12.0),
+        child: Stack(
+          children: [
+            // Background image
+            Image.network(
+              imageUrl,
+              fit: BoxFit.cover,
+              width: double.infinity,
+              height: double.infinity,
+            ),
+            // Gradient overlay for bottom shadow
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: 80, // Height of the gradient shadow
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withOpacity(0.8),
+                    ],
                   ),
                 ),
               ),
-
-              // Blurred overlay for text
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: ClipRRect(
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 20.0, sigmaY: 20.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            const Color.fromARGB(255, 255, 255, 255)
-                                .withOpacity(0.0),
-                            const Color.fromARGB(255, 0, 0, 0).withOpacity(0.5),
-                          ],
-                        ),
+            ),
+            // Story name and arrow button
+            Positioned(
+              bottom: 0,
+              left: 5,
+              right: 16,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      name,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                       ),
-                      padding: const EdgeInsets.all(10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Title
-                                Text(
-                                  widget.name ?? '',
-                                  style: widget.language == 'en'
-                                      ? TextStyleClass.poppinsSemiBold(
-                                          fontSize: 18,
-                                          color: ColorClass.white,
-                                        )
-                                      : TextStyleClass.manjariSemiBold(
-                                          fontSize: 18,
-                                          color: ColorClass.white,
-                                        ),
-                                ),
-                                const SizedBox(height: 4),
-
-                                // Tag
-                                Text(widget.tag ?? '',
-                                    style: TextStyleClass.poppinsRegular(
-                                      fontSize: 12,
-                                      color: ColorClass.white,
-                                    )),
-                              ],
-                            ),
-                          ),
-                          InkWell(
-                            onTap: widget.readTap,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                color: ColorClass.black,
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                              child: Text(
-                                'Read Story',
-                                style: TextStyleClass.poppinsSemiBold(
-                                  fontSize: 14,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                ),
+                  IconButton(
+                    icon: Icon(Icons.arrow_forward, color: Colors.white),
+                    onPressed: readTap,
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
+    );
+  }
+}
+
+class StoryGrid extends StatelessWidget {
+  final List<StoryCard> storyCards;
+
+  const StoryGrid({Key? key, required this.storyCards}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Determine the number of columns based on screen width
+        int crossAxisCount = constraints.maxWidth > 600 ? 3 : 2;
+
+        return GridView.builder(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            crossAxisSpacing: 8.0,
+            mainAxisSpacing: 8.0,
+            childAspectRatio: 3 / 2, // Adjust the aspect ratio as needed
+          ),
+          itemCount: storyCards.length,
+          itemBuilder: (context, index) {
+            return storyCards[index];
+          },
+        );
+      },
     );
   }
 }

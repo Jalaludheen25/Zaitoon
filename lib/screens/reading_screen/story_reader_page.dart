@@ -10,6 +10,7 @@ import 'package:zaitoon/constants/textstyle_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/bookmark_screen/bookmark_screen.dart';
 import 'package:zaitoon/screens/bookmark_screen/provider/bookmark_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 class StoryReadingScreen extends StatefulWidget {
   final String pdfUrl;
@@ -176,6 +177,11 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
                     ),
                   ),
                 ),
+                _buildActionButton(
+                  icon: Icons.share_outlined,
+                  onPressed: _shareStory,
+                ),
+                const SizedBox(width: 8),
                 _buildBookmarkButton(),
               ],
             ),
@@ -458,6 +464,40 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
             ),
             backgroundColor: Colors.greenAccent.withOpacity(0.8),
             behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _shareStory() async {
+    const String appStoreLink =
+        'https://apps.apple.com/in/app/zai-toon-kids/id6737912105';
+    const String playStoreLink =
+        'https://play.google.com/store/apps/details?id=co.d4dx.zaitoon';
+
+    String textToShare = '''📚 Check out this amazing story on Zai Toon Kids!
+
+"${widget.title}"
+
+🌟 Download Zai Toon Kids to start reading:
+📱 iOS: $appStoreLink
+📱 Android: $playStoreLink
+
+Join thousands of families making reading time special! 🎉
+#ZaiToonKids #ChildrenStories #InteractiveReading''';
+
+    try {
+      await Share.share(
+        textToShare,
+        subject: '📚 Check out this story on Zai Toon Kids!',
+      );
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to share story'),
+            backgroundColor: Colors.red,
           ),
         );
       }

@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:zaitoon/constants/app_urls.dart';
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/textstyle_class.dart';
@@ -223,6 +224,41 @@ class _EpisodeTile extends StatelessWidget {
     required this.tag,
   });
 
+  Future<void> _shareEpisode(BuildContext context) async {
+    const String appStoreLink =
+        'https://apps.apple.com/in/app/zai-toon-kids/id6737912105';
+    const String playStoreLink =
+        'https://play.google.com/store/apps/details?id=co.d4dx.zaitoon';
+
+    String textToShare = '''📚 Check out this amazing story on Zai Toon Kids!
+
+"$seriesTitle"
+Episode: ${selectedLanguage == 'en' ? episode.storyTile! : episode.mlTitle!}
+
+🌟 Download Zai Toon Kids to start reading:
+📱 iOS: $appStoreLink
+📱 Android: $playStoreLink
+
+Join thousands of families making reading time special! 🎉
+#ZaiToonKids #ChildrenStories #InteractiveReading''';
+
+    try {
+      await Share.share(
+        textToShare,
+        subject: '📚 Check out this story on Zai Toon Kids!',
+      );
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to share story'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Hero(
@@ -351,6 +387,24 @@ class _EpisodeTile extends StatelessWidget {
                       Icons.chrome_reader_mode_outlined,
                       color: Colors.white,
                       size: 24,
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      padding: EdgeInsets.zero,
+                      icon: const Icon(
+                        Icons.share_outlined,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                      onPressed: () => _shareEpisode(context),
                     ),
                   ),
                   const SizedBox(width: 10),
