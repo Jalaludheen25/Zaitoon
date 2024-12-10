@@ -57,7 +57,7 @@ class HighlightedEpisodes extends StatelessWidget {
             itemCount: episodes.length,
             itemBuilder: (context, index) {
               final episode = episodes[index];
-              final storyName = getStoryName(episode.story);
+              getStoryName(episode.story);
 
               return GestureDetector(
                 onTap: () => onEpisodeTap(episode),

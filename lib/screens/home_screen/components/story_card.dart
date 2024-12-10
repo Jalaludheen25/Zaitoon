@@ -1,8 +1,5 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:zaitoon/constants/color_class.dart';
-import 'package:zaitoon/constants/textstyle_class.dart';
-import 'dart:ui';
+
 
 class StoryCard extends StatelessWidget {
   final String name;
@@ -10,11 +7,11 @@ class StoryCard extends StatelessWidget {
   final VoidCallback readTap;
 
   const StoryCard({
-    Key? key,
+    super.key,
     required this.name,
     required this.imageUrl,
     required this.readTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +84,7 @@ class StoryCard extends StatelessWidget {
 class StoryGrid extends StatelessWidget {
   final List<StoryCard> storyCards;
 
-  const StoryGrid({Key? key, required this.storyCards}) : super(key: key);
+  const StoryGrid({super.key, required this.storyCards});
 
   @override
   Widget build(BuildContext context) {
