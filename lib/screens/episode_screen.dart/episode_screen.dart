@@ -356,19 +356,19 @@ Join thousands of families making reading time special! 🎉
                               ),
                             ),
                             const SizedBox(width: 12),
-                            const Icon(
-                              Icons.calendar_today,
-                              color: Colors.white54,
-                              size: 12,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              episode.uploadDate ?? 'N/A',
-                              style: TextStyleClass.poppinsRegular(
-                                fontSize: 12,
-                                color: Colors.white54,
-                              ),
-                            ),
+                            // const Icon(
+                            //   Icons.calendar_today,
+                            //   color: Colors.white54,
+                            //   size: 12,
+                            // ),
+                            // const SizedBox(width: 4),
+                            // Text(
+                            //   episode.uploadDate ?? 'N/A',
+                            //   style: TextStyleClass.poppinsRegular(
+                            //     fontSize: 12,
+                            //     color: Colors.white54,
+                            //   ),
+                            // ),
                           ],
                         ),
                       ],
