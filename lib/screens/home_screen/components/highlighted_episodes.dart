@@ -74,89 +74,88 @@ class HighlightedEpisodes extends StatelessWidget {
                       children: [
                         Positioned.fill(
                           child: CachedNetworkImage(
-                            imageUrl:
-                                ApiUrls.assetBaseUrl + episode.coverImage!,
+                            imageUrl: ApiUrls.assetBaseUrl + episode.adBanner!,
                             fit: BoxFit.cover,
                           ),
                         ),
-                        Positioned.fill(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [
-                                  Colors.transparent,
-                                  Colors.black.withOpacity(0.8),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          bottom: 16,
-                          left: 16,
-                          right: 16,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Episode Title
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      storyName,
-                                      style: TextStyleClass.poppinsSemiBold(
-                                        fontSize: 16,
-                                        color: ColorClass.white,
-                                      ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    selectedLanguage == 'en'
-                                        ? episode.storyTile ?? ''
-                                        : episode.mlTitle ?? '',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: ColorClass.white70,
-                                    ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  SizedBox(width: 5),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      const Icon(
-                                        Icons.access_time,
-                                        color: Colors.white70,
-                                        size: 14,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        '${episode.readMinutes} min',
-                                        style: TextStyleClass.poppinsRegular(
-                                          fontSize: 12,
-                                          color: Colors.white70,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
+                        // Positioned.fill(
+                        //   child: Container(
+                        //     decoration: BoxDecoration(
+                        //       gradient: LinearGradient(
+                        //         begin: Alignment.topCenter,
+                        //         end: Alignment.bottomCenter,
+                        //         colors: [
+                        //           Colors.transparent,
+                        //           Colors.black.withOpacity(0.8),
+                        //         ],
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
+                        // Positioned(
+                        //   bottom: 16,
+                        //   left: 16,
+                        //   right: 16,
+                        //   child: Column(
+                        //     crossAxisAlignment: CrossAxisAlignment.start,
+                        //     children: [
+                        //       // Episode Title
+                        //       Row(
+                        //         children: [
+                        //           Expanded(
+                        //             child: Text(
+                        //               storyName,
+                        //               style: TextStyleClass.poppinsSemiBold(
+                        //                 fontSize: 16,
+                        //                 color: ColorClass.white,
+                        //               ),
+                        //               maxLines: 2,
+                        //               overflow: TextOverflow.ellipsis,
+                        //             ),
+                        //           ),
+                        //           const SizedBox(width: 8),
+                        //         ],
+                        //       ),
+                        //       const SizedBox(height: 8),
+                        //       Row(
+                        //         mainAxisAlignment:
+                        //             MainAxisAlignment.spaceBetween,
+                        //         children: [
+                        //           Text(
+                        //             selectedLanguage == 'en'
+                        //                 ? episode.storyTile ?? ''
+                        //                 : episode.mlTitle ?? '',
+                        //             style: TextStyle(
+                        //               fontSize: 14,
+                        //               color: ColorClass.white70,
+                        //             ),
+                        //             maxLines: 2,
+                        //             overflow: TextOverflow.ellipsis,
+                        //           ),
+                        //           SizedBox(width: 5),
+                        //           Row(
+                        //             mainAxisAlignment: MainAxisAlignment.end,
+                        //             children: [
+                        //               const Icon(
+                        //                 Icons.access_time,
+                        //                 color: Colors.white70,
+                        //                 size: 14,
+                        //               ),
+                        //               const SizedBox(width: 4),
+                        //               Text(
+                        //                 '${episode.readMinutes} min',
+                        //                 style: TextStyleClass.poppinsRegular(
+                        //                   fontSize: 12,
+                        //                   color: Colors.white70,
+                        //                 ),
+                        //               ),
+                        //             ],
+                        //           ),
+                        //         ],
+                        //       ),
+                        //     ],
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),

@@ -251,17 +251,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
         return LayoutBuilder(
           builder: (context, constraints) {
-            int crossAxisCount = constraints.maxWidth > 600 ? 2 : 1;
+            int crossAxisCount = constraints.maxWidth > 600 ? 3 : 2;
 
             return GridView.builder(
               padding: const EdgeInsets.all(16),
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
+                crossAxisCount: crossAxisCount,
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
-                childAspectRatio: 1.2,
+                childAspectRatio: 0.8,
               ),
               itemCount: snapshot.storyModel!.data!.length,
               itemBuilder: (context, index) => _buildAnimatedStoryCard(
