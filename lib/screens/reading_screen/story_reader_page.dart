@@ -1,16 +1,17 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/textstyle_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/bookmark_screen/bookmark_screen.dart';
 import 'package:zaitoon/screens/bookmark_screen/provider/bookmark_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:http/http.dart' as http;
 
 class StoryReadingScreen extends StatefulWidget {
   final String pdfUrl;
@@ -34,17 +35,41 @@ class StoryReadingScreen extends StatefulWidget {
 
 class _StoryReadingScreenState extends State<StoryReadingScreen>
     with SingleTickerProviderStateMixin {
-  final PdfViewerController _pdfViewerController = PdfViewerController();
   late AnimationController _animationController;
   late Animation<double> _bounceAnimation;
   bool _isAtBottom = false;
   bool _isLoading = true;
+  String? _localPdfPath;
+  int _totalPages = 0;
+  int _currentPage = 1;
 
   @override
   void initState() {
     super.initState();
-    _pdfViewerController.addListener(_checkIfAtBottom);
     _initializeAnimations();
+    _loadPdf();
+  }
+
+  Future<void> _loadPdf() async {
+    try {
+      final response = await http.get(Uri.parse(widget.pdfUrl));
+      final dir = await getTemporaryDirectory();
+      final file = File('${dir.path}/${widget.id}.pdf');
+      await file.writeAsBytes(response.bodyBytes);
+      setState(() {
+        _localPdfPath = file.path;
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to load PDF'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   void _initializeAnimations() {
@@ -63,7 +88,7 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
   }
 
   void _checkIfAtBottom() {
-    if (_pdfViewerController.pageNumber == _pdfViewerController.pageCount) {
+    if (_currentPage == _totalPages) {
       if (!_isAtBottom) {
         setState(() => _isAtBottom = true);
       }
@@ -84,41 +109,49 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
             left: 0,
             right: 0,
             child: LinearProgressIndicator(
-              value: _pdfViewerController.pageNumber /
-                  (_pdfViewerController.pageCount == 0
-                      ? 1
-                      : _pdfViewerController.pageCount),
+              value: _totalPages == 0 ? 0 : _currentPage / _totalPages,
               backgroundColor: ColorClass.primaryColor.withOpacity(0.1),
               color: ColorClass.primaryColor,
               minHeight: 3,
             ),
           ),
-
           // PDF Viewer
-          Theme(
-            data: ThemeData.dark().copyWith(
-              scrollbarTheme: ScrollbarThemeData(
-                thumbColor: WidgetStateProperty.all(
-                  ColorClass.primaryColor.withOpacity(0.5),
-                ),
-              ),
-            ),
-            child: SfPdfViewer.network(
-              widget.pdfUrl,
-              controller: _pdfViewerController,
-              enableDoubleTapZooming: false,
-              canShowScrollHead: true,
-              maxZoomLevel: 2,
-              pageLayoutMode: PdfPageLayoutMode.continuous,
-              onDocumentLoaded: (PdfDocumentLoadedDetails details) {
-                setState(() => _isLoading = false);
+          if (_localPdfPath != null)
+            PDFView(
+              filePath: _localPdfPath!,
+              enableSwipe: true,
+              swipeHorizontal: false,
+              autoSpacing: true,
+              pageFling: false,
+              pageSnap: false,
+              defaultPage: 0,
+              fitPolicy: FitPolicy.WIDTH,
+              preventLinkNavigation: false,
+              onRender: (pages) {
+                setState(() {
+                  _totalPages = pages!;
+                  _isLoading = false;
+                });
               },
-              onPageChanged: (PdfPageChangedDetails details) {
-                _checkIfAtBottom();
+              onPageChanged: (int? page, int? total) {
+                if (page != null) {
+                  setState(() {
+                    _currentPage = page + 1;
+                  });
+                  _checkIfAtBottom();
+                }
               },
-              pageSpacing: 8,
+              onError: (error) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(error.toString()),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
             ),
-          ),
 
           // Loading Overlay
           if (_isLoading) _buildLoadingOverlay(),
@@ -185,16 +218,6 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
                 _buildBookmarkButton(),
               ],
             ),
-            // if (!_isLoading) ...[
-            //   const SizedBox(height: 8),
-            //   Text(
-            //     'Page ${_pdfViewerController.pageNumber} of ${_pdfViewerController.pageCount}',
-            //     style: TextStyleClass.poppinsRegular(
-            //       fontSize: 12,
-            //       color: ColorClass.white.withOpacity(0.7),
-            //     ),
-            //   ),
-            // ],
           ],
         ),
       ),
@@ -506,8 +529,6 @@ Join thousands of families making reading time special! 🎉
 
   @override
   void dispose() {
-    _pdfViewerController.removeListener(_checkIfAtBottom);
-    _pdfViewerController.dispose();
     _animationController.dispose();
     super.dispose();
   }
