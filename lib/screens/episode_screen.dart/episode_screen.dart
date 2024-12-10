@@ -236,7 +236,7 @@ class _EpisodeTile extends StatelessWidget {
 Episode: ${selectedLanguage == 'en' ? episode.storyTile! : episode.mlTitle!}
 
 🌟 Download Zai Toon Kids to start reading:
-📱 iOS: $appStoreLink
+📱 iOS: $appStoreLink\n
 📱 Android: $playStoreLink
 
 Join thousands of families making reading time special! 🎉

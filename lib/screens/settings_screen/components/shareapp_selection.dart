@@ -14,7 +14,7 @@ Future<void> shareApp(context) async {
 🌟 Make storytime magical with interactive children's stories that engage and inspire young minds.
 
 📱 Download Now:
-- iOS: $appStoreLink
+- iOS: $appStoreLink\n
 - Android: $playStoreLink
 
 ✨ Why Choose Zai Toon Kids?

@@ -316,7 +316,9 @@ class AuthProvider with ChangeNotifier {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.clear();
       print('User signed out');
-
+      UserDataProvider provider =
+          Provider.of<UserDataProvider>(context, listen: false);
+      provider.clearUserData();
       _isSignedIn = false;
       _user = null;
       notifyListeners();

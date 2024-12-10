@@ -44,7 +44,7 @@ class HighlightedEpisodes extends StatelessWidget {
           child: Text(
             'Featured Episodes',
             style: TextStyleClass.poppinsSemiBold(
-              fontSize: 20,
+              fontSize: 16,
               color: ColorClass.white,
             ),
           ),

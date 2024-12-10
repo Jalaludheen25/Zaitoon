@@ -167,7 +167,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             child: Row(
               children: [
                 Text(
-                  "Hello, ${name.length > 10 ? '${name.substring(0, 10)}...' : name}", // Add text truncation
+                  "Hello", // Add text truncation
                   style: TextStyleClass.poppinsSemiBold(
                     fontSize: 20,
                     color: ColorClass.white,
@@ -181,9 +181,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ),
           const SizedBox(height: 4),
           Text(
-            "Ready for today's adventure?",
+            name,
             style: TextStyleClass.poppinsRegular(
-              fontSize: 14,
+              fontSize: 16,
               color: ColorClass.white.withOpacity(0.7),
             ),
             maxLines: 1, // Limit to single line

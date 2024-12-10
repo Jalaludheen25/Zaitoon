@@ -34,6 +34,15 @@ class UserDataProvider with ChangeNotifier {
   bool get isGenderEmpty => _gender.isEmpty;
   bool get isOnboardingCompleted => _isOnboardingCompleted;
 
+  void clearUserData() {
+    _name = null;
+    _age = null;
+    _email = null;
+    _uid = null;
+    _gender = '';
+    notifyListeners();
+  }
+
   // Initialize Provider
   Future<void> initialize() async {
     try {

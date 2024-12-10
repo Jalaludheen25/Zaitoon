@@ -506,7 +506,7 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
 "${widget.title}"
 
 🌟 Download Zai Toon Kids to start reading:
-📱 iOS: $appStoreLink
+📱 iOS: $appStoreLink\n
 📱 Android: $playStoreLink
 
 Join thousands of families making reading time special! 🎉
