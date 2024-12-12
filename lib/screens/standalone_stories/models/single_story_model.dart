@@ -34,10 +34,12 @@ class Datum {
   final String readTime;
   final String storyFileEn;
   final String storyFileMl;
-  final String storyTileEn;
+  final String storyTitleEn;
   final String storyTitleMl;
   final String tag;
-
+  bool? isHighlighted;
+  dynamic enBanner;
+  dynamic mlBanner;
   Datum({
     required this.coverImage,
     required this.description,
@@ -45,9 +47,12 @@ class Datum {
     required this.readTime,
     required this.storyFileEn,
     required this.storyFileMl,
-    required this.storyTileEn,
+    required this.storyTitleEn,
     required this.storyTitleMl,
     required this.tag,
+    this.isHighlighted,
+    this.enBanner,
+    this.mlBanner,
   });
 
   factory Datum.fromJson(Map<String, dynamic> json) => Datum(
@@ -57,9 +62,12 @@ class Datum {
         readTime: json["read_time"],
         storyFileEn: json["story_file_en"],
         storyFileMl: json["story_file_ml"],
-        storyTileEn: json["story_tile_en"],
+        storyTitleEn: json["story_tile_en"],
         storyTitleMl: json["story_title_ml"],
         tag: json["tag"],
+        isHighlighted: json["isHighlighted"],
+        enBanner: json["en_banner"],
+        mlBanner: json["ml_banner"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -69,8 +77,11 @@ class Datum {
         "read_time": readTime,
         "story_file_en": storyFileEn,
         "story_file_ml": storyFileMl,
-        "story_tile_en": storyTileEn,
+        "story_tile_en": storyTitleEn,
         "story_title_ml": storyTitleMl,
         "tag": tag,
+        "isHighlighted": isHighlighted,
+        "en_banner": enBanner,
+        "ml_banner": mlBanner,
       };
 }

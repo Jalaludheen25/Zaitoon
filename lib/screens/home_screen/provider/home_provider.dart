@@ -6,10 +6,12 @@ import 'package:zaitoon/screens/home_screen/models/story_model.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:zaitoon/screens/standalone_stories/models/single_story_model.dart';
 
 class HomeProvider extends ChangeNotifier {
   StoryModel? _storyModel;
   EpisodeModel? _episodeModel;
+  SingleStoryModel? _singleStoryModel;
   bool _isLoading = false;
   String? _error;
   EpisodeModel? _highlightedEpisodes;
@@ -18,6 +20,7 @@ class HomeProvider extends ChangeNotifier {
   StoryModel? get storyModel => _storyModel;
   bool get isStoryLoading => _isLoading;
   EpisodeModel? get episodeModel => _episodeModel;
+  SingleStoryModel? get singleStoryModel => _singleStoryModel;
   bool get isepisodeLoading => _isLoading;
   String? get error => _error;
   EpisodeModel? get highlightedEpisodes => _highlightedEpisodes;
@@ -143,30 +146,36 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> fetchHighlightedEpisodes() async {
+  Future<void> fetchHighlightedContent() async {
     _isHighlightedLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      final response = await http
-          .get(Uri.parse(ApiUrls.highlightedEpisodes))
-          .timeout(const Duration(seconds: 15));
+      // Fetch both highlighted episodes and stories in parallel
+      final results = await Future.wait([
+        http.get(Uri.parse(ApiUrls.highlightedEpisodes))
+            .timeout(const Duration(seconds: 15)),
+        http.get(Uri.parse(ApiUrls.highlightedStories))
+            .timeout(const Duration(seconds: 15)),
+      ]);
 
-      if (response.statusCode == 200) {
-        log("Highlighted episodes fetched successfully");
-        _highlightedEpisodes = episodeModelFromJson(response.body);
-        _error = null;
-      } else {
-        _error = "Failed to load highlighted episodes: ${response.statusCode}";
-        log(_error!);
+      if (results[0].statusCode == 200) {
+        _highlightedEpisodes = episodeModelFromJson(results[0].body);
       }
+
+      if (results[1].statusCode == 200) {
+        _singleStoryModel = singleStoryModelFromJson(results[1].body);
+      }
+
+      _error = null;
     } catch (e) {
       _error = "Something went wrong. Please try again.";
-      log("Error fetching highlighted episodes: $e");
+      log("Error fetching highlighted content: $e");
     } finally {
       _isHighlightedLoading = false;
       notifyListeners();
     }
   }
+
 }

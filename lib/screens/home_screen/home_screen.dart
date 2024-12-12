@@ -16,7 +16,7 @@ import 'package:zaitoon/screens/reading_screen/story_reader_page.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
 import 'package:zaitoon/screens/version_check/force_udpate_dialog.dart';
 import 'package:zaitoon/screens/version_check/provider/version_check_provider.dart';
-import 'package:zaitoon/screens/home_screen/components/highlighted_episodes.dart';
+import 'package:zaitoon/screens/home_screen/components/highlighted_cards.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -40,7 +40,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       HomeProvider homeProvider =
           Provider.of<HomeProvider>(context, listen: false);
       homeProvider.fetchStories().then((value) {
-        homeProvider.fetchHighlightedEpisodes();
+        homeProvider.fetchHighlightedContent();
         checkForUpdates();
       });
     });
@@ -103,35 +103,51 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               child: ListView(
                 children: [
                   Consumer<HomeProvider>(
-                    builder: (context, provider, _) {
-                      if (provider.isHighlightedLoading ||
-                          provider.highlightedEpisodes == null) {
-                        return const SizedBox.shrink();
-                      }
-                      return HighlightedEpisodes(
-                        storyModel: provider.storyModel,
-                        episodes: provider.highlightedEpisodes!.data!,
-                        selectedLanguage: provider.selectedLanguage,
-                        onEpisodeTap: (episode) {
-                          navigatePR(
-                            context: context,
-                            screen: StoryReadingScreen(
-                              id: episode.id.toString(),
-                              title: provider.selectedLanguage == 'en'
-                                  ? episode.storyTile!
-                                  : episode.mlTitle!,
-                              thumbnail:
-                                  ApiUrls.assetBaseUrl + episode.coverImage!,
-                              tag: '',
-                              pdfUrl: provider.selectedLanguage == 'en'
-                                  ? ApiUrls.assetBaseUrl + episode.storyFile!
-                                  : ApiUrls.assetBaseUrl + episode.mlStoryFile!,
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  ),
+  builder: (context, provider, _) {
+    if (provider.isHighlightedLoading ||
+        (provider.highlightedEpisodes == null && provider.singleStoryModel == null)) {
+      return const SizedBox.shrink();
+    }
+    return HighlightedCards(
+      storyModel: provider.storyModel,
+      singleStoryModel: provider.singleStoryModel,
+      episodes: provider.highlightedEpisodes?.data ?? [],
+      selectedLanguage: provider.selectedLanguage,
+      onEpisodeTap: (episode) {
+        navigatePR(
+          context: context,
+          screen: StoryReadingScreen(
+            id: episode.id.toString(),
+            title: provider.selectedLanguage == 'en'
+                ? episode.storyTile!
+                : episode.mlTitle!,
+            thumbnail: ApiUrls.assetBaseUrl + episode.coverImage!,
+            tag: '',
+            pdfUrl: provider.selectedLanguage == 'en'
+                ? ApiUrls.assetBaseUrl + episode.storyFile!
+                : ApiUrls.assetBaseUrl + episode.mlStoryFile!,
+          ),
+        );
+      },
+      onStoryTap: (story) {
+        navigatePR(
+          context: context,
+          screen: StoryReadingScreen(
+            id: story.id.toString(),
+            title: provider.selectedLanguage == 'en'
+                ? story.storyTitleEn
+                : story.storyTitleMl,
+            thumbnail: ApiUrls.assetBaseUrl + story.coverImage,
+            tag: story.tag,
+            pdfUrl: provider.selectedLanguage == 'en'
+                ? ApiUrls.assetBaseUrl + story.storyFileEn
+                : ApiUrls.assetBaseUrl + story.storyFileMl,
+          ),
+        );
+      },
+    );
+  },
+),
                   SizedBox(height: 30),
                   Padding(
                     padding: const EdgeInsets.only(left: 16.0),

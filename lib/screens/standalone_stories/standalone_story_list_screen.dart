@@ -137,7 +137,7 @@ class _StoriesScreenState extends State<StoriesScreen> {
                             screen: StoryReadingScreen(
                               id: story.id.toString(),
                               title: homeProvider.selectedLanguage == 'en'
-                                  ? story.storyTileEn
+                                  ? story.storyTitleEn
                                   : story.storyTitleMl,
                               thumbnail:
                                   '${ApiUrls.assetBaseUrl}${story.coverImage}',
@@ -151,7 +151,7 @@ class _StoriesScreenState extends State<StoriesScreen> {
                         child: StoryCard(
                           id: story.id.toString(),
                           title: homeProvider.selectedLanguage == 'en'
-                              ? story.storyTileEn
+                              ? story.storyTitleEn
                               : story.storyTitleMl,
                           category: story.tag,
                           fileUrl: homeProvider.selectedLanguage == 'en'
@@ -276,22 +276,23 @@ class StoryCard extends StatelessWidget {
                     top: 8,
                     right: 8,
                     child: Consumer<StoriesProvider>(
-                      builder: (context, provider, child) => provider.isBookmarkLoading 
-                          ? const SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : BookmarkButton(
-                              id: id,
-                              thumbnail: imageUrl,
-                              title: title,
-                              fileUrl: fileUrl,
-                              tag: category,
-                            ),
+                      builder: (context, provider, child) =>
+                          provider.isBookmarkLoading
+                              ? const SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : BookmarkButton(
+                                  id: id,
+                                  thumbnail: imageUrl,
+                                  title: title,
+                                  fileUrl: fileUrl,
+                                  tag: category,
+                                ),
                     ),
                   ),
                 ],
