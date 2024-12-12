@@ -42,20 +42,21 @@ class EpisodeData {
   String? uploadDate;
   bool? isHighlighted;
   dynamic adBanner;
-
-  EpisodeData({
-    this.coverImage,
-    this.id,
-    this.mlStoryFile,
-    this.mlTitle,
-    this.readMinutes,
-    this.story,
-    this.storyFile,
-    this.storyTile,
-    this.uploadDate,
-    this.isHighlighted,
-    this.adBanner,
-  });
+  dynamic mlBanner;
+  
+  EpisodeData(
+      {this.coverImage,
+      this.id,
+      this.mlStoryFile,
+      this.mlTitle,
+      this.readMinutes,
+      this.story,
+      this.storyFile,
+      this.storyTile,
+      this.uploadDate,
+      this.isHighlighted,
+      this.adBanner,
+      this.mlBanner});
 
   factory EpisodeData.fromJson(Map<String, dynamic> json) => EpisodeData(
         coverImage: json["cover_image"],
@@ -69,6 +70,7 @@ class EpisodeData {
         uploadDate: json["upload_date"],
         isHighlighted: json["isHighlighted"],
         adBanner: json["ad_banner"],
+        mlBanner: json["ml_banner"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -83,5 +85,6 @@ class EpisodeData {
         "upload_date": uploadDate,
         "isHighlighted": isHighlighted,
         "ad_banner": adBanner,
+        "ml_banner": mlBanner,
       };
 }

@@ -74,8 +74,20 @@ class HighlightedEpisodes extends StatelessWidget {
                       children: [
                         Positioned.fill(
                           child: CachedNetworkImage(
-                            imageUrl: ApiUrls.assetBaseUrl + episode.adBanner!,
-                            fit: BoxFit.cover,
+                            imageUrl: ApiUrls.assetBaseUrl +
+                                (selectedLanguage == 'ml'
+                                    ? episode.mlBanner ?? episode.adBanner
+                                    : episode.adBanner ?? ''),
+                            fit: BoxFit.fill,
+                            errorWidget: (context, url, error) => Container(
+                              color: Colors.grey[900],
+                              child: const Center(
+                                child: Icon(
+                                  Icons.error_outline,
+                                  color: Colors.white54,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                         // Positioned.fill(
