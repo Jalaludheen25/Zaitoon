@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 class StoryCard extends StatelessWidget {
   final String name;
   final String imageUrl;
@@ -67,10 +66,10 @@ class StoryCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  IconButton(
-                    icon: Icon(Icons.arrow_forward, color: Colors.white),
-                    onPressed: readTap,
-                  ),
+                  // IconButton(
+                  //   icon: Icon(Icons.arrow_forward, color: Colors.white),
+                  //   onPressed: readTap,
+                  // ),
                 ],
               ),
             ),

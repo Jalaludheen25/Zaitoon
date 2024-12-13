@@ -102,7 +102,7 @@ class HighlightedCards extends StatelessWidget {
                           child: CachedNetworkImage(
                             imageUrl:
                                 ApiUrls.assetBaseUrl + _getItemBanner(item),
-                            fit: BoxFit.fill,
+                            fit: BoxFit.cover,
                             errorWidget: (context, url, error) => Container(
                               color: Colors.grey[900],
                               child: const Center(
@@ -121,7 +121,7 @@ class HighlightedCards extends StatelessWidget {
               );
             }).toList(),
             options: FlutterCarouselOptions(
-              viewportFraction: 0.8,
+              viewportFraction: 0.9,
               enlargeCenterPage: true,
               autoPlay: true,
               autoPlayAnimationDuration: const Duration(milliseconds: 800),

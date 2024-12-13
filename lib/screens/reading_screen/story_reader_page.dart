@@ -123,7 +123,7 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
               filePath: _localPdfPath!,
               enableSwipe: true,
               swipeHorizontal: false,
-              autoSpacing: true,
+              autoSpacing: false,
               pageFling: false,
               pageSnap: true,
               defaultPage: 0,
