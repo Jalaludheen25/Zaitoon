@@ -191,7 +191,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       _buildSettingItem(
                         icon: Icons.feedback_outlined,
-                        title: 'Feedback',
+                        title: 'Raise bug / Feedback',
                         subtitle: 'Help us improve your experience',
                         onTap: () {
                           _showParentalGate(() {
