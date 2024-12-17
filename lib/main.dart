@@ -11,6 +11,7 @@ import 'package:zaitoon/screens/bookmark_screen/hive/bookmark_hive_model.dart';
 import 'package:zaitoon/screens/bookmark_screen/provider/bookmark_provider.dart';
 import 'package:zaitoon/screens/bottom_navigation/provider/bottom_navigation_provider.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
+import 'package:zaitoon/screens/kids_corner_screen/provider/kids_corner_provider.dart';
 import 'package:zaitoon/screens/login_screen/provider/auth_provider.dart';
 import 'package:zaitoon/screens/reading_screen/provider/pdf_provider.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
@@ -74,6 +75,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: bookmarkProvider),
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
         ChangeNotifierProvider(create: (_) => VersionCheckProvider()),
+        ChangeNotifierProvider(create: (_) => KidsCornerProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
