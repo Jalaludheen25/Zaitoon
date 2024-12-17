@@ -34,6 +34,26 @@ class _KidsCornerScreenState extends State<KidsCornerScreen>
     },
   ];
 
+  // Add this list at the class level, after the stories list
+  final List<String> _storyAuthors = [
+    'Ahmad Dorwart',
+    'Adison Mango',
+    'Lindsey Williams',
+    'Sarah Parker'
+  ];
+  final List<String> _poemAuthors = [
+    'Emily Frost',
+    'Robert Blake',
+    'Maya Chen',
+    'David Kumar'
+  ];
+  final List<String> _drawingArtists = [
+    'Alex Turner',
+    'Sofia Garcia',
+    'Noah Kim',
+    'Emma Watson'
+  ];
+
   @override
   void initState() {
     // Initialize tab controller with 3 tabs (Stories, Poems, Drawings)
@@ -96,180 +116,236 @@ class _KidsCornerScreenState extends State<KidsCornerScreen>
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text(
-                'Highlights',
-                style: TextStyle(
-                  color: ColorClass.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-            // Horizontal scrolling highlights/stories section
-            SizedBox(
-              height: 200,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: stories.length,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemBuilder: (context, index) {
-                  return Container(
-                    width: 140,
-                    margin: const EdgeInsets.only(right: 16),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      color: Colors.grey[850],
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    'Highlights',
+                    style: TextStyle(
+                      color: ColorClass.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w500,
                     ),
-                    child: Stack(
-                      children: [
-                        ClipRRect(
+                  ),
+                ),
+                // Horizontal scrolling highlights/stories section
+                SizedBox(
+                  height: 200,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: stories.length,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    itemBuilder: (context, index) {
+                      return Container(
+                        width: 140,
+                        margin: const EdgeInsets.only(right: 16),
+                        decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(16),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [
-                                  Colors.transparent,
-                                  Colors.black.withOpacity(0.7)
+                          color: Colors.grey[850],
+                        ),
+                        child: Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      Colors.transparent,
+                                      Colors.black.withOpacity(0.7)
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 16,
+                              left: 16,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  CircleAvatar(
+                                    radius: 20,
+                                    backgroundColor: ColorClass.primaryColor,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    stories[index]['name']!,
+                                    style: const TextStyle(
+                                      color: ColorClass.white,
+                                      fontSize: 16,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
-                          ),
+                          ],
                         ),
-                        Positioned(
-                          bottom: 16,
-                          left: 16,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              CircleAvatar(
-                                radius: 20,
-                                backgroundColor: ColorClass.primaryColor,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                stories[index]['name']!,
-                                style: const TextStyle(
-                                  color: ColorClass.white,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-            // Tab buttons row for Stories, Poems, Drawings
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-              child: Row(
-                children: [
-                  _buildTabButton('Stories', 0),
-                  const SizedBox(width: 8),
-                  _buildTabButton('Poems', 1),
-                  const SizedBox(width: 8),
-                  _buildTabButton('Drawings', 2),
-                ],
-              ),
-            ),
-            // TabBarView showing content for selected tab
-            SizedBox(
-              height: 360,
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  _buildPost(),
-                  _buildPost(),
-                  _buildPost(),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // Builds a social media style post with image, likes and comments
-  Widget _buildPost() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: Colors.grey[850],
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ListTile(
-            leading: const CircleAvatar(
-              radius: 20,
-              backgroundColor: ColorClass.primaryColor,
-            ),
-            title: const Text(
-              'Ahmad Dorwart',
-              style: TextStyle(color: ColorClass.white),
-            ),
-            subtitle: const Text(
-              '10 Mins Ago',
-              style: TextStyle(color: Colors.grey),
-            ),
-            trailing: IconButton(
-              icon: const Icon(Icons.more_horiz, color: ColorClass.white),
-              onPressed: () {},
-            ),
-          ),
-          Container(
-            height: 200,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: Colors.grey[700],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.favorite_border,
-                      color: ColorClass.white),
-                  onPressed: () {},
+                      );
+                    },
+                  ),
                 ),
-                const Text(
-                  '229 Likes',
-                  style: TextStyle(color: Colors.grey),
+                // Tab buttons row
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                  child: Row(
+                    children: [
+                      _buildTabButton('Stories', 0),
+                      const SizedBox(width: 8),
+                      _buildTabButton('Poems', 1),
+                      const SizedBox(width: 8),
+                      _buildTabButton('Drawings', 2),
+                    ],
+                  ),
                 ),
-                const SizedBox(width: 16),
-                IconButton(
-                  icon: const Icon(Icons.chat_bubble_outline,
-                      color: ColorClass.white),
-                  onPressed: () {},
-                ),
-                const Text(
-                  '200 Comments',
-                  style: TextStyle(color: Colors.grey),
-                ),
-                const Spacer(),
-                IconButton(
-                  icon: const Icon(Icons.send, color: ColorClass.white),
-                  onPressed: () {},
+                // Tab-specific content
+                AnimatedBuilder(
+                  animation: _tabController,
+                  builder: (context, child) {
+                    switch (_tabController.index) {
+                      case 0:
+                        return _buildPostGrid(itemCount: 6, title: 'Stories');
+                      case 1:
+                        return _buildPostGrid(itemCount: 4, title: 'Poems');
+                      case 2:
+                        return _buildPostGrid(itemCount: 8, title: 'Drawings');
+                      default:
+                        return _buildPostGrid(itemCount: 6, title: 'Stories');
+                    }
+                  },
                 ),
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildPostGrid({required int itemCount, required String title}) {
+    // Get the appropriate author list based on the current tab
+    List<String> authors;
+    switch (title) {
+      case 'Stories':
+        authors = _storyAuthors;
+        break;
+      case 'Poems':
+        authors = _poemAuthors;
+        break;
+      case 'Drawings':
+        authors = _drawingArtists;
+        break;
+      default:
+        authors = _storyAuthors;
+    }
+
+    return GridView.builder(
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 1,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+        childAspectRatio: 1.1,
+      ),
+      itemCount: itemCount,
+      itemBuilder: (context, index) {
+        // Get author name with wraparound if index exceeds list length
+        final authorName = authors[index % authors.length];
+
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.grey[850],
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    const CircleAvatar(
+                      radius: 14,
+                      backgroundColor: ColorClass.primaryColor,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        authorName, // Use the dynamic author name here
+                        style: const TextStyle(
+                          color: ColorClass.white,
+                          fontSize: 12,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Post image
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[700],
+                  ),
+                ),
+              ),
+              // Engagement buttons
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.favorite_border,
+                          color: ColorClass.white,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '229',
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.chat_bubble_outline,
+                          color: ColorClass.white,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '200',
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
