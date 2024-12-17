@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/screens/kids_corner_screen/components/get_started_screen.dart';
 
@@ -87,7 +89,7 @@ class _KidsCornerScreenState extends State<KidsCornerScreen>
               child: Center(
                 child: Text(
                   text,
-                  style: TextStyle(
+                  style: GoogleFonts.poppins(
                     color: ColorClass.white,
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
@@ -115,18 +117,21 @@ class _KidsCornerScreenState extends State<KidsCornerScreen>
           );
         },
         backgroundColor: ColorClass.primaryColor,
-        icon: const Icon(Icons.add, color: ColorClass.white),
-        label: const Text(
-          'Create',
-          style: TextStyle(color: ColorClass.white),
+        icon: const Icon(Icons.brush_outlined, color: ColorClass.white),
+        label: Text(
+          'Upload ✨',
+          style: GoogleFonts.comicNeue(
+            color: ColorClass.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
-        title: const Text(
+        title: Text(
           'Kids Corner',
-          style: TextStyle(
+          style: GoogleFonts.fredoka(
             color: ColorClass.white,
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -138,11 +143,11 @@ class _KidsCornerScreenState extends State<KidsCornerScreen>
           Expanded(
             child: ListView(
               children: [
-                const Padding(
+                Padding(
                   padding: EdgeInsets.all(16.0),
                   child: Text(
                     'Highlights',
-                    style: TextStyle(
+                    style: GoogleFonts.poppins(
                       color: ColorClass.white,
                       fontSize: 24,
                       fontWeight: FontWeight.w500,
@@ -320,7 +325,7 @@ class _KidsCornerScreenState extends State<KidsCornerScreen>
                           children: [
                             Text(
                               authorName,
-                              style: const TextStyle(
+                              style: GoogleFonts.poppins(
                                 color: ColorClass.white,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
@@ -328,28 +333,12 @@ class _KidsCornerScreenState extends State<KidsCornerScreen>
                             ),
                             Text(
                               '2 hours ago',
-                              style: TextStyle(
+                              style: GoogleFonts.poppins(
                                 color: Colors.grey[400],
                                 fontSize: 12,
                               ),
                             ),
                           ],
-                        ),
-                      ],
-                    ),
-                    // Like and Share buttons
-                    Row(
-                      children: [
-                        _buildEngagementButton(
-                          icon: Icons.favorite_border,
-                          label: '2.3k',
-                          onPressed: () {},
-                        ),
-                        const SizedBox(width: 16),
-                        _buildEngagementButton(
-                          icon: Icons.share_outlined,
-                          label: 'Share',
-                          onPressed: () {},
                         ),
                       ],
                     ),
@@ -377,10 +366,26 @@ class _KidsCornerScreenState extends State<KidsCornerScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Row(
+                      children: [
+                        _buildEngagementButton(
+                          icon: LucideIcons.heart,
+                          label: '2.3k',
+                          onPressed: () {},
+                        ),
+                        const SizedBox(width: 16),
+                        _buildEngagementButton(
+                          icon: LucideIcons.share2,
+                          label: 'Share',
+                          onPressed: () {},
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 16),
                     // Caption
                     Text(
                       'Beautiful ${title.toLowerCase()} by $authorName #kidscorner #creativity',
-                      style: const TextStyle(
+                      style: GoogleFonts.poppins(
                         color: ColorClass.white,
                         fontSize: 14,
                       ),
@@ -411,10 +416,10 @@ class _KidsCornerScreenState extends State<KidsCornerScreen>
             color: ColorClass.white,
             size: 20,
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: 6),
           Text(
             label,
-            style: TextStyle(
+            style: GoogleFonts.poppins(
               color: Colors.grey[400],
               fontSize: 14,
             ),
