@@ -19,18 +19,18 @@ class _KidsCornerScreenState extends State<KidsCornerScreen>
   final List<Map<String, String>> stories = [
     {
       'name': 'Adison Mango',
-      'image': 'assets/forest_bg.jpg',
-      'avatar': 'assets/adison_avatar.jpg'
+      'image': 'assets/images/onboarding1.png',
+      'avatar': 'assets/images/appicon.png'
     },
     {
       'name': 'Ahmad Dorwart',
-      'image': 'assets/wave_bg.jpg',
-      'avatar': 'assets/ahmad_avatar.jpg'
+      'image': 'assets/images/onboarding1.png',
+      'avatar': 'assets/images/appicon.png'
     },
     {
       'name': 'Lindsey',
-      'image': 'assets/mountain_bg.jpg',
-      'avatar': 'assets/lindsey_avatar.jpg'
+      'image': 'assets/images/onboarding1.png',
+      'avatar': 'assets/images/appicon.png'
     },
   ];
 
@@ -146,6 +146,10 @@ class _KidsCornerScreenState extends State<KidsCornerScreen>
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(16),
                           color: Colors.grey[850],
+                          image: DecorationImage(
+                            image: AssetImage(stories[index]['image']!),
+                            fit: BoxFit.cover,
+                          ),
                         ),
                         child: Stack(
                           children: [
@@ -173,6 +177,8 @@ class _KidsCornerScreenState extends State<KidsCornerScreen>
                                   CircleAvatar(
                                     radius: 20,
                                     backgroundColor: ColorClass.primaryColor,
+                                    backgroundImage:
+                                        AssetImage(stories[index]['avatar']!),
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
@@ -230,7 +236,6 @@ class _KidsCornerScreenState extends State<KidsCornerScreen>
   }
 
   Widget _buildPostGrid({required int itemCount, required String title}) {
-    // Get the appropriate author list based on the current tab
     List<String> authors;
     switch (title) {
       case 'Stories':
@@ -254,11 +259,10 @@ class _KidsCornerScreenState extends State<KidsCornerScreen>
         crossAxisCount: 1,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
-        childAspectRatio: 1.1,
+        childAspectRatio: 1.2,
       ),
       itemCount: itemCount,
       itemBuilder: (context, index) {
-        // Get author name with wraparound if index exceeds list length
         final authorName = authors[index % authors.length];
 
         return Container(
@@ -269,75 +273,102 @@ class _KidsCornerScreenState extends State<KidsCornerScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // User Profile Section
               Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    const CircleAvatar(
-                      radius: 14,
-                      backgroundColor: ColorClass.primaryColor,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        authorName, // Use the dynamic author name here
-                        style: const TextStyle(
-                          color: ColorClass.white,
-                          fontSize: 12,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // Post image
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[700],
-                  ),
-                ),
-              ),
-              // Engagement buttons
-              Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(12.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
                       children: [
-                        Icon(
-                          Icons.favorite_border,
-                          color: ColorClass.white,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '229',
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 12,
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: ColorClass.primaryColor,
+                              width: 2,
+                            ),
                           ),
+                          child: const CircleAvatar(
+                            backgroundColor: Colors.grey,
+                            backgroundImage:
+                                AssetImage('assets/images/appicon.png'),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              authorName,
+                              style: const TextStyle(
+                                color: ColorClass.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Text(
+                              '2 hours ago',
+                              style: TextStyle(
+                                color: Colors.grey[400],
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
+                    // Like and Share buttons
                     Row(
                       children: [
-                        Icon(
-                          Icons.chat_bubble_outline,
-                          color: ColorClass.white,
-                          size: 20,
+                        _buildEngagementButton(
+                          icon: Icons.favorite_border,
+                          label: '2.3k',
+                          onPressed: () {},
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '200',
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 12,
-                          ),
+                        const SizedBox(width: 16),
+                        _buildEngagementButton(
+                          icon: Icons.share_outlined,
+                          label: 'Share',
+                          onPressed: () {},
                         ),
                       ],
+                    ),
+                  ],
+                ),
+              ),
+              // Cover Image
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.grey[700],
+                    image: const DecorationImage(
+                      image: AssetImage('assets/images/onboarding1.png'),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+              ),
+              // Engagement Section
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Caption
+                    Text(
+                      'Beautiful ${title.toLowerCase()} by $authorName #kidscorner #creativity',
+                      style: const TextStyle(
+                        color: ColorClass.white,
+                        fontSize: 14,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
@@ -346,6 +377,33 @@ class _KidsCornerScreenState extends State<KidsCornerScreen>
           ),
         );
       },
+    );
+  }
+
+  Widget _buildEngagementButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onPressed,
+  }) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            color: ColorClass.white,
+            size: 20,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              color: Colors.grey[400],
+              fontSize: 14,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
