@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:zaitoon/constants/color_class.dart';
 
+/// KidsCornerScreen displays content for children including stories, poems and drawings
+/// It uses a TabController to manage different content sections
 class KidsCornerScreen extends StatefulWidget {
   const KidsCornerScreen({super.key});
 
@@ -10,8 +12,10 @@ class KidsCornerScreen extends StatefulWidget {
 
 class _KidsCornerScreenState extends State<KidsCornerScreen>
     with SingleTickerProviderStateMixin {
+  // TabController for managing the three main content sections
   late TabController _tabController;
 
+  // Sample story data - should be moved to a separate data model or provider
   final List<Map<String, String>> stories = [
     {
       'name': 'Adison Mango',
@@ -32,6 +36,7 @@ class _KidsCornerScreenState extends State<KidsCornerScreen>
 
   @override
   void initState() {
+    // Initialize tab controller with 3 tabs (Stories, Poems, Drawings)
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
   }
@@ -42,6 +47,7 @@ class _KidsCornerScreenState extends State<KidsCornerScreen>
     super.dispose();
   }
 
+  // Custom tab button builder that shows selected state
   Widget _buildTabButton(String text, int index) {
     return Expanded(
       child: GestureDetector(
@@ -97,7 +103,7 @@ class _KidsCornerScreenState extends State<KidsCornerScreen>
             const Padding(
               padding: EdgeInsets.all(16.0),
               child: Text(
-                'Stories',
+                'Highlights',
                 style: TextStyle(
                   color: ColorClass.white,
                   fontSize: 24,
@@ -105,6 +111,7 @@ class _KidsCornerScreenState extends State<KidsCornerScreen>
                 ),
               ),
             ),
+            // Horizontal scrolling highlights/stories section
             SizedBox(
               height: 200,
               child: ListView.builder(
@@ -163,20 +170,22 @@ class _KidsCornerScreenState extends State<KidsCornerScreen>
                 },
               ),
             ),
+            // Tab buttons row for Stories, Poems, Drawings
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
               child: Row(
                 children: [
-                  _buildTabButton('Drawings', 0),
+                  _buildTabButton('Stories', 0),
                   const SizedBox(width: 8),
                   _buildTabButton('Poems', 1),
                   const SizedBox(width: 8),
-                  _buildTabButton('Stories', 2),
+                  _buildTabButton('Drawings', 2),
                 ],
               ),
             ),
+            // TabBarView showing content for selected tab
             SizedBox(
-              height: MediaQuery.of(context).size.height - 400,
+              height: 360,
               child: TabBarView(
                 controller: _tabController,
                 children: [
@@ -192,6 +201,7 @@ class _KidsCornerScreenState extends State<KidsCornerScreen>
     );
   }
 
+  // Builds a social media style post with image, likes and comments
   Widget _buildPost() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
