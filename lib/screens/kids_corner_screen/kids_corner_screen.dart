@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:zaitoon/constants/color_class.dart';
+import 'package:zaitoon/screens/kids_corner_screen/components/get_started_screen.dart';
 
 /// KidsCornerScreen displays content for children including stories, poems and drawings
 /// It uses a TabController to manage different content sections
@@ -104,6 +105,22 @@ class _KidsCornerScreenState extends State<KidsCornerScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const GetStartedScreen(),
+            ),
+          );
+        },
+        backgroundColor: ColorClass.primaryColor,
+        icon: const Icon(Icons.add, color: ColorClass.white),
+        label: const Text(
+          'Create',
+          style: TextStyle(color: ColorClass.white),
+        ),
+      ),
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
