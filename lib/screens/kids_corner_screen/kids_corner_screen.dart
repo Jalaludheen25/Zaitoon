@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/screens/kids_corner_screen/components/get_started_screen.dart';
+import 'package:zaitoon/screens/kids_corner_screen/components/content_detail_screen.dart';
 
 /// KidsCornerScreen displays content for children including stories, poems and drawings
 /// It uses a TabController to manage different content sections
@@ -287,115 +288,130 @@ class _KidsCornerScreenState extends State<KidsCornerScreen>
       itemBuilder: (context, index) {
         final authorName = authors[index % authors.length];
 
-        return Container(
-          decoration: BoxDecoration(
-            color: Colors.grey[850],
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // User Profile Section
-              Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: ColorClass.primaryColor,
-                              width: 2,
-                            ),
-                          ),
-                          child: const CircleAvatar(
-                            backgroundColor: Colors.grey,
-                            backgroundImage:
-                                AssetImage('assets/images/appicon.png'),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              authorName,
-                              style: GoogleFonts.poppins(
-                                color: ColorClass.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            Text(
-                              '2 hours ago',
-                              style: GoogleFonts.poppins(
-                                color: Colors.grey[400],
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ContentDetailScreen(
+                  title: 'Beautiful ${title.toLowerCase()} by $authorName',
+                  authorName: authorName,
+                  contentType: title,
+                  imageUrl: 'assets/images/onboarding1.png',
                 ),
               ),
-              // Cover Image
-              Expanded(
-                child: Container(
-                  width: double.infinity,
-                  margin: const EdgeInsets.symmetric(horizontal: 12),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    color: Colors.grey[700],
-                    image: const DecorationImage(
-                      image: AssetImage('assets/images/onboarding1.png'),
-                      fit: BoxFit.cover,
+            );
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.grey[850],
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // User Profile Section
+                Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: ColorClass.primaryColor,
+                                width: 2,
+                              ),
+                            ),
+                            child: const CircleAvatar(
+                              backgroundColor: Colors.grey,
+                              backgroundImage:
+                                  AssetImage('assets/images/appicon.png'),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                authorName,
+                                style: GoogleFonts.poppins(
+                                  color: ColorClass.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              Text(
+                                '2 hours ago',
+                                style: GoogleFonts.poppins(
+                                  color: Colors.grey[400],
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                // Cover Image
+                Expanded(
+                  child: Container(
+                    width: double.infinity,
+                    margin: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: Colors.grey[700],
+                      image: const DecorationImage(
+                        image: AssetImage('assets/images/onboarding1.png'),
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              // Engagement Section
-              Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        _buildEngagementButton(
-                          icon: LucideIcons.heart,
-                          label: '2.3k',
-                          onPressed: () {},
-                        ),
-                        const SizedBox(width: 16),
-                        _buildEngagementButton(
-                          icon: LucideIcons.share2,
-                          label: 'Share',
-                          onPressed: () {},
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 16),
-                    // Caption
-                    Text(
-                      'Beautiful ${title.toLowerCase()} by $authorName #kidscorner #creativity',
-                      style: GoogleFonts.poppins(
-                        color: ColorClass.white,
-                        fontSize: 14,
+                // Engagement Section
+                Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          _buildEngagementButton(
+                            icon: LucideIcons.heart,
+                            label: '2.3k',
+                            onPressed: () {},
+                          ),
+                          const SizedBox(width: 16),
+                          _buildEngagementButton(
+                            icon: LucideIcons.share2,
+                            label: 'Share',
+                            onPressed: () {},
+                          ),
+                        ],
                       ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
+                      SizedBox(height: 16),
+                      // Caption
+                      Text(
+                        'Beautiful ${title.toLowerCase()} by $authorName #kidscorner #creativity',
+                        style: GoogleFonts.poppins(
+                          color: ColorClass.white,
+                          fontSize: 14,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
