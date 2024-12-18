@@ -47,14 +47,6 @@ class SubmissionAcknowledgmentScreen extends StatelessWidget {
                             child: Lottie.asset(
                               'assets/animations/success.json',
                               repeat: false,
-                              delegates: LottieDelegates(
-                                values: [
-                                  ValueDelegate.color(
-                                    const ['**'],
-                                    value: const Color(0xFF7C53F4),
-                                  ),
-                                ],
-                              ),
                             ),
                           ),
                           const SizedBox(height: 16),

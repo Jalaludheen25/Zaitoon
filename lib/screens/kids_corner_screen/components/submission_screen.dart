@@ -16,7 +16,7 @@ class SubmissionScreen extends StatefulWidget {
 class _SubmissionScreenState extends State<SubmissionScreen> {
   String selectedContentType = 'Story';
   final TextEditingController titleController = TextEditingController();
-  
+
   final TextEditingController contentController = TextEditingController();
   File? selectedImage;
   final ImagePicker _picker = ImagePicker();
@@ -265,6 +265,8 @@ class _SubmissionScreenState extends State<SubmissionScreen> {
                   onTap: _pickImage,
                   child: Container(
                     height: 200,
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
@@ -370,7 +372,6 @@ class _SubmissionScreenState extends State<SubmissionScreen> {
                   builder: (context) => PersonalDetailsScreen(
                     contentType: selectedContentType,
                     title: titleController.text,
-                    
                     content: contentController.text,
                     drawingImage: selectedImage,
                   ),
@@ -435,7 +436,11 @@ class _SubmissionScreenState extends State<SubmissionScreen> {
               hintStyle: GoogleFonts.quicksand(
                 color: Colors.white.withOpacity(0.7),
               ),
-              prefixIcon: Icon(icon, color: Colors.white.withOpacity(0.7)),
+              prefixIcon: Padding(
+                padding: EdgeInsets.only(bottom: maxLines != null ? 120 : 0),
+                child: Icon(icon, color: Colors.white.withOpacity(0.7)),
+              ),
+              alignLabelWithHint: true,
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(
@@ -458,7 +463,7 @@ class _SubmissionScreenState extends State<SubmissionScreen> {
   @override
   void dispose() {
     titleController.dispose();
-    
+
     contentController.dispose();
     super.dispose();
   }

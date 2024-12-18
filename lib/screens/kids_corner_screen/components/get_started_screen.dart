@@ -192,8 +192,8 @@ class _GetStartedScreenState extends State<GetStartedScreen>
                           ),
                           SizedBox(
                             height: 250,
-                            child: Lottie.network(
-                              'https://assets10.lottiefiles.com/packages/lf20_2scSKA.json',
+                            child: Lottie.asset(
+                              'assets/animations/loading.json',
                               fit: BoxFit.contain,
                             ),
                           ),
