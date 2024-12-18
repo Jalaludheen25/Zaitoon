@@ -1,38 +1,35 @@
+// screens/content_detail_screen.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:provider/provider.dart';
 import 'package:zaitoon/constants/color_class.dart';
+import 'package:zaitoon/screens/kids_corner_screen/models/kids_content_model.dart';
+import 'package:zaitoon/screens/kids_corner_screen/provider/kids_corner_provider.dart';
 
 class ContentDetailScreen extends StatelessWidget {
-  final String title;
-  final String authorName;
-  final String contentType;
-  final String imageUrl;
+  final KidsContent content;
 
   const ContentDetailScreen({
     super.key,
-    required this.title,
-    required this.authorName,
-    required this.contentType,
-    required this.imageUrl,
+    required this.content,
   });
 
   @override
   Widget build(BuildContext context) {
+    final imageUrl = context
+        .read<KidsCornerProvider>()
+        .getAssetUrl(content.coverImageForPoemAndStory ?? content.drawings);
+
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: ColorClass.white),
-          onPressed: () => Navigator.pop(context),
-        ),
         title: Text(
-          contentType,
-          style: GoogleFonts.fredoka(
+          content.title,
+          style: GoogleFonts.poppins(
             color: ColorClass.white,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
@@ -40,136 +37,98 @@ class ContentDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Author info
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: ColorClass.primaryColor,
-                        width: 2,
-                      ),
-                    ),
-                    child: const CircleAvatar(
-                      backgroundColor: Colors.grey,
-                      backgroundImage: AssetImage('assets/images/appicon.png'),
-                    ),
+            // Content Image
+            if (imageUrl.isNotEmpty)
+              Container(
+                height: 250,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: NetworkImage(imageUrl),
+                    fit: BoxFit.cover,
                   ),
-                  const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        authorName,
-                        style: GoogleFonts.poppins(
-                          color: ColorClass.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Text(
-                        '2 hours ago',
-                        style: GoogleFonts.poppins(
-                          color: Colors.grey[400],
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            // Content image
-            Container(
-              width: double.infinity,
-              height: 300,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage(imageUrl),
-                  fit: BoxFit.cover,
                 ),
               ),
-            ),
-            // Engagement buttons
+
+            // Author Info
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Row(
                 children: [
-                  _buildEngagementButton(
-                    icon: LucideIcons.heart,
-                    label: '2.3k',
-                    onPressed: () {},
+                  CircleAvatar(
+                    radius: 24,
+                    backgroundColor: ColorClass.primaryColor,
+                    backgroundImage: content.kidPhoto != null
+                        ? NetworkImage(context
+                            .read<KidsCornerProvider>()
+                            .getAssetUrl(content.kidPhoto))
+                        : null,
+                    child: content.kidPhoto == null
+                        ? Text(
+                            content.kidName[0],
+                            style: const TextStyle(
+                              color: ColorClass.white,
+                              fontSize: 20,
+                            ),
+                          )
+                        : null,
                   ),
-                  const SizedBox(width: 24),
-                  _buildEngagementButton(
-                    icon: LucideIcons.share2,
-                    label: 'Share',
-                    onPressed: () {},
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          content.kidName,
+                          style: GoogleFonts.poppins(
+                            color: ColorClass.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          content.schoolName,
+                          style: GoogleFonts.poppins(
+                            color: Colors.grey[400],
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-            // Content title and description
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: GoogleFonts.poppins(
-                      color: ColorClass.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+
+            // Content
+            if (content.storyOrPoem != null)
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  content.storyOrPoem!,
+                  style: GoogleFonts.poppins(
+                    color: ColorClass.white,
+                    fontSize: 16,
+                    height: 1.6,
                   ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-                    style: GoogleFonts.poppins(
-                      color: Colors.grey[300],
-                      fontSize: 16,
-                      height: 1.6,
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
+
+            // Drawing Description
+            if (content.descriptionForDrawings != null)
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  content.descriptionForDrawings!,
+                  style: GoogleFonts.poppins(
+                    color: ColorClass.white,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
           ],
         ),
       ),
     );
   }
-
-  Widget _buildEngagementButton({
-    required IconData icon,
-    required String label,
-    required VoidCallback onPressed,
-  }) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            color: ColorClass.white,
-            size: 24,
-          ),
-          const SizedBox(width: 8),
-          Text(
-            label,
-            style: GoogleFonts.poppins(
-              color: Colors.grey[400],
-              fontSize: 16,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-} 
+}

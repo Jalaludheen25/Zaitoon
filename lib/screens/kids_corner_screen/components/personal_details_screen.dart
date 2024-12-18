@@ -9,7 +9,7 @@ import 'submission_acknowledgment_screen.dart';
 class PersonalDetailsScreen extends StatefulWidget {
   final String contentType;
   final String title;
-  final String description;
+
   final String content;
   final File? drawingImage;
 
@@ -17,7 +17,6 @@ class PersonalDetailsScreen extends StatefulWidget {
     super.key,
     required this.contentType,
     required this.title,
-    required this.description,
     required this.content,
     this.drawingImage,
   });
@@ -212,7 +211,8 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
                           onPressed: () {
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (context) => const SubmissionAcknowledgmentScreen(),
+                                builder: (context) =>
+                                    const SubmissionAcknowledgmentScreen(),
                               ),
                             );
                           },

@@ -16,7 +16,7 @@ class SubmissionScreen extends StatefulWidget {
 class _SubmissionScreenState extends State<SubmissionScreen> {
   String selectedContentType = 'Story';
   final TextEditingController titleController = TextEditingController();
-  final TextEditingController descriptionController = TextEditingController();
+
   final TextEditingController contentController = TextEditingController();
   File? selectedImage;
   final ImagePicker _picker = ImagePicker();
@@ -25,11 +25,45 @@ class _SubmissionScreenState extends State<SubmissionScreen> {
   final List<String> contentTypes = ['Story', 'Poem', 'Drawing'];
 
   Future<void> _pickImage() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      setState(() {
-        selectedImage = File(image.path);
-      });
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1920, // Limit max resolution
+        maxHeight: 1080,
+        imageQuality: 85, // Compress image quality (0-100)
+      );
+
+      if (image != null) {
+        // Check file size (limit to 5MB)
+        final file = File(image.path);
+        final sizeInBytes = await file.length();
+        final sizeInMB = sizeInBytes / (1024 * 1024);
+
+        if (sizeInMB > 5) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Please select an image smaller than 5MB'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+          return;
+        }
+
+        setState(() {
+          selectedImage = File(image.path);
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error selecting image. Please try again.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -214,12 +248,6 @@ class _SubmissionScreenState extends State<SubmissionScreen> {
             titleController,
             icon: LucideIcons.textCursor,
           ),
-          _buildTextField(
-            'Description',
-            descriptionController,
-            icon: LucideIcons.info,
-            maxLines: 2, // Reduced from 3 to 2
-          ),
           if (selectedContentType == 'Drawing')
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -237,6 +265,8 @@ class _SubmissionScreenState extends State<SubmissionScreen> {
                   onTap: _pickImage,
                   child: Container(
                     height: 200,
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
@@ -342,7 +372,6 @@ class _SubmissionScreenState extends State<SubmissionScreen> {
                   builder: (context) => PersonalDetailsScreen(
                     contentType: selectedContentType,
                     title: titleController.text,
-                    description: descriptionController.text,
                     content: contentController.text,
                     drawingImage: selectedImage,
                   ),
@@ -407,7 +436,11 @@ class _SubmissionScreenState extends State<SubmissionScreen> {
               hintStyle: GoogleFonts.quicksand(
                 color: Colors.white.withOpacity(0.7),
               ),
-              prefixIcon: Icon(icon, color: Colors.white.withOpacity(0.7)),
+              prefixIcon: Padding(
+                padding: EdgeInsets.only(bottom: maxLines != null ? 120 : 0),
+                child: Icon(icon, color: Colors.white.withOpacity(0.7)),
+              ),
+              alignLabelWithHint: true,
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(
@@ -430,7 +463,7 @@ class _SubmissionScreenState extends State<SubmissionScreen> {
   @override
   void dispose() {
     titleController.dispose();
-    descriptionController.dispose();
+
     contentController.dispose();
     super.dispose();
   }
