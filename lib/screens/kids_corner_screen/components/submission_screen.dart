@@ -25,11 +25,45 @@ class _SubmissionScreenState extends State<SubmissionScreen> {
   final List<String> contentTypes = ['Story', 'Poem', 'Drawing'];
 
   Future<void> _pickImage() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      setState(() {
-        selectedImage = File(image.path);
-      });
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1920, // Limit max resolution
+        maxHeight: 1080,
+        imageQuality: 85, // Compress image quality (0-100)
+      );
+
+      if (image != null) {
+        // Check file size (limit to 5MB)
+        final file = File(image.path);
+        final sizeInBytes = await file.length();
+        final sizeInMB = sizeInBytes / (1024 * 1024);
+
+        if (sizeInMB > 5) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Please select an image smaller than 5MB'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+          return;
+        }
+
+        setState(() {
+          selectedImage = File(image.path);
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error selecting image. Please try again.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
