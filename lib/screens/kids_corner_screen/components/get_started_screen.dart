@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/kids_corner_screen/components/floating_bubbles.dart';
-import 'package:zaitoon/screens/kids_corner_screen/submission_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:lottie/lottie.dart';
 import 'package:flutter/services.dart';
+import 'package:zaitoon/screens/kids_corner_screen/components/submission_screen.dart';
 
 class GetStartedScreen extends StatefulWidget {
   const GetStartedScreen({super.key});
