@@ -16,7 +16,7 @@ class SubmissionScreen extends StatefulWidget {
 class _SubmissionScreenState extends State<SubmissionScreen> {
   String selectedContentType = 'Story';
   final TextEditingController titleController = TextEditingController();
-  final TextEditingController descriptionController = TextEditingController();
+  
   final TextEditingController contentController = TextEditingController();
   File? selectedImage;
   final ImagePicker _picker = ImagePicker();
@@ -248,12 +248,6 @@ class _SubmissionScreenState extends State<SubmissionScreen> {
             titleController,
             icon: LucideIcons.textCursor,
           ),
-          _buildTextField(
-            'Description',
-            descriptionController,
-            icon: LucideIcons.info,
-            maxLines: 2, // Reduced from 3 to 2
-          ),
           if (selectedContentType == 'Drawing')
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -376,7 +370,7 @@ class _SubmissionScreenState extends State<SubmissionScreen> {
                   builder: (context) => PersonalDetailsScreen(
                     contentType: selectedContentType,
                     title: titleController.text,
-                    description: descriptionController.text,
+                    
                     content: contentController.text,
                     drawingImage: selectedImage,
                   ),
@@ -464,7 +458,7 @@ class _SubmissionScreenState extends State<SubmissionScreen> {
   @override
   void dispose() {
     titleController.dispose();
-    descriptionController.dispose();
+    
     contentController.dispose();
     super.dispose();
   }
