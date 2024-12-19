@@ -4,7 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:animate_do/animate_do.dart';
 import 'dart:io';
-import 'package:zaitoon/screens/kids_corner_screen/components/personal_details_screen.dart';
+import 'package:zaitoon/screens/kids_corner_screen/screens/submission_screens/personal_details_screen.dart';
 
 class SubmissionScreen extends StatefulWidget {
   const SubmissionScreen({super.key});

@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/screens/kids_corner_screen/components/content_card.dart';
-import 'package:zaitoon/screens/kids_corner_screen/components/get_started_screen.dart';
+import 'package:zaitoon/screens/kids_corner_screen/screens/submission_screens/get_started_screen.dart';
 import 'package:zaitoon/screens/kids_corner_screen/models/kids_content_model.dart';
 import 'package:zaitoon/screens/kids_corner_screen/provider/kids_corner_provider.dart';
 
@@ -273,5 +273,3 @@ class _KidsCornerScreenState extends State<KidsCornerScreen>
     );
   }
 }
-
-

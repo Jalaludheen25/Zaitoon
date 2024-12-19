@@ -8,7 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:lottie/lottie.dart';
 import 'package:flutter/services.dart';
-import 'package:zaitoon/screens/kids_corner_screen/components/submission_screen.dart';
+import 'package:zaitoon/screens/kids_corner_screen/screens/submission_screens/submission_screen.dart';
 
 class GetStartedScreen extends StatefulWidget {
   const GetStartedScreen({super.key});
