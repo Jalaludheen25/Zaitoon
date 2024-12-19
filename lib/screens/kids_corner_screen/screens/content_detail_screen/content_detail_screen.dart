@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/screens/kids_corner_screen/models/kids_content_model.dart';
 import 'package:zaitoon/screens/kids_corner_screen/provider/kids_corner_provider.dart';
@@ -15,6 +16,30 @@ class ContentDetailScreen extends StatelessWidget {
     super.key,
     required this.content,
   });
+
+  void _shareContent() {
+    final String contentType = content.contentType ?? 'content';
+    final String appStoreLink =
+        'https://apps.apple.com/in/app/zai-toon-kids/id6737912105';
+    final String playStoreLink =
+        'https://play.google.com/store/apps/details?id=co.d4dx.zaitoon';
+
+    final String shareText =
+        '''Check out this amazing $contentType by ${content.kidName}!
+
+
+
+🌟 Download Zai Toon Kids to start reading:
+
+📱 iOS: $appStoreLink
+
+📱 Android: $playStoreLink
+
+Join thousands of families making reading time special! 🎉
+#ZaiToonKids #ChildrenStories #InteractiveReading''';
+
+    Share.share(shareText);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -193,7 +218,7 @@ class ContentDetailScreen extends StatelessWidget {
                   _buildEngagementButton(
                     icon: LucideIcons.share2,
                     label: 'Share',
-                    onPressed: () {},
+                    onPressed: _shareContent,
                   ),
                 ],
               ),
