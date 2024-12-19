@@ -23,6 +23,11 @@ class _KidsCornerScreenState extends State<KidsCornerScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(() {
+      if (_tabController.indexIsChanging) {
+        setState(() {});
+      }
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<KidsCornerProvider>().fetchContent();
     });
@@ -227,27 +232,43 @@ class _KidsCornerScreenState extends State<KidsCornerScreen>
 
           return Column(
             children: [
-              if (provider.highlights.isNotEmpty)
-                _buildHighlightsSection(provider.highlights),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    _buildTabButton('Stories', 0),
-                    const SizedBox(width: 8),
-                    _buildTabButton('Poems', 1),
-                    const SizedBox(width: 8),
-                    _buildTabButton('Drawings', 2),
-                  ],
-                ),
-              ),
               Expanded(
-                child: TabBarView(
-                  controller: _tabController,
+                child: ListView(
                   children: [
-                    ListView(children: [_buildContentGrid(provider.stories)]),
-                    ListView(children: [_buildContentGrid(provider.poems)]),
-                    ListView(children: [_buildContentGrid(provider.drawings)]),
+                    if (provider.highlights.isNotEmpty)
+                      _buildHighlightsSection(provider.highlights),
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          _buildTabButton('Stories', 0),
+                          const SizedBox(width: 8),
+                          _buildTabButton('Poems', 1),
+                          const SizedBox(width: 8),
+                          _buildTabButton('Drawings', 2),
+                        ],
+                      ),
+                    ),
+                    AnimatedBuilder(
+                      animation: _tabController,
+                      builder: (context, child) {
+                        Widget content;
+                        switch (_tabController.index) {
+                          case 0:
+                            content = _buildContentGrid(provider.stories);
+                            break;
+                          case 1:
+                            content = _buildContentGrid(provider.poems);
+                            break;
+                          case 2:
+                            content = _buildContentGrid(provider.drawings);
+                            break;
+                          default:
+                            content = _buildContentGrid(provider.stories);
+                        }
+                        return content;
+                      },
+                    ),
                   ],
                 ),
               ),
