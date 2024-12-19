@@ -7,6 +7,7 @@ import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/screens/kids_corner_screen/models/kids_content_model.dart';
 import 'package:zaitoon/screens/kids_corner_screen/provider/kids_corner_provider.dart';
 import 'package:zaitoon/screens/kids_corner_screen/screens/content_detail_screen/content_detail_screen.dart';
+import 'package:share_plus/share_plus.dart';
 
 class ContentCard extends StatelessWidget {
   final KidsContent content;
@@ -17,6 +18,37 @@ class ContentCard extends StatelessWidget {
     required this.content,
     required this.imageUrl,
   });
+
+  void _shareContent() {
+    final String contentType = content.contentType ?? 'content';
+    final String appStoreLink =
+        'https://apps.apple.com/in/app/zai-toon-kids/id6737912105';
+    final String playStoreLink =
+        'https://play.google.com/store/apps/details?id=co.d4dx.zaitoon';
+
+    // Create a deep link to the specific content
+    // final String contentDeepLink =
+    //     'https://zaitoonkids.com/content/${content.id}';
+    // Or alternatively use your app's custom scheme
+    // final String contentDeepLink = 'zaitoon://content/${content.id}';
+    // 🌟 View this $contentType: $contentDeepLink
+
+    final String shareText =
+        '''Check out this amazing $contentType by ${content.kidName}!
+
+
+
+🌟 Download Zai Toon Kids to start reading:
+
+📱 iOS: $appStoreLink
+
+📱 Android: $playStoreLink
+
+Join thousands of families making reading time special! 🎉
+#ZaiToonKids #ChildrenStories #InteractiveReading''';
+
+    Share.share(shareText);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -134,7 +166,7 @@ class ContentCard extends StatelessWidget {
                       _buildEngagementButton(
                         icon: LucideIcons.share2,
                         label: 'Share',
-                        onPressed: () {},
+                        onPressed: _shareContent,
                       ),
                     ],
                   ),
