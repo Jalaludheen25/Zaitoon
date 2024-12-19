@@ -6,6 +6,7 @@ import 'package:zaitoon/screens/kids_corner_screen/components/content_card.dart'
 import 'package:zaitoon/screens/kids_corner_screen/screens/submission_screens/get_started_screen.dart';
 import 'package:zaitoon/screens/kids_corner_screen/models/kids_content_model.dart';
 import 'package:zaitoon/screens/kids_corner_screen/provider/kids_corner_provider.dart';
+import 'package:zaitoon/screens/kids_corner_screen/screens/content_detail_screen/content_detail_screen.dart';
 
 class KidsCornerScreen extends StatefulWidget {
   const KidsCornerScreen({super.key});
@@ -59,68 +60,84 @@ class _KidsCornerScreenState extends State<KidsCornerScreen>
               final imageUrl = context.read<KidsCornerProvider>().getAssetUrl(
                   highlight.coverImageForPoemAndStory ?? highlight.drawings);
 
-              return Container(
-                width: 140,
-                margin: const EdgeInsets.only(right: 16),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  color: Colors.grey[850],
-                ),
-                child: Stack(
-                  children: [
-                    if (imageUrl.isNotEmpty)
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: Image.network(
-                          imageUrl,
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          height: double.infinity,
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          ContentDetailScreen(content: highlight),
+                    ),
+                  );
+                },
+                child: Container(
+                  width: 140,
+                  margin: const EdgeInsets.only(right: 16),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    color: Colors.grey[850],
+                  ),
+                  child: Stack(
+                    children: [
+                      if (imageUrl.isNotEmpty)
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: Image.network(
+                            imageUrl,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                          ),
+                        ),
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.transparent,
+                              Colors.black.withOpacity(0.7)
+                            ],
+                          ),
                         ),
                       ),
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.transparent,
-                            Colors.black.withOpacity(0.7)
+                      Positioned(
+                        bottom: 10,
+                        left: 10,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CircleAvatar(
+                              radius: 20,
+                              backgroundColor: ColorClass.primaryColor,
+                              backgroundImage: highlight.kidPhoto != null
+                                  ? NetworkImage(context
+                                      .read<KidsCornerProvider>()
+                                      .getAssetUrl(highlight.kidPhoto))
+                                  : null,
+                              child: highlight.kidPhoto == null
+                                  ? Text(highlight.kidName[0])
+                                  : null,
+                            ),
+                            const SizedBox(height: 8),
+                            SizedBox(
+                              width: 130,
+                              child: Text(
+                                highlight.kidName,
+                                style: GoogleFonts.poppins(
+                                  color: ColorClass.white,
+                                  fontSize: 14,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                            ),
                           ],
                         ),
                       ),
-                    ),
-                    Positioned(
-                      bottom: 16,
-                      left: 16,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CircleAvatar(
-                            radius: 20,
-                            backgroundColor: ColorClass.primaryColor,
-                            backgroundImage: highlight.kidPhoto != null
-                                ? NetworkImage(context
-                                    .read<KidsCornerProvider>()
-                                    .getAssetUrl(highlight.kidPhoto))
-                                : null,
-                            child: highlight.kidPhoto == null
-                                ? Text(highlight.kidName[0])
-                                : null,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            highlight.kidName,
-                            style: GoogleFonts.poppins(
-                              color: ColorClass.white,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               );
             },
