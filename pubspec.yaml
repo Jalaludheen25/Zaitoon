@@ -69,6 +69,7 @@ dependencies:
   mime: ^2.0.0
   path: ^1.9.0
   http_parser: ^4.1.1
+  extended_image: ^8.2.0
 
 dev_dependencies:
   flutter_launcher_icons: "^0.14.1"

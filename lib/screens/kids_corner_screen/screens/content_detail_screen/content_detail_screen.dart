@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/screens/kids_corner_screen/models/kids_content_model.dart';
 import 'package:zaitoon/screens/kids_corner_screen/provider/kids_corner_provider.dart';
+import 'package:extended_image/extended_image.dart';
 
 class ContentDetailScreen extends StatelessWidget {
   final KidsContent content;
@@ -108,12 +109,71 @@ class ContentDetailScreen extends StatelessWidget {
 
             // Content Image
             if (imageUrl.isNotEmpty)
-              Container(
-                height: 300,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: NetworkImage(imageUrl),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Scaffold(
+                        backgroundColor: Colors.black,
+                        appBar: AppBar(
+                          backgroundColor: Colors.transparent,
+                          leading: IconButton(
+                            icon: const Icon(Icons.close,
+                                color: ColorClass.white),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ),
+                        body: Center(
+                          child: ExtendedImage.network(
+                            imageUrl,
+                            fit: BoxFit.contain,
+                            mode: ExtendedImageMode.gesture,
+                            enableLoadState: true,
+                            handleLoadingProgress: true,
+                            initGestureConfigHandler: (state) {
+                              return GestureConfig(
+                                minScale: 0.9,
+                                maxScale: 3.0,
+                                animationMinScale: 0.7,
+                                animationMaxScale: 3.5,
+                                speed: 1.0,
+                                inertialSpeed: 100.0,
+                                initialScale: 1.0,
+                                inPageView: true,
+                                cacheGesture: false,
+                              );
+                            },
+                            onDoubleTap: (ExtendedImageGestureState state) {
+                              var pointerDownPosition =
+                                  state.pointerDownPosition;
+                              double? begin = state.gestureDetails?.totalScale;
+                              double end;
+
+                              if (begin == null) return;
+
+                              if (begin < 2.0) {
+                                end = 3.0;
+                              } else {
+                                end = 1.0;
+                              }
+
+                              state.handleDoubleTap(
+                                scale: end,
+                                doubleTapPosition: pointerDownPosition,
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+                child: SizedBox(
+                  height: 300,
+                  width: double.infinity,
+                  child: ExtendedImage.network(
+                    imageUrl,
                     fit: BoxFit.cover,
                   ),
                 ),
