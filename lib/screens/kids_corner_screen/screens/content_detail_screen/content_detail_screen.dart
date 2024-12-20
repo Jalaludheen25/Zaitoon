@@ -18,7 +18,7 @@ class ContentDetailScreen extends StatelessWidget {
   });
 
   void _shareContent() {
-    final String contentType = content.contentType ?? 'content';
+    final String contentType = content.contentType;
     final String appStoreLink =
         'https://apps.apple.com/in/app/zai-toon-kids/id6737912105';
     final String playStoreLink =
@@ -30,7 +30,7 @@ class ContentDetailScreen extends StatelessWidget {
 
 
 🌟 Download Zai Toon Kids to start reading:
-
+   
 📱 iOS: $appStoreLink
 
 📱 Android: $playStoreLink

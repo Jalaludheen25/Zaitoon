@@ -9,7 +9,6 @@ import 'package:provider/provider.dart';
 import 'package:zaitoon/screens/kids_corner_screen/provider/kids_corner_provider.dart';
 import 'dart:io';
 import 'submission_acknowledgment_screen.dart';
-import 'package:lottie/lottie.dart';
 
 class PersonalDetailsScreen extends StatefulWidget {
   final String contentType;
