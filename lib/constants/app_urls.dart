@@ -8,6 +8,13 @@ class ApiUrls {
 
   static const String oneSignalAppId = "276a85c4-2c81-4340-ac7e-3155826f2e69";
 
+  // Kids Corner endpoints
+  static const String kidsSubmission = "$baseUrl/items/zaitoon_kids_submission";
+  static const String kidsFiles = "$baseUrl/files";
+  static String getPublishedKidsContent() {
+    return "$kidsSubmission?filter[status][_eq]=published";
+  }
+
   // wordpress
   static String getSpecificPost({required int postId}) {
     return '$wpBaseUrl/posts/$postId';

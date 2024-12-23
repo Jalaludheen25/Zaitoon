@@ -8,14 +8,7 @@ import 'package:http_parser/http_parser.dart';
 import 'package:path/path.dart' as path;
 import 'package:mime/mime.dart';
 import 'package:zaitoon/screens/kids_corner_screen/models/kids_content_model.dart';
-
-const baseUrl = 'https://directus.jihkerala.org/items/zaitoon_kids_submission';
-const assetBaseUrl = 'https://directus.jihkerala.org/assets/';
-
-// providers/kids_corner_provider.dart
-// import 'package:flutter/foundation.dart';
-
-// import 'dart:convert';
+import 'package:zaitoon/constants/app_urls.dart';
 
 class KidsCornerProvider with ChangeNotifier {
   List<KidsContent> _stories = [];
@@ -40,7 +33,7 @@ class KidsCornerProvider with ChangeNotifier {
 
     try {
       final response =
-          await http.get(Uri.parse('$baseUrl?filter[status][_eq]=published'));
+          await http.get(Uri.parse(ApiUrls.getPublishedKidsContent()));
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
@@ -71,7 +64,7 @@ class KidsCornerProvider with ChangeNotifier {
 
   Future<String?> _uploadImage(File imageFile) async {
     try {
-      var uri = Uri.parse('https://directus.jihkerala.org/files');
+      var uri = Uri.parse(ApiUrls.kidsFiles);
       var request = http.MultipartRequest('POST', uri);
 
       // Get the file extension and mime type
@@ -189,8 +182,7 @@ class KidsCornerProvider with ChangeNotifier {
 
       // Submit content
       final response = await http.post(
-        Uri.parse(
-            'https://directus.jihkerala.org/items/zaitoon_kids_submission'),
+        Uri.parse(ApiUrls.kidsSubmission),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
@@ -220,6 +212,6 @@ class KidsCornerProvider with ChangeNotifier {
 
   String getAssetUrl(String? assetId) {
     if (assetId == null) return '';
-    return '$assetBaseUrl$assetId';
+    return '${ApiUrls.assetBaseUrl}$assetId';
   }
 }
