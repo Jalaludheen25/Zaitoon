@@ -56,7 +56,7 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
             children: const [
               HomeScreen(),
               StoriesScreen(),
-              KidsCornerScreen(),
+              // KidsCornerScreen(),
               BookmarkScreen(),
               SettingsScreen(),
             ],
@@ -110,14 +110,14 @@ class StoryAppBottomNav extends StatelessWidget {
           ),
           label: 'Stories',
         ),
-        NavigationDestination(
-          icon: Icon(LucideIcons.pencil),
-          selectedIcon: Icon(
-            LucideIcons.paintbrush,
-            color: Colors.white,
-          ),
-          label: 'Kids Corner',
-        ),
+        // NavigationDestination(
+        //   icon: Icon(LucideIcons.pencil),
+        //   selectedIcon: Icon(
+        //     LucideIcons.paintbrush,
+        //     color: Colors.white,
+        //   ),
+        //   label: 'Kids Corner',
+        // ),
         NavigationDestination(
           icon: Icon(LucideIcons.bookmark),
           selectedIcon: Icon(
