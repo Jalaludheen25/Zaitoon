@@ -1,14 +1,10 @@
-import 'dart:convert';
+// ignore_for_file: unused_element
+
 import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:http_parser/http_parser.dart';
-import 'package:path/path.dart' as path;
-import 'package:mime/mime.dart';
 import 'package:zaitoon/screens/kids_corner_screen/models/kids_content_model.dart';
-import 'package:zaitoon/constants/app_urls.dart';
 
 class KidsCornerProvider with ChangeNotifier {
   List<KidsContent> _stories = [];
