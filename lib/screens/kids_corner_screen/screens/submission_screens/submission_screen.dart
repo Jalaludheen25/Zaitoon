@@ -4,7 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:animate_do/animate_do.dart';
 import 'dart:io';
-import 'package:zaitoon/screens/kids_corner_screen/components/personal_details_screen.dart';
+import 'package:zaitoon/screens/kids_corner_screen/screens/submission_screens/personal_details_screen.dart';
 
 class SubmissionScreen extends StatefulWidget {
   const SubmissionScreen({super.key});
@@ -16,7 +16,6 @@ class SubmissionScreen extends StatefulWidget {
 class _SubmissionScreenState extends State<SubmissionScreen> {
   String selectedContentType = 'Story';
   final TextEditingController titleController = TextEditingController();
-
   final TextEditingController contentController = TextEditingController();
   File? selectedImage;
   final ImagePicker _picker = ImagePicker();
@@ -366,17 +365,19 @@ class _SubmissionScreenState extends State<SubmissionScreen> {
           height: 60,
           child: ElevatedButton(
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => PersonalDetailsScreen(
-                    contentType: selectedContentType,
-                    title: titleController.text,
-                    content: contentController.text,
-                    drawingImage: selectedImage,
+              if (_validateSubmission()) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PersonalDetailsScreen(
+                      contentType: selectedContentType,
+                      title: titleController.text,
+                      content: contentController.text,
+                      drawingImage: selectedImage,
+                    ),
                   ),
-                ),
-              );
+                );
+              }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
@@ -454,6 +455,47 @@ class _SubmissionScreenState extends State<SubmissionScreen> {
               filled: true,
               fillColor: Colors.white.withOpacity(0.1),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Add this method to validate the form fields
+  bool _validateSubmission() {
+    if (titleController.text.trim().isEmpty) {
+      _showErrorDialog('Please enter a title');
+      return false;
+    }
+
+    if (selectedContentType == 'Drawing') {
+      if (selectedImage == null) {
+        _showErrorDialog('Please upload your drawing');
+        return false;
+      }
+    } else {
+      // For Story or Poem
+      if (contentController.text.trim().isEmpty) {
+        _showErrorDialog(
+            'Please enter your ${selectedContentType.toLowerCase()}');
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  // Add this method to show error dialog
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Required Fields', style: GoogleFonts.fredoka()),
+        content: Text(message, style: GoogleFonts.quicksand()),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('OK', style: GoogleFonts.fredoka()),
           ),
         ],
       ),
