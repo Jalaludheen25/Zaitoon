@@ -102,7 +102,7 @@ class HighlightedCards extends StatelessWidget {
                           child: CachedNetworkImage(
                             imageUrl:
                                 ApiUrls.assetBaseUrl + _getItemBanner(item),
-                            fit: BoxFit.cover,
+                            fit: BoxFit.fill,
                             errorWidget: (context, url, error) => Container(
                               color: Colors.grey[900],
                               child: const Center(
