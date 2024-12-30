@@ -25,7 +25,7 @@ class ApiUrls {
   }
 
   static String getEpisode(String id) {
-    return '$baseUrl/items/zaitoon_episode?filter[story][_eq]=$id';
+    return '$baseUrl/items/zaitoon_episode?filter[story][_eq]=$id&filter[visibility_status][_eq]=true';
   }
 
   static String stories = "$baseUrl/items/zaitoon_stories";
