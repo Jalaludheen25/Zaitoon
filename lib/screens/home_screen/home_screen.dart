@@ -4,6 +4,7 @@ import 'package:zaitoon/constants/app_urls.dart';
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/textstyle_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
+import 'package:zaitoon/screens/bookmark_screen/bookmark_screen.dart';
 import 'package:zaitoon/screens/bottom_navigation/provider/bottom_navigation_provider.dart';
 import 'package:zaitoon/screens/episode_screen.dart/episode_screen.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
@@ -103,51 +104,54 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               child: ListView(
                 children: [
                   Consumer<HomeProvider>(
-  builder: (context, provider, _) {
-    if (provider.isHighlightedLoading ||
-        (provider.highlightedEpisodes == null && provider.singleStoryModel == null)) {
-      return const SizedBox.shrink();
-    }
-    return HighlightedCards(
-      storyModel: provider.storyModel,
-      singleStoryModel: provider.singleStoryModel,
-      episodes: provider.highlightedEpisodes?.data ?? [],
-      selectedLanguage: provider.selectedLanguage,
-      onEpisodeTap: (episode) {
-        navigatePR(
-          context: context,
-          screen: StoryReadingScreen(
-            id: episode.id.toString(),
-            title: provider.selectedLanguage == 'en'
-                ? episode.storyTile!
-                : episode.mlTitle!,
-            thumbnail: ApiUrls.assetBaseUrl + episode.coverImage!,
-            tag: '',
-            pdfUrl: provider.selectedLanguage == 'en'
-                ? ApiUrls.assetBaseUrl + episode.storyFile!
-                : ApiUrls.assetBaseUrl + episode.mlStoryFile!,
-          ),
-        );
-      },
-      onStoryTap: (story) {
-        navigatePR(
-          context: context,
-          screen: StoryReadingScreen(
-            id: story.id.toString(),
-            title: provider.selectedLanguage == 'en'
-                ? story.storyTitleEn
-                : story.storyTitleMl,
-            thumbnail: ApiUrls.assetBaseUrl + story.coverImage,
-            tag: story.tag,
-            pdfUrl: provider.selectedLanguage == 'en'
-                ? ApiUrls.assetBaseUrl + story.storyFileEn
-                : ApiUrls.assetBaseUrl + story.storyFileMl,
-          ),
-        );
-      },
-    );
-  },
-),
+                    builder: (context, provider, _) {
+                      if (provider.isHighlightedLoading ||
+                          (provider.highlightedEpisodes == null &&
+                              provider.singleStoryModel == null)) {
+                        return const SizedBox.shrink();
+                      }
+                      return HighlightedCards(
+                        storyModel: provider.storyModel,
+                        singleStoryModel: provider.singleStoryModel,
+                        episodes: provider.highlightedEpisodes?.data ?? [],
+                        selectedLanguage: provider.selectedLanguage,
+                        onEpisodeTap: (episode) {
+                          navigatePR(
+                            context: context,
+                            screen: StoryReadingScreen(
+                              id: episode.id.toString(),
+                              title: provider.selectedLanguage == 'en'
+                                  ? episode.storyTile!
+                                  : episode.mlTitle!,
+                              thumbnail:
+                                  ApiUrls.assetBaseUrl + episode.coverImage!,
+                              tag: '',
+                              pdfUrl: provider.selectedLanguage == 'en'
+                                  ? ApiUrls.assetBaseUrl + episode.storyFile!
+                                  : ApiUrls.assetBaseUrl + episode.mlStoryFile!,
+                            ),
+                          );
+                        },
+                        onStoryTap: (story) {
+                          navigatePR(
+                            context: context,
+                            screen: StoryReadingScreen(
+                              id: story.id.toString(),
+                              title: provider.selectedLanguage == 'en'
+                                  ? story.storyTitleEn
+                                  : story.storyTitleMl,
+                              thumbnail:
+                                  ApiUrls.assetBaseUrl + story.coverImage,
+                              tag: story.tag,
+                              pdfUrl: provider.selectedLanguage == 'en'
+                                  ? ApiUrls.assetBaseUrl + story.storyFileEn
+                                  : ApiUrls.assetBaseUrl + story.storyFileMl,
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
                   SizedBox(height: 30),
                   Padding(
                     padding: const EdgeInsets.only(left: 16.0),
@@ -221,6 +225,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ),
         ),
         _buildIconButton(
+          icon: Icons.bookmark_outline_outlined,
+          onPressed: () => navigatePR(
+            context: context,
+            screen: const BookmarkScreen(),
+          ),
+        ),
+        _buildIconButton(
           icon: Icons.settings,
           onPressed: () => context.read<NavigationProvider>().setIndex(3),
         ),
@@ -286,12 +297,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     required HomeProvider snapshot,
     required PdfProvider pdfSnapshot,
   }) {
+    // Clamp the animation start time to prevent exceeding 1.0
+    final double animationStart = (index * 0.05).clamp(0.0, 0.8);
+    final double animationEnd = (animationStart + 0.2).clamp(0.2, 1.0);
+    
     return FadeTransition(
       opacity: CurvedAnimation(
         parent: _fadeController,
         curve: Interval(
-          index * 0.1,
-          1.0,
+          animationStart,
+          animationEnd,
           curve: Curves.easeOut,
         ),
       ),
@@ -302,8 +317,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         ).animate(CurvedAnimation(
           parent: _fadeController,
           curve: Interval(
-            index * 0.1,
-            1.0,
+            animationStart,
+            animationEnd,
             curve: Curves.easeOut,
           ),
         )),
