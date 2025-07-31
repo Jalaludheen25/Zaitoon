@@ -36,4 +36,9 @@ class Student {
       district: map['district'],
     );
   }
+
+  @override
+  String toString() {
+    return 'Student{id: $id, name: $name, mobile: $mobile, gender: $gender, class: $className, district: $district}';
+  }
 }

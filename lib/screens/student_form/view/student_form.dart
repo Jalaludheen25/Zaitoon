@@ -23,7 +23,6 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
   bool _isLoading = false;
 
   final DatabaseHelper _databaseHelper = DatabaseHelper();
-
   final List<String> _genderOptions = ['Boy', 'Girl'];
   final List<String> _districtOptions = [
     'Thiruvananthapuram',
@@ -79,7 +78,7 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
       );
 
       await _databaseHelper.insertStudent(student);
-
+      List<Student> students = await _databaseHelper.getAllStudents();
       // Print saved student data to terminal
       debugPrint('=== STUDENT SAVED SUCCESSFULLY ===');
       debugPrint('ID: ${student.id}');
@@ -89,6 +88,9 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
       debugPrint('Class: ${student.className}');
       debugPrint('District: ${student.district}');
       debugPrint('================================');
+      for (var student in students) {
+        debugPrint(student.toString());
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -108,12 +110,12 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
         );
 
         // Clear form after successful save
-        _formKey.currentState!.reset();
+        _formKey.currentState!.reset(); //noted
         _nameController.clear();
         _mobileController.clear();
         setState(() {
           _selectedGender = 'Boy';
-          _selectedDistrict = 'Thiruvananthapuram';
+          _selectedDistrict = 'Kozhikode';
           _selectedClass = 'LKG';
         });
       }
