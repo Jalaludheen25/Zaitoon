@@ -21,6 +21,7 @@ import 'package:provider/provider.dart';
 import 'package:zaitoon/screens/standalone_stories/provider/story_provider.dart';
 import 'package:zaitoon/screens/version_check/provider/version_check_provider.dart';
 import 'package:zaitoon/screens/quiz_screen/provider/quiz_login_provider.dart';
+import 'package:zaitoon/screens/quiz/provider/quiz_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -78,6 +79,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => VersionCheckProvider()),
         ChangeNotifierProvider(create: (_) => KidsCornerProvider()),
         ChangeNotifierProvider(create: (_) => QuizLoginProvider()),
+        ChangeNotifierProvider(
+          create: (context) => QuizProvider(context.read<HomeProvider>()),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

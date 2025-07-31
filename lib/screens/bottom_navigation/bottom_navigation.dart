@@ -7,6 +7,8 @@ import 'package:zaitoon/screens/bookmark_screen/bookmark_screen.dart';
 import 'package:zaitoon/screens/bottom_navigation/provider/bottom_navigation_provider.dart';
 import 'package:zaitoon/screens/home_screen/home_screen.dart';
 import 'package:zaitoon/screens/login_screen/provider/auth_provider.dart';
+
+import 'package:zaitoon/screens/quiz/quiz_screen.dart';
 import 'package:zaitoon/screens/quiz_screen/quiz_login_screen.dart';
 import 'package:zaitoon/screens/settings_screen/settings_screen.dart';
 import 'package:zaitoon/screens/standalone_stories/standalone_story_list_screen.dart';
@@ -53,10 +55,10 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
         return Scaffold(
           body: IndexedStack(
             index: navigationProvider.currentIndex,
-            children: const [
+            children: [
               HomeScreen(),
               StoriesScreen(),
-              // KidsCornerScreen(),
+              // QuizScreen(),
               BookmarkScreen(),
               QuizLoginScreen(),
               SettingsScreen(),
@@ -112,12 +114,12 @@ class StoryAppBottomNav extends StatelessWidget {
           label: 'Stories',
         ),
         // NavigationDestination(
-        //   icon: Icon(LucideIcons.pencil),
+        //   icon: Icon(LucideIcons.brain),
         //   selectedIcon: Icon(
-        //     LucideIcons.paintbrush,
+        //     LucideIcons.brainCircuit,
         //     color: Colors.white,
         //   ),
-        //   label: 'Kids Corner',
+        //   label: 'Quiz',
         // ),
         NavigationDestination(
           icon: Icon(LucideIcons.bookmark),
