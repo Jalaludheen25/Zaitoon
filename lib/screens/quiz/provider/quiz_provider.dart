@@ -4,9 +4,19 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
+import 'package:http/http.dart' as http;
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:zaitoon/screens/quiz/database/quiz_database.dart';
 import 'package:zaitoon/screens/quiz/models/quiz_models.dart';
+import 'package:zaitoon/screens/quiz/models/quiz_submission_model.dart';
+import 'package:zaitoon/screens/quiz/models/quiz_config_model.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
+import 'package:zaitoon/screens/student_form/database/db_helper.dart';
+import 'package:zaitoon/screens/student_form/model/student_model.dart';
+import 'package:zaitoon/helper/auth_helper.dart';
+import 'package:zaitoon/constants/color_class.dart';
+import 'package:zaitoon/constants/textstyle_class.dart';
+import 'package:zaitoon/constants/app_urls.dart';
 
 class QuizProvider extends ChangeNotifier {
   final QuizDatabase _database = QuizDatabase.instance;
@@ -18,6 +28,20 @@ class QuizProvider extends ChangeNotifier {
   int _currentQuestionIndex = 0;
   Map<int, int> _selectedAnswers = {};
   String _currentLanguage = 'en';
+  
+  // Quiz configuration
+  QuizConfig? _quizConfig;
+  Timer? _configCheckTimer;
+
+  // Getters
+  QuizConfig? get quizConfig => _quizConfig;
+  bool get isQuizTimeValid {
+    if (_quizConfig == null) return false;
+    
+    final now = DateTime.now();
+    return now.isAfter(_quizConfig!.startDate) && 
+           now.isBefore(_quizConfig!.endDate);
+  }
   
   // Session management
   String? _currentSessionUuid;
@@ -44,6 +68,8 @@ class QuizProvider extends ChangeNotifier {
     _loadQuestions();
     _loadQuizHistory();
     _loadQuizStatistics();
+    _loadQuizConfig();
+    _startConfigCheckTimer();
   }
 
   // Getters
@@ -80,9 +106,11 @@ class QuizProvider extends ChangeNotifier {
   // Load questions from JSON
   Future<void> _loadQuestions() async {
     try {
+      debugPrint('=== LOADING QUESTIONS ===');
       _setLoading(true);
       _clearError();
       
+      debugPrint('Reading questions from JSON file...');
       final String jsonString = await rootBundle.loadString('assets/json/quiz_questions.json');
       final Map<String, dynamic> jsonData = json.decode(jsonString);
       
@@ -90,16 +118,222 @@ class QuizProvider extends ChangeNotifier {
           .map((q) => QuizQuestion.fromJson(q))
           .toList();
       
+      debugPrint('Loaded ${_allQuestions.length} questions');
       _setLoading(false);
     } catch (e) {
+      debugPrint('Error loading questions: $e');
       _setError('Failed to load questions: $e');
       _setLoading(false);
+    }
+  }
+
+  // Check if user has already attempted quiz from local DB
+  Future<bool> _hasAttemptedQuiz() async {
+    try {
+      // Get completed quiz sessions from local DB
+      final completedSessions = await _database.getCompletedQuizSessions();
+      
+      // Check if any session exists that is completed
+      return completedSessions.any((session) => session.isCompleted);
+    } catch (e) {
+      debugPrint('Error checking quiz attempt in local DB: $e');
+      return false;
+    }
+  }
+
+  // Load quiz configuration from API
+  Future<void> _loadQuizConfig() async {
+    try {
+      final token = await AuthHelper.getAuthToken();
+      if (token == null) {
+        throw Exception('No auth token found. Please login again.');
+      }
+
+      final response = await http.get(
+        Uri.parse('https://zaitoon-quiz-fdaeq.ondigitalocean.app/api/admin/dashboard'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['success'] == true) {
+          _quizConfig = QuizConfig.fromJson(data['data']);
+          notifyListeners();
+        }
+      }
+    } catch (e) {
+      debugPrint('Error loading quiz config: $e');
+    }
+  }
+
+  // Start timer to check quiz time periodically
+  void _startConfigCheckTimer() {
+    debugPrint('Starting config check timer');
+    _configCheckTimer?.cancel();
+    _configCheckTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
+      if (_quizConfig != null) {
+        final now = DateTime.now();
+        debugPrint('Checking quiz time validity at: $now');
+        debugPrint('Quiz end time: ${_quizConfig!.endDate}');
+        
+        if (now.isAfter(_quizConfig!.endDate)) {
+          debugPrint('Quiz time has ended. Forcing submission.');
+          timer.cancel();
+          // If there's an active quiz, force submit it
+          if (isQuizActive && _currentSessionUuid != null) {
+            debugPrint('Active quiz found. Triggering force submission.');
+            _forceSubmitQuiz();
+          }
+          notifyListeners();
+        }
+      }
+    });
+  }
+
+  // Force submit quiz when time expires
+  Future<void> _forceSubmitQuiz() async {
+    try {
+      debugPrint('=== FORCE SUBMITTING QUIZ ===');
+      _stopTimer();
+      
+      // Calculate results
+      final correctAnswers = _selectedAnswers.entries
+          .where((entry) {
+            final question = _currentQuizQuestions.firstWhere((q) => q.id == entry.key);
+            return entry.value == question.correctAnswer;
+          })
+          .length;
+      
+      final percentage = (correctAnswers / _currentQuizQuestions.length) * 100;
+      
+      debugPrint('Force submission details:');
+      debugPrint('- Session UUID: $_currentSessionUuid');
+      debugPrint('- Questions Answered: ${_selectedAnswers.length}/${_currentQuizQuestions.length}');
+      debugPrint('- Correct Answers: $correctAnswers');
+      debugPrint('- Score: $percentage%');
+      
+      // Update session in database
+      final session = await _database.getQuizSession(_currentSessionUuid!);
+      if (session != null) {
+        final updatedSession = QuizSession(
+          sessionId: session.sessionId,
+          sessionUuid: session.sessionUuid,
+          startTime: session.startTime,
+          endTime: DateTime.now(),
+          language: session.language,
+          totalQuestions: session.totalQuestions,
+          correctAnswers: correctAnswers,
+          totalTimeTaken: _totalTimeElapsed,
+          isCompleted: true,
+          isSubmitted: false,
+        );
+        
+        await _database.updateQuizSession(updatedSession);
+        debugPrint('Session updated in local database');
+        
+        // Get quiz answers
+        final answers = await _database.getQuizAnswers(_currentSessionUuid!);
+        
+        // Try to submit to API
+        try {
+          await submitToAPI(updatedSession, answers);
+          debugPrint('Quiz submitted to API successfully');
+        } catch (e) {
+          debugPrint('Failed to submit to API: $e');
+          // We don't throw here as we want to continue with local updates
+        }
+      }
+      
+      // Reset quiz state
+      _resetQuizState();
+      
+      // Reload data
+      await _loadQuizHistory();
+      await _loadQuizStatistics();
+      
+      debugPrint('Force submission complete');
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error during force submission: $e');
+      // We don't throw here as this is an automatic process
+    }
+  }
+
+  // Check if quiz can be started or continued
+  bool canAttemptQuiz() {
+    if (_quizConfig == null) return false;
+    
+    final now = DateTime.now();
+    debugPrint('Checking quiz attempt validity:');
+    debugPrint('Current time: $now');
+    debugPrint('Quiz start time: ${_quizConfig!.startDate}');
+    debugPrint('Quiz end time: ${_quizConfig!.endDate}');
+    
+    if (now.isBefore(_quizConfig!.startDate)) {
+      debugPrint('Quiz has not started yet');
+      return false;
+    }
+    
+    if (now.isAfter(_quizConfig!.endDate)) {
+      debugPrint('Quiz time is over');
+      return false;
+    }
+    
+    debugPrint('Quiz can be attempted');
+    return true;
+  }
+
+  // Get remaining time in minutes
+  int getRemainingTime() {
+    if (_quizConfig == null) return 0;
+    
+    final now = DateTime.now();
+    final end = _quizConfig!.endDate.toLocal();
+    return end.difference(now).inMinutes;
+  }
+
+  // Get formatted remaining time
+  String getFormattedRemainingTime() {
+    final minutes = getRemainingTime();
+    final hours = minutes ~/ 60;
+    final remainingMinutes = minutes % 60;
+    
+    if (hours > 0) {
+      return '$hours hr ${remainingMinutes} min remaining';
+    } else {
+      return '$remainingMinutes min remaining';
     }
   }
 
   // Start a new quiz
   Future<void> startNewQuiz() async {
     try {
+      // Check if quiz config is loaded
+      if (_quizConfig == null) {
+        await _loadQuizConfig();
+        if (_quizConfig == null) {
+          throw Exception('Quiz configuration not available. Please try again later.');
+        }
+      }
+
+      // Check quiz timing
+      final now = DateTime.now();
+      if (now.isBefore(_quizConfig!.startDate)) {
+        throw Exception('Quiz has not started yet. Start time: ${_formatDateTime(_quizConfig!.startDate)}');
+      }
+      if (now.isAfter(_quizConfig!.endDate)) {
+        throw Exception('Quiz time is over. End time was: ${_formatDateTime(_quizConfig!.endDate)}');
+      }
+
+      // Check if user has already attempted from local DB
+      final hasAttempted = await _hasAttemptedQuiz();
+      if (hasAttempted) {
+        throw Exception('You have already attempted this quiz. Only one attempt is allowed.');
+      }
+
       _setLoading(true);
       _clearError();
       
@@ -107,11 +341,12 @@ class QuizProvider extends ChangeNotifier {
         await _loadQuestions();
       }
       
-      // Generate 20 random questions
-      final random = Random();
-      final shuffledQuestions = List<QuizQuestion>.from(_allQuestions);
-      shuffledQuestions.shuffle(random);
-      _currentQuizQuestions = shuffledQuestions.take(20).toList();
+      // Get questions based on config
+      final questions = List<QuizQuestion>.from(_allQuestions);
+      if (_quizConfig!.isRandom) {
+        questions.shuffle(Random());
+      }
+      _currentQuizQuestions = questions.take(_quizConfig!.totalQuestions).toList();
       
       // Initialize session
       _currentSessionUuid = const Uuid().v4();
@@ -138,8 +373,8 @@ class QuizProvider extends ChangeNotifier {
       _setLoading(false);
       notifyListeners();
     } catch (e) {
-      _setError('Failed to start quiz: $e');
       _setLoading(false);
+      rethrow;
     }
   }
 
@@ -178,33 +413,45 @@ class QuizProvider extends ChangeNotifier {
 
   // Move to next question
   void nextQuestion() {
+    debugPrint('=== MOVING TO NEXT QUESTION ===');
     if (_currentQuestionIndex < _currentQuizQuestions.length - 1) {
       _currentQuestionIndex++;
+      debugPrint('New question index: $_currentQuestionIndex');
       _resetQuestionTimer();
       notifyListeners();
+    } else {
+      debugPrint('Already at last question');
     }
   }
 
   // Move to previous question
   void previousQuestion() {
+    debugPrint('=== MOVING TO PREVIOUS QUESTION ===');
     if (_currentQuestionIndex > 0) {
       _currentQuestionIndex--;
+      debugPrint('New question index: $_currentQuestionIndex');
       _resetQuestionTimer();
       notifyListeners();
+    } else {
+      debugPrint('Already at first question');
     }
   }
 
   // Go to specific question
   void goToQuestion(int index) {
+    debugPrint('=== GOING TO QUESTION $index ===');
     if (index >= 0 && index < _currentQuizQuestions.length) {
       _currentQuestionIndex = index;
+      debugPrint('Question navigation successful');
       _resetQuestionTimer();
       notifyListeners();
+    } else {
+      debugPrint('Invalid question index: $index');
     }
   }
 
   // Submit quiz
-  Future<void> submitQuiz() async {
+  Future<void> submitQuiz(BuildContext context) async {
     if (_currentSessionUuid == null) return;
     
     try {
@@ -222,7 +469,14 @@ class QuizProvider extends ChangeNotifier {
           .length;
       
       final percentage = (correctAnswers / _currentQuizQuestions.length) * 100;
-      final grade = _calculateGrade(percentage);
+      
+      debugPrint('=== QUIZ SUBMISSION DEBUG ===');
+      debugPrint('Session UUID: $_currentSessionUuid');
+      debugPrint('Total Questions: ${_currentQuizQuestions.length}');
+      debugPrint('Questions Answered: ${_selectedAnswers.length}');
+      debugPrint('Correct Answers: $correctAnswers');
+      debugPrint('Percentage: $percentage%');
+      debugPrint('Total Time: $_totalTimeElapsed seconds');
       
       // Update session in database
       final session = await _database.getQuizSession(_currentSessionUuid!);
@@ -241,18 +495,17 @@ class QuizProvider extends ChangeNotifier {
         );
         
         await _database.updateQuizSession(updatedSession);
+        debugPrint('Session updated in local database');
         
-        // Create quiz result
+        // Get quiz answers
         final answers = await _database.getQuizAnswers(_currentSessionUuid!);
-        _currentQuizResult = QuizResult(
-          session: updatedSession,
-          answers: answers,
-          percentage: percentage,
-          grade: grade,
-        );
+        
+        // Submit to API
+        await submitToAPI(updatedSession, answers);
+        debugPrint('Quiz submitted to API successfully');
       }
       
-      // Reset current quiz state
+      // Reset quiz state
       _resetQuizState();
       
       // Reload data
@@ -262,38 +515,121 @@ class QuizProvider extends ChangeNotifier {
       _setSubmitting(false);
       notifyListeners();
     } catch (e) {
+      debugPrint('Error submitting quiz: $e');
       _setError('Failed to submit quiz: $e');
       _setSubmitting(false);
+      throw e; // Rethrow to handle in UI
     }
   }
 
-  // Submit to API (placeholder for actual API call)
-  Future<void> submitToAPI(String sessionUuid) async {
+  Future<void> submitToAPI(QuizSession session, List<QuizAnswer> answers) async {
+    try {
+      debugPrint('=== API SUBMISSION DEBUG ===');
+      
+      // Get auth token
+      final token = await AuthHelper.getAuthToken();
+      if (token == null) {
+        throw Exception('No auth token found. Please login again.');
+      }
+      debugPrint('Using auth token: $token');
+      
+      // Get student details
+      final dbHelper = DatabaseHelper();
+      final students = await dbHelper.getAllStudents();
+      if (students.isEmpty) {
+        throw Exception('No student details found');
+      }
+      final student = students.last;
+
+      // Prepare questions and answers for API
+      final questions = _currentQuizQuestions.asMap().entries.map((entry) {
+        final q = entry.value;
+        return QuizSubmissionQuestion(
+          questionNumber: entry.key + 1,
+          question: _currentLanguage == 'en' ? q.questionEn : q.questionMl,
+          options: _currentLanguage == 'en' ? q.optionsEn : q.optionsMl,
+          correctAnswer: q.optionsEn[q.correctAnswer],
+        );
+      }).toList();
+
+      final submissionAnswers = answers.asMap().entries.map((entry) {
+        final a = entry.value;
+        final question = _currentQuizQuestions.firstWhere((q) => q.id == a.questionId);
+        return QuizSubmissionAnswer(
+          questionNumber: entry.key + 1,
+          selectedAnswer: question.optionsEn[a.selectedAnswer ?? 0],
+        );
+      }).toList();
+
+      final result = QuizSubmissionResult(
+        score: session.correctAnswers ?? 0,
+        correctAnswers: session.correctAnswers ?? 0,
+        percentage: (session.correctAnswers ?? 0) / session.totalQuestions * 100,
+      );
+
+      final submission = QuizSubmissionModel(
+        userDetails: student,
+        questions: questions,
+        answers: submissionAnswers,
+        result: result,
+        totalQuestions: session.totalQuestions,
+        totalQuestionsAttended: answers.length,
+        timeTaken: session.totalTimeTaken ?? 0,
+      );
+
+      debugPrint('API Request Body: ${jsonEncode(submission.toJson())}');
+
+      final response = await http.post(
+        Uri.parse('https://zaitoon-quiz-fdaeq.ondigitalocean.app/api/quiz/submit'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(submission.toJson()),
+      );
+
+      debugPrint('API Response Status: ${response.statusCode}');
+      debugPrint('API Response Body: ${response.body}');
+
+      if (response.statusCode == 401) {
+        // Token expired or invalid
+        await AuthHelper.logout();
+        throw Exception('Session expired. Please login again.');
+      }
+
+      if (response.statusCode != 200) {
+        final errorData = json.decode(response.body);
+        final errorMessage = errorData['message'] ?? 'Failed to submit quiz to API';
+        
+        // Check for specific error cases that don't need retry
+        if (errorMessage.toLowerCase().contains('already attempted')) {
+          // Mark as submitted in local DB since it's already on server
+          await _database.markSessionAsSubmitted(session.sessionUuid);
+          throw Exception(errorMessage);
+        }
+        
+        throw Exception('RETRYABLE:$errorMessage');
+      }
+
+      // Mark as submitted in local DB
+      await _database.markSessionAsSubmitted(session.sessionUuid);
+      debugPrint('Local DB: Marked session as submitted');
+      
+    } catch (e) {
+      debugPrint('Error submitting to API: $e');
+      throw e; // Rethrow to handle in the UI
+    }
+  }
+
+  Future<void> retrySubmission(QuizSession session) async {
     try {
       _setSubmitting(true);
-      
-      final session = await _database.getQuizSession(sessionUuid);
-      final answers = await _database.getQuizAnswers(sessionUuid);
-      
-      if (session != null) {
-        // TODO: Replace with actual API call
-        final apiData = {
-          'session': session.toMap(),
-          'answers': answers.map((a) => a.toMap()).toList(),
-        };
-        
-        // Simulate API call
-        await Future.delayed(const Duration(seconds: 2));
-        
-        // Mark as submitted in database
-        await _database.markSessionAsSubmitted(sessionUuid);
-        await _loadQuizHistory();
-      }
-      
+      final answers = await getQuizAnswers(session.sessionUuid);
+      await submitToAPI(session, answers);
       _setSubmitting(false);
     } catch (e) {
-      _setError('Failed to submit to API: $e');
       _setSubmitting(false);
+      rethrow;
     }
   }
 
@@ -314,6 +650,26 @@ class QuizProvider extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       _setError('Failed to load quiz statistics: $e');
+    }
+  }
+
+  // Get quiz answers for a session
+  Future<List<QuizAnswer>> getQuizAnswers(String sessionUuid) async {
+    return _database.getQuizAnswers(sessionUuid);
+  }
+
+  // Delete quiz session
+  Future<void> deleteQuizSession(String sessionUuid) async {
+    try {
+      debugPrint('Deleting quiz session: $sessionUuid');
+      await _database.deleteQuizSession(sessionUuid);
+      await _loadQuizHistory(); // Reload history after deletion
+      await _loadQuizStatistics(); // Reload statistics as they might have changed
+      notifyListeners();
+      debugPrint('Quiz session deleted successfully');
+    } catch (e) {
+      debugPrint('Error deleting quiz session: $e');
+      throw Exception('Failed to delete quiz session: $e');
     }
   }
 
@@ -341,63 +697,120 @@ class QuizProvider extends ChangeNotifier {
   }
 
   // Helper functions
+  String _formatDateTime(DateTime dt) {
+    // Convert UTC to local time
+    final localDt = dt.toLocal();
+    
+    // Get hour in 12-hour format
+    int hour = localDt.hour % 12;
+    hour = hour == 0 ? 12 : hour; // Convert 0 to 12 for 12 AM
+    
+    // Get AM/PM
+    final period = localDt.hour < 12 ? 'AM' : 'PM';
+    
+    final formatted = '${localDt.day}/${localDt.month}/${localDt.year} ${hour}:${localDt.minute.toString().padLeft(2, '0')} $period';
+    debugPrint('Formatting datetime: $dt -> $formatted (local time: $localDt)');
+    return formatted;
+  }
+
+  // Format seconds duration
   String _formatTime(int seconds) {
     final minutes = seconds ~/ 60;
     final remainingSeconds = seconds % 60;
-    return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
+    final formattedTime = '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
+    debugPrint('Formatting duration $seconds seconds -> $formattedTime');
+    return formattedTime;
+  }
+
+  // Format clock time
+  String formatClockTime(DateTime time) {
+    // Convert UTC to local time
+    final localTime = time.toLocal();
+    
+    // Get hour in 12-hour format
+    int hour = localTime.hour % 12;
+    hour = hour == 0 ? 12 : hour; // Convert 0 to 12 for 12 AM
+    
+    // Get AM/PM
+    final period = localTime.hour < 12 ? 'AM' : 'PM';
+    
+    return '$hour:${localTime.minute.toString().padLeft(2, '0')} $period';
   }
 
   String _calculateGrade(double percentage) {
-    if (percentage >= 90) return 'A+';
-    if (percentage >= 80) return 'A';
-    if (percentage >= 70) return 'B+';
-    if (percentage >= 60) return 'B';
-    if (percentage >= 50) return 'C';
-    if (percentage >= 40) return 'D';
-    return 'F';
+    debugPrint('Calculating grade for percentage: $percentage');
+    String grade;
+    if (percentage >= 90) grade = 'A+';
+    else if (percentage >= 80) grade = 'A';
+    else if (percentage >= 70) grade = 'B+';
+    else if (percentage >= 60) grade = 'B';
+    else if (percentage >= 50) grade = 'C';
+    else if (percentage >= 40) grade = 'D';
+    else grade = 'F';
+    debugPrint('Grade calculated: $grade');
+    return grade;
   }
 
   void _resetQuizState() {
+    debugPrint('=== RESETTING QUIZ STATE ===');
+    debugPrint('Clearing current quiz questions');
     _currentQuizQuestions.clear();
+    debugPrint('Resetting question index');
     _currentQuestionIndex = 0;
+    debugPrint('Clearing selected answers');
     _selectedAnswers.clear();
+    debugPrint('Clearing session data');
     _currentSessionUuid = null;
     _sessionStartTime = null;
     _questionStartTime = null;
+    debugPrint('Resetting timers');
     _totalTimeElapsed = 0;
     _questionTimeElapsed = 0;
     _stopTimer();
+    debugPrint('Quiz state reset complete');
   }
 
   // State management helpers
   void _setLoading(bool loading) {
+    debugPrint('Setting loading state: $loading');
     _isLoading = loading;
     notifyListeners();
   }
 
   void _setSubmitting(bool submitting) {
+    debugPrint('Setting submitting state: $submitting');
     _isSubmitting = submitting;
     notifyListeners();
   }
 
   void _setError(String error) {
+    debugPrint('Setting error: $error');
     _error = error;
     notifyListeners();
   }
 
   void _clearError() {
+    debugPrint('Clearing error state');
     _error = null;
   }
 
   // Language change
   void changeLanguage(String language) {
+    debugPrint('=== CHANGING LANGUAGE ===');
+    debugPrint('Old language: $_currentLanguage');
+    debugPrint('New language: $language');
     _currentLanguage = language;
     notifyListeners();
   }
 
   @override
   void dispose() {
-    _stopTimer();
+    debugPrint('=== DISPOSING QUIZ PROVIDER ===');
+    debugPrint('Cancelling config check timer');
+    _configCheckTimer?.cancel();
+    debugPrint('Cancelling quiz timer');
+    _quizTimer?.cancel();
+    debugPrint('Provider disposal complete');
     super.dispose();
   }
 }

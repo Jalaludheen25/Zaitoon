@@ -55,7 +55,7 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
         return Scaffold(
           body: IndexedStack(
             index: navigationProvider.currentIndex,
-            children: [
+            children: const [
               HomeScreen(),
               StoriesScreen(),
               // QuizScreen(),
@@ -66,7 +66,7 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
           ),
           bottomNavigationBar: StoryAppBottomNav(
             currentIndex: navigationProvider.currentIndex,
-            onTap: (index) => navigationProvider.setIndex(index),
+            onTap: (index) => navigationProvider.setIndex(index, context),
           ),
         );
       }),

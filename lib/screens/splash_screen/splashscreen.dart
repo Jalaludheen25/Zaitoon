@@ -127,9 +127,9 @@ class _SplashScreenState extends State<SplashScreen>
               child: SingleChildScrollView(
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
-                    minHeight: MediaQuery.of(context).size.height - 
-                               MediaQuery.of(context).padding.top - 
-                               MediaQuery.of(context).padding.bottom,
+                    minHeight: MediaQuery.of(context).size.height -
+                        MediaQuery.of(context).padding.top -
+                        MediaQuery.of(context).padding.bottom,
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -149,8 +149,8 @@ class _SplashScreenState extends State<SplashScreen>
                                       borderRadius: BorderRadius.circular(20),
                                       boxShadow: [
                                         BoxShadow(
-                                          color:
-                                              ColorClass.primaryColor.withOpacity(0.3),
+                                          color: ColorClass.primaryColor
+                                              .withOpacity(0.3),
                                           spreadRadius: 10,
                                           blurRadius: 30,
                                         ),
@@ -161,7 +161,8 @@ class _SplashScreenState extends State<SplashScreen>
                                       child: Image.asset(
                                         ImageClass.appIconPlain,
                                         height:
-                                            MediaQuery.of(context).size.height * 0.25,
+                                            MediaQuery.of(context).size.height *
+                                                0.25,
                                       ),
                                     ),
                                   ),
@@ -183,7 +184,8 @@ class _SplashScreenState extends State<SplashScreen>
                               ).createShader(bounds),
                               child: Image.asset(
                                 ImageClass.malarvadiLogo,
-                                height: MediaQuery.of(context).size.height * 0.08,
+                                height:
+                                    MediaQuery.of(context).size.height * 0.08,
                               ),
                             ),
                           ),
@@ -325,8 +327,6 @@ class _SplashScreenState extends State<SplashScreen>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset(ImageClass.d4Logo,
-                  height: 80, color: ColorClass.white),
-              Image.asset(ImageClass.d4dxLogo,
                   height: 80, color: ColorClass.white),
             ],
           ),

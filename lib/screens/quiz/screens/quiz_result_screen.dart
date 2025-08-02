@@ -458,7 +458,10 @@ class QuizResultScreen extends StatelessWidget {
             child: ElevatedButton(
               onPressed: quizProvider.isSubmitting 
                   ? null 
-                  : () => quizProvider.submitToAPI(result.session.sessionUuid),
+                  : () async {
+                      final answers = await quizProvider.getQuizAnswers(result.session.sessionUuid);
+                      quizProvider.submitToAPI(result.session, answers);
+                    },
               style: ElevatedButton.styleFrom(
                 backgroundColor: ColorClass.primaryColor,
                 foregroundColor: Colors.white,

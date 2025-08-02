@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:zaitoon/screens/quiz_screen/services/quiz_api_service.dart';
 import 'package:zaitoon/screens/quiz_screen/models/quiz_login_model.dart';
+import 'package:zaitoon/helper/auth_helper.dart';
+import 'package:zaitoon/screens/student_form/view/student_form.dart';
 
 class QuizLoginProvider extends ChangeNotifier {
   bool _isLoading = false;
@@ -11,6 +15,7 @@ class QuizLoginProvider extends ChangeNotifier {
   String _otp = '';
   int _resendTimer = 0;
   QuizLoginModel? _currentUser;
+  Timer? _timer;
 
   bool get isLoading => _isLoading;
   bool get isOtpSent => _isOtpSent;
@@ -37,12 +42,29 @@ class QuizLoginProvider extends ChangeNotifier {
       if (_mobile.length != 10) {
         throw Exception('Please enter a valid 10-digit mobile number');
       }
-      final success = await QuizApiService.sendOtp(_mobile);
-      if (!success) {
+      final response = await http.post(
+        Uri.parse('https://zaitoon-quiz-fdaeq.ondigitalocean.app/api/user/send-otp'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          'mobile': _mobile,
+        }),
+      );
+
+      debugPrint('Send OTP Response: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['success'] == true) {
+          _isOtpSent = true;
+          _startResendTimer();
+        } else {
+          throw Exception(data['message'] ?? 'Failed to send OTP');
+        }
+      } else {
         throw Exception('Failed to send OTP. Please try again.');
       }
-      _isOtpSent = true;
-      _startResendTimer();
     } catch (e) {
       _setError(e.toString());
     } finally {
@@ -50,20 +72,50 @@ class QuizLoginProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> verifyOtp({VoidCallback? onSuccess}) async {
+  Future<void> verifyOtp(BuildContext context) async {
     try {
       _setLoading(true);
       _clearError();
       if (_otp.length != 6) {
         throw Exception('Please enter a valid 6-digit OTP');
       }
-      final user = await QuizApiService.verifyOtp(_mobile, _otp);
-      if (user == null) {
-        throw Exception('Invalid OTP. Please try again.');
-      }
-      _currentUser = user;
-      if (onSuccess != null) {
-        onSuccess();
+
+      final response = await http.post(
+        Uri.parse('https://zaitoon-quiz-fdaeq.ondigitalocean.app/api/user/verify-otp'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          'mobile': _mobile,
+          'otp': _otp,
+        }),
+      );
+
+      debugPrint('Verify OTP Response: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['success'] == true) {
+          // Store auth token
+          final token = data['token'] as String?;
+          if (token == null) {
+            throw Exception('No token received from server');
+          }
+          await AuthHelper.saveAuthToken(token);
+          debugPrint('Auth token saved: $token');
+
+          // Navigate to student form
+          if (context.mounted) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const StudentFormScreen()),
+            );
+          }
+        } else {
+          throw Exception(data['message'] ?? 'Invalid OTP');
+        }
+      } else {
+        throw Exception('Failed to verify OTP: ${response.body}');
       }
     } catch (e) {
       _setError(e.toString());
@@ -80,7 +132,8 @@ class QuizLoginProvider extends ChangeNotifier {
 
   void _startResendTimer() {
     _resendTimer = 300;
-    Timer.periodic(const Duration(seconds: 1), (timer) {
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_resendTimer > 0) {
         _resendTimer--;
         notifyListeners();
@@ -112,6 +165,13 @@ class QuizLoginProvider extends ChangeNotifier {
     _error = null;
     _resendTimer = 0;
     _currentUser = null;
+    _timer?.cancel();
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 } 

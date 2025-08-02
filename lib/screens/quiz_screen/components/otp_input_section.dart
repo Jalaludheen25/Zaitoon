@@ -193,14 +193,7 @@ class _OtpInputSectionState extends State<OtpInputSection> {
       height: 50,
       child: ElevatedButton(
         onPressed: (isValidOtp && !quizLoginProvider.isLoading)
-            ? () => quizLoginProvider.verifyOtp(onSuccess: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('OTP verified successfully!'),
-                      backgroundColor: ColorClass.primaryColor,
-                    ),
-                  );
-                })
+            ? () => quizLoginProvider.verifyOtp(context)
             : null,
         style: ElevatedButton.styleFrom(
           backgroundColor: isValidOtp 

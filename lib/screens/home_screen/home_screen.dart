@@ -233,7 +233,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         ),
         _buildIconButton(
           icon: Icons.settings,
-          onPressed: () => context.read<NavigationProvider>().setIndex(3),
+          onPressed: () => context.read<NavigationProvider>().setIndex(3, context),
         ),
       ],
     );

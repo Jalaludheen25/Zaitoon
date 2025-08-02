@@ -21,15 +21,25 @@ class QuizQuestion {
 
   factory QuizQuestion.fromJson(Map<String, dynamic> json) {
     return QuizQuestion(
-      id: json['id'],
-      type: json['type'],
-      questionEn: json['question_en'],
-      questionMl: json['question_ml'],
-      optionsEn: List<String>.from(json['options_en']),
-      optionsMl: List<String>.from(json['options_ml']),
-      correctAnswer: json['correct_answer'],
-      difficulty: json['difficulty'],
+      id: json['id'] ?? 0,
+      type: json['type'] ?? 'multiple_choice',
+      questionEn: json['question_en'] ?? json['question'] ?? '',
+      questionMl: json['question_ml'] ?? json['question'] ?? '',
+      optionsEn: List<String>.from(json['options_en'] ?? json['options'] ?? []),
+      optionsMl: List<String>.from(json['options_ml'] ?? json['options'] ?? []),
+      correctAnswer: _parseCorrectAnswer(json['correct_answer']),
+      difficulty: json['difficulty'] ?? 'medium',
     );
+  }
+
+  static int _parseCorrectAnswer(dynamic value) {
+    if (value is int) return value;
+    if (value is String) {
+      // Handle API format where correct answer is the actual answer text
+      final answers = ['A', 'B', 'C', 'D'];
+      return answers.indexOf(value);
+    }
+    return 0;
   }
 
   Map<String, dynamic> toJson() {
@@ -38,10 +48,20 @@ class QuizQuestion {
       'type': type,
       'question_en': questionEn,
       'question_ml': questionMl,
-      'options_en': optionsEn.join('|'),
-      'options_ml': optionsMl.join('|'),
+      'options_en': optionsEn,
+      'options_ml': optionsMl,
       'correct_answer': correctAnswer,
       'difficulty': difficulty,
+    };
+  }
+
+  // Convert to API format
+  Map<String, dynamic> toApiJson(int questionNumber) {
+    return {
+      'questionNumber': questionNumber,
+      'question': questionEn, // Use English question for API
+      'options': optionsEn, // Use English options for API
+      'correctAnswer': optionsEn[correctAnswer], // Send actual answer text
     };
   }
 }

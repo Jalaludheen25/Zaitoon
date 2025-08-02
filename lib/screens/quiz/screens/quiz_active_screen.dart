@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/textstyle_class.dart';
+import 'package:zaitoon/screens/bottom_navigation/bottom_navigation.dart';
+import 'package:zaitoon/screens/home_screen/home_screen.dart';
 import 'package:zaitoon/screens/quiz/provider/quiz_provider.dart';
 
 class QuizActiveScreen extends StatelessWidget {
@@ -19,6 +21,202 @@ class QuizActiveScreen extends StatelessWidget {
             
             if (currentQuestion == null) {
               return _buildLoadingState();
+            }
+
+            // Check if quiz time is over
+            if (!quizProvider.canAttemptQuiz()) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) => WillPopScope(
+                    onWillPop: () async => false, // Prevent back button
+                    child: Dialog(
+                      backgroundColor: Colors.transparent,
+                      elevation: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(24.0),
+                        decoration: BoxDecoration(
+                          color: Colors.black,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: Colors.grey[900]!,
+                            width: 1,
+                          ),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 64,
+                              height: 64,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.red,
+                                  width: 2,
+                                ),
+                              ),
+                              child: const Icon(
+                                Icons.timer_off_outlined,
+                                color: Colors.red,
+                                size: 32,
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            Text(
+                              'Time\'s Up!',
+                              style: TextStyleClass.poppinsSemiBold(
+                                fontSize: 20,
+                                color: Colors.white,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              'The quiz time is over. Your answers will be submitted automatically.',
+                              style: TextStyleClass.poppinsRegular(
+                                fontSize: 14,
+                                color: Colors.grey[400]!,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 32),
+                            SizedBox(
+                              width: double.infinity,
+                              child: TextButton(
+                                onPressed: () async {
+                                  try {
+                                    await quizProvider.submitQuiz(context);
+                                    if (context.mounted) {
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => const BottomNavigationScreen()),
+                                      );
+                                    }
+                                  } catch (e) {
+                                    if (context.mounted) {
+                                      showDialog(
+                                        context: context,
+                                        barrierDismissible: false,
+                                        builder: (context) => AlertDialog(
+                                          backgroundColor: ColorClass.black,
+                                          title: Row(
+                                            children: [
+                                              const Icon(
+                                                LucideIcons.alertTriangle,
+                                                color: Colors.red,
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Text(
+                                                'Submission Failed',
+                                                style: TextStyleClass.poppinsSemiBold(
+                                                  fontSize: 18,
+                                                  color: ColorClass.white,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          content: Text(
+                                            e.toString().replaceAll('Exception: ', ''),
+                                            style: TextStyleClass.poppinsRegular(
+                                              fontSize: 14,
+                                              color: ColorClass.white70,
+                                            ),
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.pushReplacement(
+                                                  context,
+                                                  MaterialPageRoute(builder: (context) => const BottomNavigationScreen()),
+                                                );
+                                              },
+                                              child: Text(
+                                                'Return to Home',
+                                                style: TextStyleClass.poppinsMedium(
+                                                  fontSize: 14,
+                                                  color: ColorClass.white70,
+                                                ),
+                                              ),
+                                            ),
+                                            ElevatedButton(
+                                              onPressed: () async {
+                                                Navigator.pop(context); // Close error dialog
+                                                try {
+                                                  await quizProvider.submitQuiz(context);
+                                                  if (context.mounted) {
+                                                    Navigator.pushReplacement(
+                                                      context,
+                                                      MaterialPageRoute(builder: (context) => const BottomNavigationScreen()),
+                                                    );
+                                                  }
+                                                } catch (e) {
+                                                  // Show error dialog again
+                                                  if (context.mounted) {
+                                                    showDialog(
+                                                      context: context,
+                                                      barrierDismissible: false,
+                                                      builder: (context) => AlertDialog(
+                                                        backgroundColor: ColorClass.black,
+                                                        title: const Text('Submission Failed'),
+                                                        content: Text(e.toString()),
+                                                        actions: [
+                                                          TextButton(
+                                                            onPressed: () {
+                                                              Navigator.pushReplacement(
+                                                                context,
+                                                                MaterialPageRoute(builder: (context) => const BottomNavigationScreen()),
+                                                              );
+                                                            },
+                                                            child: const Text('Return to Home'),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    );
+                                                  }
+                                                }
+                                              },
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: ColorClass.primaryColor,
+                                              ),
+                                              child: Text(
+                                                'Try Again',
+                                                style: TextStyleClass.poppinsMedium(
+                                                  fontSize: 14,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }
+                                  }
+                                },
+                                style: TextButton.styleFrom(
+                                  backgroundColor: Colors.grey[900],
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Submit & Return',
+                                  style: TextStyleClass.poppinsMedium(
+                                    fontSize: 16,
+                                    color: Colors.deepPurpleAccent,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              });
             }
 
             return Column(
@@ -60,52 +258,82 @@ class QuizActiveScreen extends StatelessWidget {
           ],
         ),
       ),
-      child: Row(
+      child: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: ColorClass.primaryColor.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  LucideIcons.clock,
-                  color: ColorClass.primaryColor,
-                  size: 16,
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: ColorClass.primaryColor.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(20),
                 ),
-                const SizedBox(width: 6),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      LucideIcons.clock,
+                      color: ColorClass.primaryColor,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      quizProvider.formattedTotalTime,
+                      style: TextStyleClass.poppinsSemiBold(
+                        fontSize: 14,
+                        color: ColorClass.primaryColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Spacer(),
+              Text(
+                'Question ${quizProvider.currentQuestionIndex + 1} of ${quizProvider.currentQuizQuestions.length}',
+                style: TextStyleClass.poppinsMedium(
+                  fontSize: 16,
+                  color: ColorClass.white,
+                ),
+              ),
+              const Spacer(),
+              IconButton(
+                onPressed: () => _showQuizMenuBottomSheet(context, quizProvider),
+                icon: const Icon(
+                  LucideIcons.menu,
+                  color: ColorClass.white,
+                ),
+              ),
+            ],
+          ),
+          if (quizProvider.quizConfig != null) ...[
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
                 Text(
-                  quizProvider.formattedTotalTime,
-                  style: TextStyleClass.poppinsSemiBold(
-                    fontSize: 14,
-                    color: ColorClass.primaryColor,
+                  'Quiz ends at: ${quizProvider.formatClockTime(quizProvider.quizConfig!.endDate)}',
+                  style: TextStyleClass.poppinsRegular(
+                    fontSize: 12,
+                    color: Colors.orange,
+                  ),
+                ),
+                Text(
+                  quizProvider.getFormattedRemainingTime(),
+                  style: TextStyleClass.poppinsRegular(
+                    fontSize: 12,
+                    color: quizProvider.getRemainingTime() <= 5 ? Colors.red : Colors.green,
                   ),
                 ),
               ],
             ),
-          ),
-          const Spacer(),
-          Text(
-            'Question ${quizProvider.currentQuestionIndex + 1} of ${quizProvider.currentQuizQuestions.length}',
-            style: TextStyleClass.poppinsMedium(
-              fontSize: 16,
-              color: ColorClass.white,
-            ),
-          ),
-          const Spacer(),
-          IconButton(
-            onPressed: () => _showQuizMenuBottomSheet(context, quizProvider),
-            icon: const Icon(
-              LucideIcons.menu,
-              color: ColorClass.white,
-            ),
-          ),
+          ],
         ],
       ),
     );
+  }
+
+  String _formatTime(DateTime time) {
+    return '${time.hour}:${time.minute.toString().padLeft(2, '0')}';
   }
 
   Widget _buildProgressIndicator(QuizProvider quizProvider) {
@@ -148,6 +376,7 @@ class QuizActiveScreen extends StatelessWidget {
     final question = quizProvider.currentLanguage == 'en' 
         ? currentQuestion.questionEn 
         : currentQuestion.questionMl;
+    final questionNumber = quizProvider.currentQuestionIndex + 1;
     
     return Container(
       width: double.infinity,
@@ -175,37 +404,28 @@ class QuizActiveScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: _getQuestionTypeColor(currentQuestion.type),
-                  borderRadius: BorderRadius.circular(12),
+                  color: ColorClass.primaryColor.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  currentQuestion.type == 'multiple_choice' ? 'Multiple Choice' : 'True/False',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                  'Question $questionNumber',
+                  style: TextStyleClass.poppinsMedium(
+                    fontSize: 14,
+                    color: ColorClass.primaryColor,
                   ),
                 ),
               ),
               const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: _getDifficultyColor(currentQuestion.difficulty),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  currentQuestion.difficulty.toUpperCase(),
-                  style: const TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+              Text(
+                quizProvider.formattedQuestionTime,
+                style: TextStyleClass.poppinsRegular(
+                  fontSize: 14,
+                  color: ColorClass.white70,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           Text(
             question,
             style: TextStyleClass.poppinsSemiBold(
@@ -317,7 +537,7 @@ class QuizActiveScreen extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(LucideIcons.chevronLeft, size: 20),
+                  const Icon(LucideIcons.arrowLeft, size: 20),
                   const SizedBox(width: 8),
                   Text(
                     'Previous',
@@ -335,9 +555,67 @@ class QuizActiveScreen extends StatelessWidget {
         Expanded(
           child: ElevatedButton(
             onPressed: quizProvider.hasAnsweredCurrentQuestion
-                ? (quizProvider.isLastQuestion 
-                    ? () => _showSubmitDialog(context, quizProvider)
-                    : quizProvider.nextQuestion)
+                ? () {
+                    if (quizProvider.isLastQuestion) {
+                      // Show confirmation dialog
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          backgroundColor: ColorClass.black,
+                          title: Row(
+                            children: [
+                              const Icon(LucideIcons.alertTriangle, color: ColorClass.primaryColor),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Submit Quiz?',
+                                style: TextStyleClass.poppinsSemiBold(
+                                  fontSize: 18,
+                                  color: ColorClass.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                          content: Text(
+                            'Are you sure you want to submit the quiz? This action cannot be undone.',
+                            style: TextStyleClass.poppinsRegular(
+                              fontSize: 14,
+                              color: ColorClass.white70,
+                            ),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text(
+                                'Cancel',
+                                style: TextStyleClass.poppinsMedium(
+                                  fontSize: 14,
+                                  color: ColorClass.white70,
+                                ),
+                              ),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.pop(context); // Close dialog
+                                quizProvider.submitQuiz(context);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: ColorClass.primaryColor,
+                              ),
+                              child: Text(
+                                'Submit',
+                                style: TextStyleClass.poppinsMedium(
+                                  fontSize: 14,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    } else {
+                      quizProvider.nextQuestion();
+                    }
+                  }
                 : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: ColorClass.primaryColor,
@@ -359,7 +637,7 @@ class QuizActiveScreen extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Icon(
-                  quizProvider.isLastQuestion ? LucideIcons.send : LucideIcons.chevronRight,
+                  quizProvider.isLastQuestion ? LucideIcons.check : LucideIcons.arrowRight,
                   size: 20,
                 ),
               ],
@@ -385,46 +663,50 @@ class QuizActiveScreen extends StatelessWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Quiz Menu',
-              style: TextStyleClass.poppinsSemiBold(
-                fontSize: 20,
-                color: ColorClass.white,
+      builder: (context) => SingleChildScrollView(
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Quiz Menu',
+                style: TextStyleClass.poppinsSemiBold(
+                  fontSize: 20,
+                  color: ColorClass.white,
+                ),
               ),
-            ),
-            const SizedBox(height: 24),
-            _buildQuestionGrid(quizProvider),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Continue Quiz'),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      _showSubmitDialog(context, quizProvider);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
+              const SizedBox(height: 24),
+              _buildQuestionGrid(quizProvider),
+              const SizedBox(height: 24),
+              SafeArea(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Continue Quiz', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),),
+                      ),
                     ),
-                    child: const Text('End Quiz'),
-                  ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          _showSubmitDialog(context, quizProvider);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                        ),
+                        child: const Text('End Quiz', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -548,7 +830,7 @@ class QuizActiveScreen extends StatelessWidget {
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
-              quizProvider.submitQuiz();
+              quizProvider.submitQuiz(context);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: ColorClass.primaryColor,

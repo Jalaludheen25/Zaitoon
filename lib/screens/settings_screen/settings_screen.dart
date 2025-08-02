@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttermoji/fluttermoji.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:zaitoon/constants/app_constants.dart';
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/image_class.dart';
@@ -24,6 +25,8 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  final Uri d4dxUrl = Uri.parse('https://d4dx.co/');
+
   @override
   void initState() {
     super.initState();
@@ -41,6 +44,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
         onSuccess: () => action(),
       ),
     );
+  }
+
+  Future<void> _websiteD4dx() async {
+    if (!await launchUrl(d4dxUrl, mode: LaunchMode.externalApplication)) {
+      throw 'Could not open ${d4dxUrl.toString()}';
+    }
   }
 
   @override
@@ -181,12 +190,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           // shareApp(context);
                         },
                       ),
+
                       _buildSettingItem(
                         icon: Icons.info_outline,
                         title: 'About Us',
                         subtitle: 'Learn more about Zai Toon',
                         onTap: () {
-                          _showAboutUsBottomSheet(context);
+                          _websiteD4dx();
                         },
                       ),
                       _buildSettingItem(
@@ -324,12 +334,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 fit: BoxFit.contain,
                                 color: ColorClass.white,
                               ),
-                              Image.asset(
-                                ImageClass.d4dxLogo,
-                                height: 100,
-                                fit: BoxFit.contain,
-                                color: ColorClass.white,
-                              ),
                             ],
                           ),
                         ],
@@ -419,7 +423,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _showAboutUsBottomSheet(BuildContext context) {
+/*  void _showAboutUsBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -495,5 +499,5 @@ Join us in making reading fun for every child! 📖✨''',
         );
       },
     );
-  }
+  } */
 }

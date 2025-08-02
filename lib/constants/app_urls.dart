@@ -24,6 +24,14 @@ class ApiUrls {
     return 'media/$imageId';
   }
 
+  static String getQuizAdmin({required int imageId}) {
+    return 'https://zaitoon-quiz-fdaeq.ondigitalocean.app/api/admin/dashboard';
+  }
+
+  static String submitQuiz({required int imageId}) {
+    return 'https://zaitoon-quiz-fdaeq.ondigitalocean.app/api/quiz/submit';
+  }
+
   static String getEpisode(String id) {
     return '$baseUrl/items/zaitoon_episode?filter[story][_eq]=$id&filter[visibility_status][_eq]=true';
   }

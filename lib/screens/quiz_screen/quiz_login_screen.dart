@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/textstyle_class.dart';
+import 'package:zaitoon/helper/auth_helper.dart';
 import 'package:zaitoon/screens/quiz_screen/provider/quiz_login_provider.dart';
 import 'package:zaitoon/screens/quiz_screen/components/mobile_input_section.dart';
 import 'package:zaitoon/screens/quiz_screen/components/otp_input_section.dart';
@@ -73,7 +75,6 @@ class QuizLoginScreen extends StatelessWidget {
   Widget _buildHeaderSection() {
     return Column(
       children: [
-        // Quiz icon or mascot
         Container(
           width: 120,
           height: 120,
