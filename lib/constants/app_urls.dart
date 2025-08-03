@@ -43,4 +43,7 @@ class ApiUrls {
 
   static String highlightedStories =
       "$baseUrl/items/zaitoon_single_story?filter[isHighlighted][_eq]=true";
+
+  // Quiz configuration endpoint
+  static String quizConfig = "$baseUrl/items/zaitoon_quiz";
 }

@@ -8,7 +8,6 @@ import 'package:zaitoon/screens/bottom_navigation/provider/bottom_navigation_pro
 import 'package:zaitoon/screens/home_screen/home_screen.dart';
 import 'package:zaitoon/screens/login_screen/provider/auth_provider.dart';
 
-import 'package:zaitoon/screens/quiz/quiz_screen.dart';
 import 'package:zaitoon/screens/quiz_screen/quiz_login_screen.dart';
 import 'package:zaitoon/screens/settings_screen/settings_screen.dart';
 import 'package:zaitoon/screens/standalone_stories/standalone_story_list_screen.dart';
@@ -35,6 +34,8 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
       if (authProvider.isSignedIn) {
         context.read<UserDataProvider>().initialize();
       }
+      // Check quiz visibility from API
+      context.read<NavigationProvider>().checkQuizVisibility();
     });
   }
 
@@ -55,18 +56,18 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
         return Scaffold(
           body: IndexedStack(
             index: navigationProvider.currentIndex,
-            children: const [
-              HomeScreen(),
-              StoriesScreen(),
-              // QuizScreen(),
-              BookmarkScreen(),
-              QuizLoginScreen(),
-              SettingsScreen(),
+            children: [
+              const HomeScreen(),
+              const StoriesScreen(),
+              const BookmarkScreen(),
+              if (navigationProvider.showQuiz) const QuizLoginScreen(),
+              const SettingsScreen(),
             ],
           ),
           bottomNavigationBar: StoryAppBottomNav(
             currentIndex: navigationProvider.currentIndex,
             onTap: (index) => navigationProvider.setIndex(index, context),
+            showQuiz: navigationProvider.showQuiz,
           ),
         );
       }),
@@ -77,11 +78,13 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
 class StoryAppBottomNav extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
+  final bool showQuiz;
 
   const StoryAppBottomNav({
     super.key,
     this.currentIndex = 0,
     this.onTap = defaultOnTap,
+    this.showQuiz = false,
   });
 
   static void defaultOnTap(int index) {
@@ -96,8 +99,8 @@ class StoryAppBottomNav extends StatelessWidget {
       onDestinationSelected: onTap,
       backgroundColor: Theme.of(context).colorScheme.surface,
       indicatorColor: Theme.of(context).colorScheme.primaryContainer,
-      destinations: const [
-        NavigationDestination(
+      destinations: [
+        const NavigationDestination(
           icon: Icon(LucideIcons.tv),
           selectedIcon: Icon(
             LucideIcons.tv2,
@@ -105,7 +108,7 @@ class StoryAppBottomNav extends StatelessWidget {
           ),
           label: 'Episodes',
         ),
-        NavigationDestination(
+        const NavigationDestination(
           icon: Icon(LucideIcons.book),
           selectedIcon: Icon(
             LucideIcons.bookOpen,
@@ -113,15 +116,7 @@ class StoryAppBottomNav extends StatelessWidget {
           ),
           label: 'Stories',
         ),
-        // NavigationDestination(
-        //   icon: Icon(LucideIcons.brain),
-        //   selectedIcon: Icon(
-        //     LucideIcons.brainCircuit,
-        //     color: Colors.white,
-        //   ),
-        //   label: 'Quiz',
-        // ),
-        NavigationDestination(
+        const NavigationDestination(
           icon: Icon(LucideIcons.bookmark),
           selectedIcon: Icon(
             LucideIcons.bookMarked,
@@ -129,15 +124,16 @@ class StoryAppBottomNav extends StatelessWidget {
           ),
           label: 'Bookmarks',
         ),
-        NavigationDestination(
-          icon: Icon(LucideIcons.brain),
-          selectedIcon: Icon(
-            LucideIcons.brainCircuit,
-            color: Colors.white,
+        if (showQuiz)
+          const NavigationDestination(
+            icon: Icon(LucideIcons.brain),
+            selectedIcon: Icon(
+              LucideIcons.brainCircuit,
+              color: Colors.white,
+            ),
+            label: 'Quiz',
           ),
-          label: 'Quiz',
-        ),
-        NavigationDestination(
+        const NavigationDestination(
           icon: Icon(LucideIcons.settings),
           selectedIcon: Icon(
             LucideIcons.settings2,
