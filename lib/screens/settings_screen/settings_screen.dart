@@ -1,5 +1,4 @@
 // ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
 import 'package:fluttermoji/fluttermoji.dart';
 import 'package:provider/provider.dart';
@@ -12,6 +11,7 @@ import 'package:zaitoon/helper/url_launcher.dart';
 import 'package:zaitoon/screens/language_selection/language_selection.dart';
 import 'package:zaitoon/screens/login_screen/login_screen.dart';
 import 'package:zaitoon/screens/login_screen/provider/auth_provider.dart';
+import 'package:zaitoon/screens/settings_screen/components/contact_us.dart';
 import 'package:zaitoon/screens/settings_screen/components/parental_gate.dart';
 import 'package:zaitoon/screens/settings_screen/components/shareapp_selection.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/user_data_collection_screen.dart';
@@ -26,6 +26,10 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   final Uri d4dxUrl = Uri.parse('https://d4dx.co/');
+  final Uri playStoreUrl = Uri.parse(
+      'https://play.google.com/store/apps/details?id=co.d4dx.zaitoon');
+  final Uri appStoreUrl =
+      Uri.parse('https://apps.apple.com/in/app/zai-toon-kids/id6737912105');
 
   @override
   void initState() {
@@ -49,6 +53,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _websiteD4dx() async {
     if (!await launchUrl(d4dxUrl, mode: LaunchMode.externalApplication)) {
       throw 'Could not open ${d4dxUrl.toString()}';
+    }
+  }
+
+  Future<void> _playStore() async {
+    if (!await launchUrl(playStoreUrl, mode: LaunchMode.externalApplication)) {
+      throw 'Could not open ${playStoreUrl.toString()}';
+    }
+  }
+
+  Future<void> _appStore() async {
+    if (!await launchUrl(appStoreUrl, mode: LaunchMode.externalApplication)) {
+      throw 'Could not open ${appStoreUrl.toString()}';
     }
   }
 
@@ -304,6 +320,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           },
                         ),
                       ),
+                      _buildSettingItem(
+                        icon: Icons.phone_outlined,
+                        title: 'Contact Us',
+                        subtitle: 'Contact us for any support',
+                        onTap: () {
+                          _showParentalGate(() {
+                            navigatePR(
+                              context: context,
+                              screen: const ContactUs(),
+                            );
+                          });
+                        },
+                      ),
                       const SizedBox(height: 10),
                       const Center(
                         child: Text(
@@ -314,7 +343,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      // const SizedBox(height: 10),
+                      _buildShareApp(),
+                      // const SizedBox(height: 10),
                       Column(
                         children: [
                           const Text(
@@ -419,6 +450,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildShareApp() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          GestureDetector(
+            onTap: _playStore,
+            child: Image.asset(
+              ImageClass.shareAppAndroid,
+              height: 40,
+              fit: BoxFit.contain,
+            ),
+          ),
+          const SizedBox(width: 30),
+          GestureDetector(
+            onTap: _appStore,
+            child: Image.asset(
+              ImageClass.shareAppIos,
+              height: 40,
+              fit: BoxFit.contain,
+            ),
+          ),
+        ],
       ),
     );
   }
