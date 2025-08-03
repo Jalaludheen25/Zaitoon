@@ -1,0 +1,2 @@
+/Users/junaidhhaneefa/Junaidh/D4DX works/zaitoon-kids/android/app/.cxx/RelWithDebInfo/2h3s36s2/armeabi-v7a/CMakeFiles/edit_cache.dir
+/Users/junaidhhaneefa/Junaidh/D4DX works/zaitoon-kids/android/app/.cxx/RelWithDebInfo/2h3s36s2/armeabi-v7a/CMakeFiles/rebuild_cache.dir
