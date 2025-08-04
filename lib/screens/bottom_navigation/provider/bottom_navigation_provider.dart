@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:zaitoon/helper/auth_helper.dart';
 import 'package:zaitoon/screens/quiz/quiz_screen.dart';
-import 'package:zaitoon/screens/quiz_screen/quiz_login_screen.dart';
+import 'package:zaitoon/screens/student_form/view/student_form.dart';
 import 'package:zaitoon/services/quiz_config_service.dart';
 
 class NavigationProvider extends ChangeNotifier {
@@ -19,23 +19,12 @@ class NavigationProvider extends ChangeNotifier {
   Future<void> setIndex(int index, BuildContext context) async {
     // Check if trying to access quiz section (index 3 when quiz is shown)
     if (_showQuiz && index == 3) {
-      final isLoggedIn = await AuthHelper.isLoggedIn();
-      if (isLoggedIn) {
-        // User is logged in, navigate to quiz screen
-        if (context.mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const QuizScreen()),
-          );
-        }
-      } else {
-        // User is not logged in, show login screen
-        if (context.mounted) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const QuizLoginScreen()),
-          );
-        }
+      // Navigate directly to student form
+      if (context.mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const StudentFormScreen()),
+        );
       }
     } else {
       _currentIndex = index;

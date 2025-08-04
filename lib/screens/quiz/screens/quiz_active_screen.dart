@@ -224,18 +224,23 @@ class QuizActiveScreen extends StatelessWidget {
                 _buildHeader(context, quizProvider),
                 _buildProgressIndicator(quizProvider),
                 Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: [
-                        _buildQuestionCard(quizProvider, currentQuestion),
-                        const SizedBox(height: 24),
-                        _buildOptionsSection(quizProvider, currentQuestion),
-                        const Spacer(),
-                        _buildNavigationButtons(context, quizProvider),
-                      ],
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          _buildQuestionCard(quizProvider, currentQuestion),
+                          const SizedBox(height: 24),
+                          _buildOptionsSection(quizProvider, currentQuestion),
+                          const SizedBox(height: 24),
+                        ],
+                      ),
                     ),
                   ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: _buildNavigationButtons(context, quizProvider),
                 ),
               ],
             );
@@ -567,7 +572,7 @@ class QuizActiveScreen extends StatelessWidget {
                               const Icon(LucideIcons.alertTriangle, color: ColorClass.primaryColor),
                               const SizedBox(width: 8),
                               Text(
-                                'Submit Quiz?',
+                                quizProvider.error != null ? 'Retry Submission?' : 'Submit Quiz?',
                                 style: TextStyleClass.poppinsSemiBold(
                                   fontSize: 18,
                                   color: ColorClass.white,
@@ -576,7 +581,9 @@ class QuizActiveScreen extends StatelessWidget {
                             ],
                           ),
                           content: Text(
-                            'Are you sure you want to submit the quiz? This action cannot be undone.',
+                            quizProvider.error != null
+                                ? 'Previous submission failed. Would you like to retry?'
+                                : 'Are you sure you want to submit the quiz? This action cannot be undone.',
                             style: TextStyleClass.poppinsRegular(
                               fontSize: 14,
                               color: ColorClass.white70,
@@ -586,7 +593,7 @@ class QuizActiveScreen extends StatelessWidget {
                             TextButton(
                               onPressed: () => Navigator.pop(context),
                               child: Text(
-                                'Cancel',
+                                quizProvider.error != null ? 'Cancel' : 'Continue Quiz',
                                 style: TextStyleClass.poppinsMedium(
                                   fontSize: 14,
                                   color: ColorClass.white70,
@@ -602,7 +609,7 @@ class QuizActiveScreen extends StatelessWidget {
                                 backgroundColor: ColorClass.primaryColor,
                               ),
                               child: Text(
-                                'Submit',
+                                quizProvider.error != null ? 'Retry' : 'Submit',
                                 style: TextStyleClass.poppinsMedium(
                                   fontSize: 14,
                                   color: Colors.white,
@@ -785,7 +792,7 @@ class QuizActiveScreen extends StatelessWidget {
       builder: (context) => AlertDialog(
         backgroundColor: ColorClass.black,
         title: Text(
-          'Submit Quiz?',
+          quizProvider.error != null ? 'Retry Submission?' : 'Submit Quiz?',
           style: TextStyleClass.poppinsSemiBold(
             fontSize: 20,
             color: ColorClass.white,
@@ -795,37 +802,61 @@ class QuizActiveScreen extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'You have answered ${quizProvider.questionsAnswered} out of ${quizProvider.currentQuizQuestions.length} questions.',
-              style: TextStyleClass.poppinsRegular(
-                fontSize: 14,
-                color: ColorClass.white.withOpacity(0.8),
-              ),
-            ),
-            if (unansweredCount > 0) ...[
-              const SizedBox(height: 8),
+            if (quizProvider.error != null) ...[
               Text(
-                'Warning: You have $unansweredCount unanswered questions. These will be marked as incorrect.',
+                'Previous submission failed. Would you like to retry?',
                 style: TextStyleClass.poppinsRegular(
                   fontSize: 14,
                   color: Colors.orange,
                 ),
               ),
-            ],
-            const SizedBox(height: 16),
-            Text(
-              'Are you sure you want to submit your quiz?',
-              style: TextStyleClass.poppinsMedium(
-                fontSize: 16,
-                color: ColorClass.white,
+            ] else ...[
+              Text(
+                'You have answered ${quizProvider.questionsAnswered} out of ${quizProvider.currentQuizQuestions.length} questions.',
+                style: TextStyleClass.poppinsRegular(
+                  fontSize: 14,
+                  color: ColorClass.white.withOpacity(0.8),
+                ),
               ),
-            ),
+              if (unansweredCount > 0) ...[
+                const SizedBox(height: 8),
+                Text(
+                  'Warning: You have $unansweredCount unanswered questions. These will be marked as incorrect.',
+                  style: TextStyleClass.poppinsRegular(
+                    fontSize: 14,
+                    color: Colors.orange,
+                  ),
+                ),
+              ],
+              const SizedBox(height: 16),
+              Text(
+                'Are you sure you want to submit your quiz?',
+                style: TextStyleClass.poppinsMedium(
+                  fontSize: 16,
+                  color: ColorClass.white,
+                ),
+              ),
+            ],
           ],
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Continue Quiz'),
+            onPressed: () {
+              Navigator.pop(context);
+              if (quizProvider.error != null) {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const BottomNavigationScreen()),
+                );
+              }
+            },
+            child: Text(
+              quizProvider.error != null ? 'Return to Home' : 'Continue Quiz',
+              style: TextStyleClass.poppinsMedium(
+                fontSize: 14,
+                color: ColorClass.white70,
+              ),
+            ),
           ),
           ElevatedButton(
             onPressed: () {
@@ -844,7 +875,13 @@ class QuizActiveScreen extends StatelessWidget {
                       color: Colors.white,
                     ),
                   )
-                : const Text('Submit'),
+                : Text(
+                    quizProvider.error != null ? 'Retry' : 'Submit',
+                    style: TextStyleClass.poppinsMedium(
+                      fontSize: 14,
+                      color: Colors.white,
+                    ),
+                  ),
           ),
         ],
       ),

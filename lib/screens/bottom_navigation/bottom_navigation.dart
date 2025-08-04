@@ -8,10 +8,10 @@ import 'package:zaitoon/screens/bottom_navigation/provider/bottom_navigation_pro
 import 'package:zaitoon/screens/home_screen/home_screen.dart';
 import 'package:zaitoon/screens/login_screen/provider/auth_provider.dart';
 
-import 'package:zaitoon/screens/quiz_screen/quiz_login_screen.dart';
 import 'package:zaitoon/screens/settings_screen/settings_screen.dart';
 import 'package:zaitoon/screens/standalone_stories/standalone_story_list_screen.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
+import 'package:zaitoon/screens/student_form/view/student_form.dart';
 
 class BottomNavigationScreen extends StatefulWidget {
   final int currentIndex;
@@ -60,7 +60,7 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
               const HomeScreen(),
               const StoriesScreen(),
               const BookmarkScreen(),
-              if (navigationProvider.showQuiz) const QuizLoginScreen(),
+              if (navigationProvider.showQuiz) const StudentFormScreen(),
               const SettingsScreen(),
             ],
           ),

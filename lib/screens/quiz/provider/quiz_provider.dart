@@ -62,13 +62,19 @@ class QuizProvider extends ChangeNotifier {
   QuizResult? _currentQuizResult;
   List<QuizSession> _quizHistory = [];
   Map<String, dynamic> _quizStatistics = {};
+  bool _needsRetry = false;
+  String? _submissionError;
+
+  // Add getters
+  bool get needsRetry => _needsRetry;
+  String? get submissionError => _submissionError;
 
   QuizProvider(this.homeProvider) {
     _currentLanguage = homeProvider.selectedLanguage;
     _loadQuestions();
     _loadQuizHistory();
     _loadQuizStatistics();
-    _loadQuizConfig();
+    loadQuizConfig();
     _startConfigCheckTimer();
   }
 
@@ -142,7 +148,7 @@ class QuizProvider extends ChangeNotifier {
   }
 
   // Load quiz configuration from API
-  Future<void> _loadQuizConfig() async {
+  Future<void> loadQuizConfig() async {
     try {
       final token = await AuthHelper.getAuthToken();
       if (token == null) {
@@ -166,6 +172,7 @@ class QuizProvider extends ChangeNotifier {
       }
     } catch (e) {
       debugPrint('Error loading quiz config: $e');
+      throw Exception('Failed to load quiz configuration: $e');
     }
   }
 
@@ -313,7 +320,7 @@ class QuizProvider extends ChangeNotifier {
     try {
       // Check if quiz config is loaded
       if (_quizConfig == null) {
-        await _loadQuizConfig();
+        await loadQuizConfig();
         if (_quizConfig == null) {
           throw Exception('Quiz configuration not available. Please try again later.');
         }
@@ -383,10 +390,20 @@ class QuizProvider extends ChangeNotifier {
     if (currentQuestion == null || _currentSessionUuid == null) return;
     
     try {
+      debugPrint('=== SAVING ANSWER DEBUG ===');
+      debugPrint('Session UUID: $_currentSessionUuid');
+      debugPrint('Question ID: ${currentQuestion!.id}');
+      debugPrint('Selected Option Index: $selectedOption');
+      debugPrint('Question Text: ${_currentLanguage == 'en' ? currentQuestion!.questionEn : currentQuestion!.questionMl}');
+      debugPrint('Selected Answer Text: ${_currentLanguage == 'en' ? currentQuestion!.optionsEn[selectedOption] : currentQuestion!.optionsMl[selectedOption]}');
+      
       _selectedAnswers[currentQuestion!.id] = selectedOption;
       
       final isCorrect = selectedOption == currentQuestion!.correctAnswer;
       final timeTaken = _questionTimeElapsed;
+      
+      debugPrint('Is Correct Answer: $isCorrect');
+      debugPrint('Time Taken: $timeTaken seconds');
       
       // Create quiz answer
       final answer = QuizAnswer(
@@ -457,6 +474,8 @@ class QuizProvider extends ChangeNotifier {
     try {
       _setSubmitting(true);
       _clearError();
+      _needsRetry = false;
+      _submissionError = null;
       
       _stopTimer();
       
@@ -500,17 +519,28 @@ class QuizProvider extends ChangeNotifier {
         // Get quiz answers
         final answers = await _database.getQuizAnswers(_currentSessionUuid!);
         
-        // Submit to API
-        await submitToAPI(updatedSession, answers);
-        debugPrint('Quiz submitted to API successfully');
+        try {
+          // Submit to API
+          await submitToAPI(updatedSession, answers);
+          debugPrint('Quiz submitted to API successfully');
+          
+          // Reset quiz state on successful submission
+          _resetQuizState();
+          await _loadQuizHistory();
+          await _loadQuizStatistics();
+        } catch (e) {
+          debugPrint('API submission error: $e');
+          if (e.toString().contains('already attempted')) {
+            _needsRetry = true;
+            _submissionError = 'Quiz already submitted. Please retry to sync your results.';
+          } else {
+            _needsRetry = true;
+            _submissionError = 'Failed to submit quiz. Please retry.';
+          }
+          notifyListeners();
+          throw e;
+        }
       }
-      
-      // Reset quiz state
-      _resetQuizState();
-      
-      // Reload data
-      await _loadQuizHistory();
-      await _loadQuizStatistics();
       
       _setSubmitting(false);
       notifyListeners();
@@ -518,7 +548,7 @@ class QuizProvider extends ChangeNotifier {
       debugPrint('Error submitting quiz: $e');
       _setError('Failed to submit quiz: $e');
       _setSubmitting(false);
-      throw e; // Rethrow to handle in UI
+      throw e;
     }
   }
 
@@ -544,6 +574,9 @@ class QuizProvider extends ChangeNotifier {
       // Prepare questions and answers for API
       final questions = _currentQuizQuestions.asMap().entries.map((entry) {
         final q = entry.value;
+        debugPrint('=== QUESTION MAPPING DEBUG ===');
+        debugPrint('Question ${entry.key + 1}: ${q.questionEn}');
+        debugPrint('Correct Answer: ${q.optionsEn[q.correctAnswer]}');
         return QuizSubmissionQuestion(
           questionNumber: entry.key + 1,
           question: _currentLanguage == 'en' ? q.questionEn : q.questionMl,
@@ -552,12 +585,20 @@ class QuizProvider extends ChangeNotifier {
         );
       }).toList();
 
-      final submissionAnswers = answers.asMap().entries.map((entry) {
-        final a = entry.value;
-        final question = _currentQuizQuestions.firstWhere((q) => q.id == a.questionId);
+      // Map answers in the same order as questions
+      final submissionAnswers = _currentQuizQuestions.asMap().entries.map((entry) {
+        final index = entry.key;
+        final q = entry.value;
+        final selectedAnswer = _selectedAnswers[q.id];
+        
+        debugPrint('=== ANSWER MAPPING DEBUG ===');
+        debugPrint('Question ${index + 1}: ${q.questionEn}');
+        debugPrint('Selected Answer Index: $selectedAnswer');
+        debugPrint('Selected Answer Text: ${selectedAnswer != null ? q.optionsEn[selectedAnswer] : "No answer"}');
+        
         return QuizSubmissionAnswer(
-          questionNumber: entry.key + 1,
-          selectedAnswer: question.optionsEn[a.selectedAnswer ?? 0],
+          questionNumber: index + 1,
+          selectedAnswer: selectedAnswer != null ? q.optionsEn[selectedAnswer] : "",
         );
       }).toList();
 
@@ -567,13 +608,20 @@ class QuizProvider extends ChangeNotifier {
         percentage: (session.correctAnswers ?? 0) / session.totalQuestions * 100,
       );
 
+      debugPrint('=== SUBMISSION DETAILS DEBUG ===');
+      debugPrint('Total Questions: ${session.totalQuestions}');
+      debugPrint('Questions Answered: ${_selectedAnswers.length}');
+      debugPrint('Correct Answers: ${session.correctAnswers}');
+      debugPrint('Score Percentage: ${(session.correctAnswers ?? 0) / session.totalQuestions * 100}%');
+      debugPrint('Time Taken: ${session.totalTimeTaken} seconds');
+
       final submission = QuizSubmissionModel(
         userDetails: student,
         questions: questions,
         answers: submissionAnswers,
         result: result,
         totalQuestions: session.totalQuestions,
-        totalQuestionsAttended: answers.length,
+        totalQuestionsAttended: _selectedAnswers.length,
         timeTaken: session.totalTimeTaken ?? 0,
       );
 
@@ -751,6 +799,14 @@ class QuizProvider extends ChangeNotifier {
     return grade;
   }
 
+  // Add method to clear retry state
+  void clearRetryState() {
+    _needsRetry = false;
+    _submissionError = null;
+    notifyListeners();
+  }
+
+  // Modify reset quiz state to clear retry state
   void _resetQuizState() {
     debugPrint('=== RESETTING QUIZ STATE ===');
     debugPrint('Clearing current quiz questions');
@@ -767,6 +823,9 @@ class QuizProvider extends ChangeNotifier {
     _totalTimeElapsed = 0;
     _questionTimeElapsed = 0;
     _stopTimer();
+    debugPrint('Clearing retry state');
+    _needsRetry = false;
+    _submissionError = null;
     debugPrint('Quiz state reset complete');
   }
 
