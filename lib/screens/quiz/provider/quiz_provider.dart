@@ -69,6 +69,10 @@ class QuizProvider extends ChangeNotifier {
   bool get needsRetry => _needsRetry;
   String? get submissionError => _submissionError;
 
+  // Add new field to store attemptId
+  String? _lastAttemptId;
+  String? get lastAttemptId => _lastAttemptId;
+
   QuizProvider(this.homeProvider) {
     _currentLanguage = homeProvider.selectedLanguage;
     _loadQuestions();
@@ -76,6 +80,23 @@ class QuizProvider extends ChangeNotifier {
     _loadQuizStatistics();
     loadQuizConfig();
     _startConfigCheckTimer();
+    _loadAttemptId(); // Add this line
+  }
+
+  // Add method to load attemptId
+  Future<void> _loadAttemptId() async {
+    try {
+      debugPrint('Loading attemptId from database...');
+      final latestSession = await _database.getLatestSubmittedSession();
+      if (latestSession != null) {
+        _lastAttemptId = latestSession.attemptId;
+        debugPrint('Loaded attemptId: $_lastAttemptId');
+      } else {
+        debugPrint('No submitted session found');
+      }
+    } catch (e) {
+      debugPrint('Error loading attemptId: $e');
+    }
   }
 
   // Getters
@@ -150,15 +171,9 @@ class QuizProvider extends ChangeNotifier {
   // Load quiz configuration from API
   Future<void> loadQuizConfig() async {
     try {
-      final token = await AuthHelper.getAuthToken();
-      if (token == null) {
-        throw Exception('No auth token found. Please login again.');
-      }
-
       final response = await http.get(
         Uri.parse('https://zaitoon-quiz-fdaeq.ondigitalocean.app/api/admin/dashboard'),
         headers: {
-          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       );
@@ -556,13 +571,6 @@ class QuizProvider extends ChangeNotifier {
     try {
       debugPrint('=== API SUBMISSION DEBUG ===');
       
-      // Get auth token
-      final token = await AuthHelper.getAuthToken();
-      if (token == null) {
-        throw Exception('No auth token found. Please login again.');
-      }
-      debugPrint('Using auth token: $token');
-      
       // Get student details
       final dbHelper = DatabaseHelper();
       final students = await dbHelper.getAllStudents();
@@ -631,19 +639,12 @@ class QuizProvider extends ChangeNotifier {
         Uri.parse('https://zaitoon-quiz-fdaeq.ondigitalocean.app/api/quiz/submit'),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
         },
         body: jsonEncode(submission.toJson()),
       );
 
       debugPrint('API Response Status: ${response.statusCode}');
       debugPrint('API Response Body: ${response.body}');
-
-      if (response.statusCode == 401) {
-        // Token expired or invalid
-        await AuthHelper.logout();
-        throw Exception('Session expired. Please login again.');
-      }
 
       if (response.statusCode != 200) {
         final errorData = json.decode(response.body);
@@ -657,6 +658,30 @@ class QuizProvider extends ChangeNotifier {
         }
         
         throw Exception('RETRYABLE:$errorMessage');
+      }
+
+      // Store attemptId from response
+      final responseData = json.decode(response.body);
+      if (responseData['success'] == true && responseData['data'] != null) {
+        _lastAttemptId = responseData['data']['attemptId'];
+        debugPrint('Stored attemptId from submission: $_lastAttemptId');
+        
+        // Update session with attemptId
+        final updatedSession = QuizSession(
+          sessionId: session.sessionId,
+          sessionUuid: session.sessionUuid,
+          startTime: session.startTime,
+          endTime: session.endTime,
+          language: session.language,
+          totalQuestions: session.totalQuestions,
+          correctAnswers: session.correctAnswers,
+          totalTimeTaken: session.totalTimeTaken,
+          isCompleted: session.isCompleted,
+          isSubmitted: true,
+          attemptId: _lastAttemptId, // Add this line
+        );
+        await _database.updateQuizSession(updatedSession);
+        debugPrint('Updated session with attemptId in database');
       }
 
       // Mark as submitted in local DB
@@ -826,6 +851,8 @@ class QuizProvider extends ChangeNotifier {
     debugPrint('Clearing retry state');
     _needsRetry = false;
     _submissionError = null;
+    debugPrint('Clearing attemptId');
+    _lastAttemptId = null;
     debugPrint('Quiz state reset complete');
   }
 
@@ -860,6 +887,80 @@ class QuizProvider extends ChangeNotifier {
     debugPrint('New language: $language');
     _currentLanguage = language;
     notifyListeners();
+  }
+
+  // Add method to download certificate
+  Future<Map<String, dynamic>> downloadCertificate() async {
+    try {
+      debugPrint('=== DOWNLOADING CERTIFICATE ===');
+      debugPrint('Checking quiz history...');
+      debugPrint('Total quiz history entries: ${_quizHistory.length}');
+      
+      if (_lastAttemptId == null) {
+        throw Exception('No attempt ID found. Please submit the quiz first.');
+      }
+      debugPrint('Using attemptId: $_lastAttemptId');
+
+      debugPrint('=== PREPARING API REQUEST ===');
+      final requestBody = {
+        'attemptId': _lastAttemptId,
+      };
+      debugPrint('Request Body: ${jsonEncode(requestBody)}');
+      debugPrint('API URL: ${ApiUrls.generateCertificate(imageId: 1)}');
+
+      final response = await http.post(
+        Uri.parse(ApiUrls.generateCertificate(imageId: 1)),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(requestBody),
+      );
+
+      debugPrint('=== API RESPONSE DETAILS ===');
+      debugPrint('Status Code: ${response.statusCode}');
+      debugPrint('Response Headers: ${response.headers}');
+      debugPrint('Response Body: ${response.body}');
+
+      if (response.statusCode != 200) {
+        final errorData = json.decode(response.body);
+        final errorMessage = errorData['message'] ?? 'Failed to generate certificate';
+        debugPrint('Error generating certificate: $errorMessage');
+        throw Exception(errorMessage);
+      }
+
+      final data = json.decode(response.body);
+      final certificate = data['certificate'] as String?;
+      final message = data['message'] as String?;
+      
+      if (certificate == null || !certificate.startsWith('data:image')) {
+        throw Exception('Invalid certificate data received from server');
+      }
+
+      debugPrint('=== CERTIFICATE GENERATED ===');
+      debugPrint('Certificate Type: ${certificate.split(';')[0]}');
+      
+      return {
+        'isBase64': true,
+        'data': certificate,
+        'message': message ?? 'Certificate generated successfully',
+      };
+
+    } catch (e) {
+      debugPrint('=== CERTIFICATE GENERATION ERROR ===');
+      debugPrint('Error Type: ${e.runtimeType}');
+      debugPrint('Error Message: $e');
+      throw Exception('Failed to generate certificate: $e');
+    }
+  }
+
+  // Add getter for certificate availability
+  bool get canDownloadCertificate {
+    if (_quizHistory.isEmpty) return false;
+    
+    final latestSession = _quizHistory.first;
+    return latestSession.isCompleted && 
+           latestSession.correctAnswers != null && 
+           latestSession.isSubmitted;
   }
 
   @override

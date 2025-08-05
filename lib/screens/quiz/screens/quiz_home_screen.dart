@@ -1,12 +1,29 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/textstyle_class.dart';
 import 'package:zaitoon/screens/quiz/provider/quiz_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
-class QuizHomeScreen extends StatelessWidget {
+class QuizHomeScreen extends StatefulWidget {
   const QuizHomeScreen({super.key});
+
+  @override
+  State<QuizHomeScreen> createState() => _QuizHomeScreenState();
+}
+
+class _QuizHomeScreenState extends State<QuizHomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      context.read<QuizProvider>().loadQuizConfig();
+    });
+  }
 
   Widget _buildStartQuizButton(BuildContext context, QuizProvider quizProvider) {
     return SizedBox(
@@ -596,13 +613,13 @@ class QuizHomeScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              Text(
-                'Test your knowledge with ${quizProvider.quizConfig?.totalQuestions ?? 20} questions!',
-                style: TextStyleClass.poppinsRegular(
-                  fontSize: 14,
-                  color: ColorClass.white.withOpacity(0.8),
-                ),
-              ),
+              // Text(
+              //   'Test your knowledge with ${quizProvider.quizConfig?.totalQuestions ?? 20} questions!',
+              //   style: TextStyleClass.poppinsRegular(
+              //     fontSize: 14,
+              //     color: ColorClass.white.withOpacity(0.8),
+              //   ),
+              // ),
               if (quizProvider.quizConfig != null) ...[
                 const SizedBox(height: 16),
                 Row(
@@ -732,12 +749,180 @@ class QuizHomeScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Recent Quizzes',
-          style: TextStyleClass.poppinsSemiBold(
-            fontSize: 18,
-            color: ColorClass.white,
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Recent Quizzes',
+              style: TextStyleClass.poppinsSemiBold(
+                fontSize: 18,
+                color: ColorClass.white,
+              ),
+            ),
+            if (quizProvider.canDownloadCertificate)
+              ElevatedButton.icon(
+                onPressed: () async {
+                  try {
+                    final result = await quizProvider.downloadCertificate();
+                    if (context.mounted) {
+                      if (Platform.isIOS && result['isBase64'] == true) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Certificate download is not supported on iOS simulator'),
+                            backgroundColor: Colors.orange,
+                          ),
+                        );
+                        return;
+                      }
+
+                      // Show success dialog with share option
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          backgroundColor: ColorClass.black,
+                          title: Row(
+                            children: [
+                              const Icon(LucideIcons.award, color: Colors.green),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Success',
+                                style: TextStyleClass.poppinsSemiBold(
+                                  fontSize: 18,
+                                  color: ColorClass.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                result['message'] ?? 'Certificate generated successfully!',
+                                style: TextStyleClass.poppinsRegular(
+                                  fontSize: 14,
+                                  color: ColorClass.white70,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              if (result['isBase64'] == true)
+                                Container(
+                                  constraints: BoxConstraints(
+                                    maxHeight: MediaQuery.of(context).size.height * 0.4,
+                                  ),
+                                  child: Image.memory(
+                                    base64Decode(result['data'].split(',')[1]),
+                                    fit: BoxFit.contain,
+                                  ),
+                                ),
+                            ],
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text(
+                                'Close',
+                                style: TextStyleClass.poppinsMedium(
+                                  fontSize: 14,
+                                  color: ColorClass.white70,
+                                ),
+                              ),
+                            ),
+                            if (!Platform.isIOS && result['isBase64'] == true)
+                              ElevatedButton(
+                                onPressed: () async {
+                                  try {
+                                    // Save image to temporary file
+                                    final tempDir = await getTemporaryDirectory();
+                                    final file = File('${tempDir.path}/certificate.png');
+                                    await file.writeAsBytes(
+                                      base64Decode(result['data'].split(',')[1])
+                                    );
+                                    
+                                    // Share the file
+                                    await Share.shareXFiles(
+                                      [XFile(file.path)],
+                                      text: 'My Quiz Certificate',
+                                    );
+                                  } catch (e) {
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text('Failed to share certificate: $e'),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                    }
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green,
+                                ),
+                                child: Text(
+                                  'Share',
+                                  style: TextStyleClass.poppinsMedium(
+                                    fontSize: 14,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          backgroundColor: ColorClass.black,
+                          title: Row(
+                            children: [
+                              const Icon(LucideIcons.alertTriangle, color: Colors.red),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Error',
+                                style: TextStyleClass.poppinsSemiBold(
+                                  fontSize: 18,
+                                  color: ColorClass.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                          content: Text(
+                            e.toString().replaceAll('Exception: ', ''),
+                            style: TextStyleClass.poppinsRegular(
+                              fontSize: 14,
+                              color: ColorClass.white70,
+                            ),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text(
+                                'OK',
+                                style: TextStyleClass.poppinsMedium(
+                                  fontSize: 14,
+                                  color: ColorClass.white70,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                icon: const Icon(LucideIcons.download, size: 18),
+                label: const Text('Certificate'),
+              ),
+          ],
         ),
         const SizedBox(height: 16),
         if (history.isEmpty)

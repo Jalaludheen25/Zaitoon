@@ -31,6 +31,9 @@ class ApiUrls {
   static String submitQuiz({required int imageId}) {
     return 'https://zaitoon-quiz-fdaeq.ondigitalocean.app/api/quiz/submit';
   }
+  static String generateCertificate({required int imageId}) {
+    return 'https://zaitoon-quiz-fdaeq.ondigitalocean.app/api/certificate/generate';
+  }
 
   static String getEpisode(String id) {
     return '$baseUrl/items/zaitoon_episode?filter[story][_eq]=$id&filter[visibility_status][_eq]=true';

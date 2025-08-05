@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class QuizQuestion {
   final int id;
   final String type;
@@ -77,6 +79,7 @@ class QuizSession {
   final int? totalTimeTaken; // in seconds
   final bool isCompleted;
   final bool isSubmitted;
+  final String? attemptId; // Add this line
 
   QuizSession({
     this.sessionId,
@@ -89,6 +92,7 @@ class QuizSession {
     this.totalTimeTaken,
     this.isCompleted = false,
     this.isSubmitted = false,
+    this.attemptId, // Add this line
   });
 
   Map<String, dynamic> toMap() {
@@ -125,14 +129,14 @@ class QuizSession {
 }
 
 class QuizAnswer {
-  final int? answerId;
+  final int? answerId;  // Changed from id to answerId
   final String sessionUuid;
   final int questionId;
   final String question;
   final List<String> options;
   final int correctAnswer;
   final int? selectedAnswer;
-  final int timeTaken; // in seconds
+  final int timeTaken;
   final bool isCorrect;
 
   QuizAnswer({
@@ -153,7 +157,7 @@ class QuizAnswer {
       'session_uuid': sessionUuid,
       'question_id': questionId,
       'question': question,
-      'options': options.join('|'),
+      'options': jsonEncode(options),
       'correct_answer': correctAnswer,
       'selected_answer': selectedAnswer,
       'time_taken': timeTaken,
@@ -167,7 +171,7 @@ class QuizAnswer {
       sessionUuid: map['session_uuid'],
       questionId: map['question_id'],
       question: map['question'],
-      options: map['options'].split('|'),
+      options: List<String>.from(jsonDecode(map['options'])),
       correctAnswer: map['correct_answer'],
       selectedAnswer: map['selected_answer'],
       timeTaken: map['time_taken'],
