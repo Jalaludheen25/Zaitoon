@@ -29,38 +29,47 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
     return SizedBox(
       width: double.infinity,
       height: 56,
-      child: ElevatedButton(
-        onPressed: !quizProvider.canAttemptQuiz()
-            ? null // Disable button if quiz time is over
-            : () async {
-                _showLanguageSelectionDialog(context, quizProvider);
-              },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: quizProvider.canAttemptQuiz() 
-              ? ColorClass.primaryColor 
-              : Colors.grey[800],
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          elevation: 4,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(LucideIcons.play, size: 24),
-            const SizedBox(width: 12),
-            Text(
-              quizProvider.canAttemptQuiz() 
-                  ? 'Start Quiz'
-                  : 'Quiz Time Over',
-              style: TextStyleClass.poppinsSemiBold(
-                fontSize: 18,
-                color: Colors.white,
+      child: FutureBuilder<bool>(
+        future: quizProvider.canAttemptQuiz(),
+        builder: (context, snapshot) {
+          final bool canAttempt = snapshot.data ?? false;
+          
+          return ElevatedButton(
+            onPressed: !canAttempt
+                ? null // Disable button if quiz time is over or already attempted
+                : () async {
+                    _showLanguageSelectionDialog(context, quizProvider);
+                  },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: canAttempt 
+                  ? ColorClass.primaryColor 
+                  : Colors.grey[800],
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
               ),
+              elevation: 4,
             ),
-          ],
-        ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(LucideIcons.play, size: 24),
+                const SizedBox(width: 12),
+                Text(
+                  canAttempt 
+                      ? 'Start Quiz'
+                      : snapshot.connectionState == ConnectionState.waiting
+                          ? 'Checking...'
+                          : 'Quiz Already Attempted',
+                  style: TextStyleClass.poppinsSemiBold(
+                    fontSize: 18,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
