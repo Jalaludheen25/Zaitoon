@@ -193,3 +193,26 @@ class QuizResult {
     required this.grade,
   });
 } 
+
+class QuizSubmissionQuestion {
+  final int questionNumber;
+  final String question;
+  final List<String> options;
+  final String correctAnswer;
+
+  QuizSubmissionQuestion({
+    required this.questionNumber,
+    required this.question,
+    required this.options,
+    required this.correctAnswer,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'questionNumber': questionNumber,
+      'question': question,
+      'options': options,
+      'correctAnswer': correctAnswer,
+    };
+  }
+} 

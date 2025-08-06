@@ -1,5 +1,34 @@
 import 'package:zaitoon/screens/student_form/model/student_model.dart';
 
+class Student {
+  final String name;
+  final String mobile;
+  final String gender;
+  final String className;
+  final String district;
+  final String language;
+
+  Student({
+    required this.name,
+    required this.mobile,
+    required this.gender,
+    required this.className,
+    required this.district,
+    required this.language,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'mobile': mobile,
+      'gender': gender,
+      'class': className,
+      'district': district,
+      'language': language,
+    };
+  }
+}
+
 class QuizSubmissionModel {
   final Student userDetails;
   final List<QuizSubmissionQuestion> questions;
@@ -21,13 +50,7 @@ class QuizSubmissionModel {
 
   Map<String, dynamic> toJson() {
     return {
-      'userDetails': {
-        'name': userDetails.name,
-        'mobile': userDetails.mobile,
-        'gender': userDetails.gender,
-        'class': userDetails.className,
-        'district': userDetails.district,
-      },
+      'userDetails': userDetails.toJson(),
       'questions': questions.map((q) => q.toJson()).toList(),
       'answers': answers.map((a) => a.toJson()).toList(),
       'result': result.toJson(),

@@ -8,7 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:zaitoon/screens/quiz/database/quiz_database.dart';
 import 'package:zaitoon/screens/quiz/models/quiz_models.dart';
-import 'package:zaitoon/screens/quiz/models/quiz_submission_model.dart';
+import 'package:zaitoon/screens/quiz/models/quiz_submission_model.dart' as quiz_submission;
 import 'package:zaitoon/screens/quiz/models/quiz_config_model.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
 import 'package:zaitoon/screens/student_form/database/db_helper.dart';
@@ -35,12 +35,9 @@ class QuizProvider extends ChangeNotifier {
 
   // Getters
   QuizConfig? get quizConfig => _quizConfig;
-  bool get isQuizTimeValid {
+  Future<bool> get isQuizTimeValid async {
     if (_quizConfig == null) return false;
-    
-    final now = DateTime.now();
-    return now.isAfter(_quizConfig!.startDate) && 
-           now.isBefore(_quizConfig!.endDate);
+    return await canAttemptQuiz();
   }
   
   // Session management
@@ -154,14 +151,61 @@ class QuizProvider extends ChangeNotifier {
     }
   }
 
+  // Check if quiz can be started or continued
+  Future<bool> canAttemptQuiz() async {
+    try {
+      if (_quizConfig == null) return false;
+    
+      final now = DateTime.now();
+      debugPrint('Checking quiz attempt validity:');
+      debugPrint('Current time: $now');
+      debugPrint('Quiz start time: ${_quizConfig!.startDate}');
+      debugPrint('Quiz end time: ${_quizConfig!.endDate}');
+    
+      if (now.isBefore(_quizConfig!.startDate)) {
+        debugPrint('Quiz has not started yet');
+        return false;
+      }
+    
+      if (now.isAfter(_quizConfig!.endDate)) {
+        debugPrint('Quiz time is over');
+        return false;
+      }
+
+      // Check if user has already attempted from local DB
+      final hasAttempted = await _hasAttemptedQuiz();
+      if (hasAttempted) {
+        debugPrint('User has already attempted quiz (local DB check)');
+        return false;
+      }
+    
+      debugPrint('Quiz can be attempted');
+      return true;
+    } catch (e) {
+      debugPrint('Error checking quiz attempt validity: $e');
+      return false;
+    }
+  }
+
   // Check if user has already attempted quiz from local DB
   Future<bool> _hasAttemptedQuiz() async {
     try {
+      debugPrint('Checking quiz attempts in local DB...');
       // Get completed quiz sessions from local DB
       final completedSessions = await _database.getCompletedQuizSessions();
+      debugPrint('Found ${completedSessions.length} completed sessions');
       
-      // Check if any session exists that is completed
-      return completedSessions.any((session) => session.isCompleted);
+      // Check if any session exists that is completed and submitted
+      final hasCompletedSession = completedSessions.any((session) => 
+        session.isCompleted && session.isSubmitted);
+      
+      if (hasCompletedSession) {
+        debugPrint('Found completed and submitted session');
+      } else {
+        debugPrint('No completed and submitted session found');
+      }
+      
+      return hasCompletedSession;
     } catch (e) {
       debugPrint('Error checking quiz attempt in local DB: $e');
       return false;
@@ -281,52 +325,6 @@ class QuizProvider extends ChangeNotifier {
     } catch (e) {
       debugPrint('Error during force submission: $e');
       // We don't throw here as this is an automatic process
-    }
-  }
-
-  // Check if quiz can be started or continued
-  bool canAttemptQuiz() {
-    if (_quizConfig == null) return false;
-    
-    final now = DateTime.now();
-    debugPrint('Checking quiz attempt validity:');
-    debugPrint('Current time: $now');
-    debugPrint('Quiz start time: ${_quizConfig!.startDate}');
-    debugPrint('Quiz end time: ${_quizConfig!.endDate}');
-    
-    if (now.isBefore(_quizConfig!.startDate)) {
-      debugPrint('Quiz has not started yet');
-      return false;
-    }
-    
-    if (now.isAfter(_quizConfig!.endDate)) {
-      debugPrint('Quiz time is over');
-      return false;
-    }
-    
-    debugPrint('Quiz can be attempted');
-    return true;
-  }
-
-  // Get remaining time in minutes
-  int getRemainingTime() {
-    if (_quizConfig == null) return 0;
-    
-    final now = DateTime.now();
-    final end = _quizConfig!.endDate.toLocal();
-    return end.difference(now).inMinutes;
-  }
-
-  // Get formatted remaining time
-  String getFormattedRemainingTime() {
-    final minutes = getRemainingTime();
-    final hours = minutes ~/ 60;
-    final remainingMinutes = minutes % 60;
-    
-    if (hours > 0) {
-      return '$hours hr ${remainingMinutes} min remaining';
-    } else {
-      return '$remainingMinutes min remaining';
     }
   }
 
@@ -577,19 +575,33 @@ class QuizProvider extends ChangeNotifier {
       if (students.isEmpty) {
         throw Exception('No student details found');
       }
-      final student = students.last;
+      final lastStudent = students.last;
+      final student = quiz_submission.Student(
+        name: lastStudent.name,
+        mobile: lastStudent.mobile,
+        gender: lastStudent.gender,
+        className: lastStudent.className,
+        district: lastStudent.district,
+        language: _currentLanguage == 'en' ? 'English' : 'Malayalam', // Add language preference
+      );
 
       // Prepare questions and answers for API
       final questions = _currentQuizQuestions.asMap().entries.map((entry) {
         final q = entry.value;
         debugPrint('=== QUESTION MAPPING DEBUG ===');
         debugPrint('Question ${entry.key + 1}: ${q.questionEn}');
-        debugPrint('Correct Answer: ${q.optionsEn[q.correctAnswer]}');
-        return QuizSubmissionQuestion(
+        final correctAnswerIndex = q.correctAnswer;
+        final correctAnswerText = _currentLanguage == 'en' 
+            ? q.optionsEn[correctAnswerIndex] 
+            : q.optionsMl[correctAnswerIndex];
+        debugPrint('Correct Answer Index: $correctAnswerIndex');
+        debugPrint('Correct Answer Text: $correctAnswerText');
+        
+        return quiz_submission.QuizSubmissionQuestion(
           questionNumber: entry.key + 1,
           question: _currentLanguage == 'en' ? q.questionEn : q.questionMl,
           options: _currentLanguage == 'en' ? q.optionsEn : q.optionsMl,
-          correctAnswer: q.optionsEn[q.correctAnswer],
+          correctAnswer: correctAnswerText,
         );
       }).toList();
 
@@ -600,17 +612,20 @@ class QuizProvider extends ChangeNotifier {
         final selectedAnswer = _selectedAnswers[q.id];
         
         debugPrint('=== ANSWER MAPPING DEBUG ===');
-        debugPrint('Question ${index + 1}: ${q.questionEn}');
+        debugPrint('Question ${index + 1}: ${_currentLanguage == 'en' ? q.questionEn : q.questionMl}');
         debugPrint('Selected Answer Index: $selectedAnswer');
-        debugPrint('Selected Answer Text: ${selectedAnswer != null ? q.optionsEn[selectedAnswer] : "No answer"}');
+        final selectedAnswerText = selectedAnswer != null 
+            ? (_currentLanguage == 'en' ? q.optionsEn[selectedAnswer] : q.optionsMl[selectedAnswer])
+            : "";
+        debugPrint('Selected Answer Text: $selectedAnswerText');
         
-        return QuizSubmissionAnswer(
+        return quiz_submission.QuizSubmissionAnswer(
           questionNumber: index + 1,
-          selectedAnswer: selectedAnswer != null ? q.optionsEn[selectedAnswer] : "",
+          selectedAnswer: selectedAnswerText,
         );
       }).toList();
 
-      final result = QuizSubmissionResult(
+      final result = quiz_submission.QuizSubmissionResult(
         score: session.correctAnswers ?? 0,
         correctAnswers: session.correctAnswers ?? 0,
         percentage: (session.correctAnswers ?? 0) / session.totalQuestions * 100,
@@ -623,7 +638,7 @@ class QuizProvider extends ChangeNotifier {
       debugPrint('Score Percentage: ${(session.correctAnswers ?? 0) / session.totalQuestions * 100}%');
       debugPrint('Time Taken: ${session.totalTimeTaken} seconds');
 
-      final submission = QuizSubmissionModel(
+      final quizSubmission = quiz_submission.QuizSubmissionModel(
         userDetails: student,
         questions: questions,
         answers: submissionAnswers,
@@ -633,18 +648,22 @@ class QuizProvider extends ChangeNotifier {
         timeTaken: session.totalTimeTaken ?? 0,
       );
 
-      debugPrint('API Request Body: ${jsonEncode(submission.toJson())}');
+      debugPrint('API Request Body: ${jsonEncode(quizSubmission.toJson())}');
 
       final response = await http.post(
         Uri.parse('https://zaitoon-quiz-fdaeq.ondigitalocean.app/api/quiz/submit'),
         headers: {
           'Content-Type': 'application/json',
         },
-        body: jsonEncode(submission.toJson()),
+        body: jsonEncode(quizSubmission.toJson()),
       );
 
+      debugPrint('=== API RESPONSE DETAILS ===');
       debugPrint('API Response Status: ${response.statusCode}');
-      debugPrint('API Response Body: ${response.body}');
+      final prettyResponse = const JsonEncoder.withIndent('  ').convert(json.decode(response.body));
+      debugPrint('API Response Body:');
+      prettyResponse.split('\n').forEach((line) => debugPrint(line));
+      debugPrint('=== END API RESPONSE DETAILS ===');
 
       if (response.statusCode != 200) {
         final errorData = json.decode(response.body);
@@ -961,6 +980,28 @@ class QuizProvider extends ChangeNotifier {
     return latestSession.isCompleted && 
            latestSession.correctAnswers != null && 
            latestSession.isSubmitted;
+  }
+
+  // Get remaining time in minutes
+  int getRemainingTime() {
+    if (_quizConfig == null) return 0;
+    
+    final now = DateTime.now();
+    final end = _quizConfig!.endDate.toLocal();
+    return end.difference(now).inMinutes;
+  }
+
+  // Get formatted remaining time
+  String getFormattedRemainingTime() {
+    final minutes = getRemainingTime();
+    final hours = minutes ~/ 60;
+    final remainingMinutes = minutes % 60;
+    
+    if (hours > 0) {
+      return '$hours hr ${remainingMinutes} min remaining';
+    } else {
+      return '$remainingMinutes min remaining';
+    }
   }
 
   @override
