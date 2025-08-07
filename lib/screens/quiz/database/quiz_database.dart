@@ -168,7 +168,7 @@ class QuizDatabase {
       where: 'session_uuid = ?',
       whereArgs: [sessionUuid],
     );
-
+    
     if (maps.isEmpty) {
       return null;
     }
@@ -223,7 +223,7 @@ class QuizDatabase {
       whereArgs: [1],
       orderBy: 'id DESC',
     );
-
+    
     return List.generate(maps.length, (i) {
       return QuizSession(
         sessionId: maps[i]['id'],

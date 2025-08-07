@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:provider/provider.dart';
 import '../model/student_model.dart';
 import '../database/db_helper.dart';
 import '../../../constants/color_class.dart';
 import '../../../screens/quiz/quiz_screen.dart';
+import '../../../screens/quiz/provider/quiz_provider.dart';
 
 class StudentFormScreen extends StatefulWidget {
   const StudentFormScreen({super.key});
@@ -54,6 +56,11 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   void dispose() {
     _nameController.dispose();
     _mobileController.dispose();
@@ -94,22 +101,6 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Student saved successfully!',
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-              ),
-            ),
-            backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        );
-
         // Navigate to quiz screen
         Navigator.pushReplacement(
           context,

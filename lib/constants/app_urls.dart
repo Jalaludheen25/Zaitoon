@@ -24,11 +24,11 @@ class ApiUrls {
     return 'media/$imageId';
   }
 
-  static String getQuizAdmin({required int imageId}) {
+  static String getQuizAdmin() {
     return 'https://zaitoon-quiz-fdaeq.ondigitalocean.app/api/admin/dashboard';
   }
 
-  static String submitQuiz({required int imageId}) {
+  static String submitQuiz() {
     return 'https://zaitoon-quiz-fdaeq.ondigitalocean.app/api/quiz/submit';
   }
   static String generateCertificate({required int imageId}) {

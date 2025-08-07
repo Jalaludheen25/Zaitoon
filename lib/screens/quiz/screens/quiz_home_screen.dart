@@ -17,6 +17,8 @@ class QuizHomeScreen extends StatefulWidget {
 }
 
 class _QuizHomeScreenState extends State<QuizHomeScreen> {
+  bool _isDownloadingCertificate = false;
+
   @override
   void initState() {
     super.initState();
@@ -129,27 +131,27 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
-        child: Column(
+          child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+            children: [
             const Icon(
               LucideIcons.alertCircle,
               size: 64,
               color: Colors.red,
             ),
             const SizedBox(height: 16),
-            Text(
+              Text(
               'Oops! Something went wrong',
-              style: TextStyleClass.poppinsSemiBold(
+                style: TextStyleClass.poppinsSemiBold(
                 fontSize: 18,
-                color: ColorClass.white,
+                  color: ColorClass.white,
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
+              const SizedBox(height: 8),
+              Text(
               error,
-              style: TextStyleClass.poppinsRegular(
-                fontSize: 14,
+                style: TextStyleClass.poppinsRegular(
+                  fontSize: 14,
                 color: ColorClass.white.withOpacity(0.7),
               ),
               textAlign: TextAlign.center,
@@ -170,377 +172,74 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
         ? (session.correctAnswers / session.totalQuestions * 100)
         : 0.0;
     
-    return Dismissible(
-      key: Key(session.sessionUuid),
-      direction: DismissDirection.endToStart,
-      confirmDismiss: (direction) async {
-        return await showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            backgroundColor: ColorClass.black,
-            title: Row(
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: ColorClass.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: ColorClass.primaryColor.withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: _getGradeColor(percentage).withOpacity(0.2),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              LucideIcons.fileText,
+              color: _getGradeColor(percentage),
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(LucideIcons.trash2, color: Colors.red),
-                const SizedBox(width: 8),
+                Row(
+                  children: [
+                    Text(
+                      '${percentage.toStringAsFixed(1)}%',
+                      style: TextStyleClass.poppinsSemiBold(
+                        fontSize: 16,
+                        color: ColorClass.white,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: _getGradeColor(percentage),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        _calculateGrade(percentage),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
                 Text(
-                  'Delete Quiz Record?',
-                  style: TextStyleClass.poppinsSemiBold(
-                    fontSize: 18,
-                    color: ColorClass.white,
+                  '${session.correctAnswers}/${session.totalQuestions} correct • ${_formatTime(session.totalTimeTaken ?? 0)}',
+                  style: TextStyleClass.poppinsRegular(
+                    fontSize: 12,
+                    color: ColorClass.white.withOpacity(0.7),
                   ),
                 ),
               ],
             ),
-            content: Text(
-              'Are you sure you want to delete this quiz record? This action cannot be undone.',
-              style: TextStyleClass.poppinsRegular(
-                fontSize: 14,
-                color: ColorClass.white70,
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: Text(
-                  'Cancel',
-                  style: TextStyleClass.poppinsMedium(
-                    fontSize: 14,
-                    color: ColorClass.white70,
-                  ),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context, true),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                ),
-                child: Text(
-                  'Delete',
-                  style: TextStyleClass.poppinsMedium(
-                    fontSize: 14,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ],
           ),
-        );
-      },
-      onDismissed: (direction) async {
-        try {
-          await quizProvider.deleteQuizSession(session.sessionUuid);
-          if (context.mounted) {
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                backgroundColor: ColorClass.black,
-                title: Row(
-                  children: [
-                    const Icon(LucideIcons.check, color: Colors.green),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Success',
-                      style: TextStyleClass.poppinsSemiBold(
-                        fontSize: 18,
-                        color: ColorClass.white,
-                      ),
-                    ),
-                  ],
-                ),
-                content: Text(
-                  'Quiz record deleted successfully.',
-                  style: TextStyleClass.poppinsRegular(
-                    fontSize: 14,
-                    color: ColorClass.white70,
-                  ),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text(
-                      'OK',
-                      style: TextStyleClass.poppinsMedium(
-                        fontSize: 14,
-                        color: ColorClass.white70,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
-        } catch (e) {
-          if (context.mounted) {
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                backgroundColor: ColorClass.black,
-                title: Row(
-                  children: [
-                    const Icon(LucideIcons.alertTriangle, color: Colors.red),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Error',
-                      style: TextStyleClass.poppinsSemiBold(
-                        fontSize: 18,
-                        color: ColorClass.white,
-                      ),
-                    ),
-                  ],
-                ),
-                content: Text(
-                  'Failed to delete quiz record: ${e.toString()}',
-                  style: TextStyleClass.poppinsRegular(
-                    fontSize: 14,
-                    color: ColorClass.white70,
-                  ),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text(
-                      'OK',
-                      style: TextStyleClass.poppinsMedium(
-                        fontSize: 14,
-                        color: ColorClass.white70,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
-        }
-      },
-      background: Container(
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 24.0),
-        decoration: BoxDecoration(
-          color: Colors.red.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: const Icon(
-          LucideIcons.trash2,
-          color: Colors.red,
-          size: 24,
-        ),
-      ),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: ColorClass.white.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: ColorClass.primaryColor.withOpacity(0.2),
-            width: 1,
-          ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: _getGradeColor(percentage).withOpacity(0.2),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                LucideIcons.fileText,
-                color: _getGradeColor(percentage),
-                size: 20,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        '${percentage.toStringAsFixed(1)}%',
-                        style: TextStyleClass.poppinsSemiBold(
-                          fontSize: 16,
-                          color: ColorClass.white,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: _getGradeColor(percentage),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          _calculateGrade(percentage),
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Text(
-                    '${session.correctAnswers}/${session.totalQuestions} correct • ${_formatTime(session.totalTimeTaken ?? 0)}',
-                    style: TextStyleClass.poppinsRegular(
-                      fontSize: 12,
-                      color: ColorClass.white.withOpacity(0.7),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            IconButton(
-              onPressed: () async {
-                final shouldDelete = await showDialog<bool>(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    backgroundColor: ColorClass.black,
-                    title: Row(
-                      children: [
-                        const Icon(LucideIcons.trash2, color: Colors.red),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Delete Quiz Record?',
-                          style: TextStyleClass.poppinsSemiBold(
-                            fontSize: 18,
-                            color: ColorClass.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                    content: Text(
-                      'Are you sure you want to delete this quiz record? This action cannot be undone.',
-                      style: TextStyleClass.poppinsRegular(
-                        fontSize: 14,
-                        color: ColorClass.white70,
-                      ),
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context, false),
-                        child: Text(
-                          'Cancel',
-                          style: TextStyleClass.poppinsMedium(
-                            fontSize: 14,
-                            color: ColorClass.white70,
-                          ),
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: () => Navigator.pop(context, true),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                        ),
-                        child: Text(
-                          'Delete',
-                          style: TextStyleClass.poppinsMedium(
-                            fontSize: 14,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-
-                if (shouldDelete == true && context.mounted) {
-                  try {
-                    await quizProvider.deleteQuizSession(session.sessionUuid);
-                    if (context.mounted) {
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          backgroundColor: ColorClass.black,
-                          title: Row(
-                            children: [
-                              const Icon(LucideIcons.check, color: Colors.green),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Success',
-                                style: TextStyleClass.poppinsSemiBold(
-                                  fontSize: 18,
-                                  color: ColorClass.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                          content: Text(
-                            'Quiz record deleted successfully.',
-                            style: TextStyleClass.poppinsRegular(
-                              fontSize: 14,
-                              color: ColorClass.white70,
-                            ),
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: Text(
-                                'OK',
-                                style: TextStyleClass.poppinsMedium(
-                                  fontSize: 14,
-                                  color: ColorClass.white70,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-                  } catch (e) {
-                    if (context.mounted) {
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          backgroundColor: ColorClass.black,
-                          title: Row(
-                            children: [
-                              const Icon(LucideIcons.alertTriangle, color: Colors.red),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Error',
-                                style: TextStyleClass.poppinsSemiBold(
-                                  fontSize: 18,
-                                  color: ColorClass.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                          content: Text(
-                            'Failed to delete quiz record: ${e.toString()}',
-                            style: TextStyleClass.poppinsRegular(
-                              fontSize: 14,
-                              color: ColorClass.white70,
-                            ),
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: Text(
-                                'OK',
-                                style: TextStyleClass.poppinsMedium(
-                                  fontSize: 14,
-                                  color: ColorClass.white70,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-                  }
-                }
-              },
-              icon: const Icon(
-                LucideIcons.trash2,
-                color: Colors.red,
-                size: 20,
-              ),
-            ),
-          ],
-        ),
+        ],
       ),
     );
   }
@@ -608,15 +307,15 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+          children: [
               const Text(
                 '🧠',
                 style: TextStyle(fontSize: 32),
               ),
               const SizedBox(height: 12),
-              Text(
+            Text(
                 'Ready for a Challenge?',
-                style: TextStyleClass.poppinsSemiBold(
+              style: TextStyleClass.poppinsSemiBold(
                   fontSize: 20,
                   color: ColorClass.white,
                 ),
@@ -639,13 +338,13 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
                       style: TextStyleClass.poppinsRegular(
                         fontSize: 12,
                         color: Colors.orange,
-                      ),
-                    ),
-                  ],
-                ),
+              ),
+            ),
+          ],
+        ),
               ],
             ],
-          ),
+      ),
         );
       },
     );
@@ -760,176 +459,196 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Recent Quizzes',
-              style: TextStyleClass.poppinsSemiBold(
-                fontSize: 18,
-                color: ColorClass.white,
+      children: [
+        Text(
+          'Recent Quizzes',
+          style: TextStyleClass.poppinsSemiBold(
+            fontSize: 18,
+            color: ColorClass.white,
               ),
             ),
             if (quizProvider.canDownloadCertificate)
               ElevatedButton.icon(
-                onPressed: () async {
-                  try {
-                    final result = await quizProvider.downloadCertificate();
-                    if (context.mounted) {
-                      if (Platform.isIOS && result['isBase64'] == true) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Certificate download is not supported on iOS simulator'),
-                            backgroundColor: Colors.orange,
-                          ),
-                        );
-                        return;
-                      }
+                onPressed: _isDownloadingCertificate 
+                    ? null 
+                    : () async {
+                        setState(() {
+                          _isDownloadingCertificate = true;
+                        });
+                        
+                        try {
+                          final result = await quizProvider.downloadCertificate();
+                          if (context.mounted) {
+                            if (Platform.isIOS && result['isBase64'] == true) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Certificate download is not supported on iOS simulator'),
+                                  backgroundColor: Colors.orange,
+                                ),
+                              );
+                              return;
+                            }
 
-                      // Show success dialog with share option
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          backgroundColor: ColorClass.black,
-                          title: Row(
-                            children: [
-                              const Icon(LucideIcons.award, color: Colors.green),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Success',
-                                style: TextStyleClass.poppinsSemiBold(
-                                  fontSize: 18,
-                                  color: ColorClass.white,
+                            // Show success dialog with share option
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                backgroundColor: ColorClass.black,
+                                title: Row(
+                                  children: [
+                                    const Icon(LucideIcons.award, color: Colors.green),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Success',
+                                      style: TextStyleClass.poppinsSemiBold(
+                                        fontSize: 18,
+                                        color: ColorClass.white,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ],
-                          ),
-                          content: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                result['message'] ?? 'Certificate generated successfully!',
-                                style: TextStyleClass.poppinsRegular(
-                                  fontSize: 14,
-                                  color: ColorClass.white70,
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              if (result['isBase64'] == true)
-                                Container(
-                                  constraints: BoxConstraints(
-                                    maxHeight: MediaQuery.of(context).size.height * 0.4,
-                                  ),
-                                  child: Image.memory(
-                                    base64Decode(result['data'].split(',')[1]),
-                                    fit: BoxFit.contain,
-                                  ),
-                                ),
-                            ],
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: Text(
-                                'Close',
-                                style: TextStyleClass.poppinsMedium(
-                                  fontSize: 14,
-                                  color: ColorClass.white70,
-                                ),
-                              ),
-                            ),
-                            if (!Platform.isIOS && result['isBase64'] == true)
-                              ElevatedButton(
-                                onPressed: () async {
-                                  try {
-                                    // Save image to temporary file
-                                    final tempDir = await getTemporaryDirectory();
-                                    final file = File('${tempDir.path}/certificate.png');
-                                    await file.writeAsBytes(
-                                      base64Decode(result['data'].split(',')[1])
-                                    );
-                                    
-                                    // Share the file
-                                    await Share.shareXFiles(
-                                      [XFile(file.path)],
-                                      text: 'My Quiz Certificate',
-                                    );
-                                  } catch (e) {
-                                    if (context.mounted) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text('Failed to share certificate: $e'),
-                                          backgroundColor: Colors.red,
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      result['message'] ?? 'Certificate generated successfully!',
+                                      style: TextStyleClass.poppinsRegular(
+                                        fontSize: 14,
+                                        color: ColorClass.white70,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    if (result['isBase64'] == true)
+                                      Container(
+                                        constraints: BoxConstraints(
+                                          maxHeight: MediaQuery.of(context).size.height * 0.4,
                                         ),
-                                      );
-                                    }
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.green,
+                                        child: Image.memory(
+                                          base64Decode(result['data'].split(',')[1]),
+                                          fit: BoxFit.contain,
+                                        ),
+                                      ),
+                                  ],
                                 ),
-                                child: Text(
-                                  'Share',
-                                  style: TextStyleClass.poppinsMedium(
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: Text(
+                                      'Close',
+                                      style: TextStyleClass.poppinsMedium(
+                                        fontSize: 14,
+                                        color: ColorClass.white70,
+                                      ),
+                                    ),
+                                  ),
+                                  if (!Platform.isIOS && result['isBase64'] == true)
+                                    ElevatedButton(
+                                      onPressed: () async {
+                                        try {
+                                          // Save image to temporary file
+                                          final tempDir = await getTemporaryDirectory();
+                                          final file = File('${tempDir.path}/certificate.png');
+                                          await file.writeAsBytes(
+                                            base64Decode(result['data'].split(',')[1])
+                                          );
+                                          
+                                          // Share the file
+                                          await Share.shareXFiles(
+                                            [XFile(file.path)],
+                                            text: 'My Quiz Certificate',
+                                          );
+                                        } catch (e) {
+                                          if (context.mounted) {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(
+                                                content: Text('Failed to share certificate: $e'),
+                                                backgroundColor: Colors.red,
+                                              ),
+                                            );
+                                          }
+                                        }
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: ColorClass.primaryColor,
+                                      ),
+                                      child: Text(
+                                        'Share',
+                                        style: TextStyleClass.poppinsMedium(
+                                          fontSize: 14,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            );
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                backgroundColor: ColorClass.black,
+                                title: Row(
+                                  children: [
+                                    const Icon(LucideIcons.alertTriangle, color: Colors.red),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Error',
+                                      style: TextStyleClass.poppinsSemiBold(
+                                        fontSize: 18,
+                                        color: ColorClass.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                content: Text(
+                                  e.toString().replaceAll('Exception: ', ''),
+                                  style: TextStyleClass.poppinsRegular(
                                     fontSize: 14,
-                                    color: Colors.white,
+                                    color: ColorClass.white70,
                                   ),
                                 ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: Text(
+                                      'OK',
+                                      style: TextStyleClass.poppinsMedium(
+                                        fontSize: 14,
+                                        color: ColorClass.white70,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                          ],
+                            );
+                          }
+                        } finally {
+                          if (mounted) {
+                            setState(() {
+                              _isDownloadingCertificate = false;
+                            });
+                          }
+                        }
+                      },
+                icon: _isDownloadingCertificate
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
-                      );
-                    }
-                  } catch (e) {
-                    if (context.mounted) {
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          backgroundColor: ColorClass.black,
-                          title: Row(
-                            children: [
-                              const Icon(LucideIcons.alertTriangle, color: Colors.red),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Error',
-                                style: TextStyleClass.poppinsSemiBold(
-                                  fontSize: 18,
-                                  color: ColorClass.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                          content: Text(
-                            e.toString().replaceAll('Exception: ', ''),
-                            style: TextStyleClass.poppinsRegular(
-                              fontSize: 14,
-                              color: ColorClass.white70,
-                            ),
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: Text(
-                                'OK',
-                                style: TextStyleClass.poppinsMedium(
-                                  fontSize: 14,
-                                  color: ColorClass.white70,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                      )
+                    : const Icon(LucideIcons.download),
+                label: Text(
+                  _isDownloadingCertificate ? 'Downloading...' : 'Certificate',
+                  style: TextStyleClass.poppinsMedium(
+                    fontSize: 14,
+                    color: Colors.white,
                   ),
                 ),
-                icon: const Icon(LucideIcons.download, size: 18),
-                label: const Text('Certificate'),
               ),
           ],
         ),
@@ -990,36 +709,36 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
 
   void _showLanguageSelectionDialog(BuildContext context, QuizProvider quizProvider) {
     showDialog(
-      context: context,
+          context: context,
       barrierDismissible: false,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        child: Container(
-          padding: const EdgeInsets.all(24.0),
-          decoration: BoxDecoration(
-            color: Colors.black,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: Colors.grey[900]!,
-              width: 1,
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Select Quiz Language',
-                style: TextStyleClass.poppinsSemiBold(
-                  fontSize: 20,
-                  color: Colors.white,
+          builder: (context) => Dialog(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            child: Container(
+              padding: const EdgeInsets.all(24.0),
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: Colors.grey[900]!,
+                  width: 1,
                 ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                'Select Quiz Language',
+                    style: TextStyleClass.poppinsSemiBold(
+                      fontSize: 20,
+                      color: Colors.white,
+                    ),
               ),
               const SizedBox(height: 24),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Expanded(
+                    children: [
+                      Expanded(
                     child: ElevatedButton(
                       onPressed: () async {
                         quizProvider.changeLanguage('en');
@@ -1042,14 +761,14 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
                                       style: TextStyleClass.poppinsSemiBold(
                                         fontSize: 18,
                                         color: ColorClass.white,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                content: Text(
+                        ),
+                      ),
+                    ],
+                  ),
+              content: Text(
                                   e.toString().replaceAll('Exception: ', ''),
-                                  style: TextStyleClass.poppinsRegular(
-                                    fontSize: 14,
+                style: TextStyleClass.poppinsRegular(
+                  fontSize: 14,
                                     color: ColorClass.white70,
                                   ),
                                 ),
@@ -1059,7 +778,7 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
                                     child: Text(
                                       'OK',
                                       style: TextStyleClass.poppinsMedium(
-                                        fontSize: 14,
+                  fontSize: 14,
                                         color: ColorClass.white70,
                                       ),
                                     ),
@@ -1074,17 +793,17 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
                         backgroundColor: ColorClass.primaryColor,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(12),
                         ),
-                      ),
-                      child: Text(
+                        ),
+                        child: Text(
                         'English',
                         style: TextStyleClass.poppinsMedium(
                           fontSize: 16,
-                          color: Colors.white,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
-                    ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -1095,70 +814,70 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
                         try {
                           await quizProvider.loadQuizConfig(); // Load quiz config first
                           await quizProvider.startNewQuiz();
-                        } catch (e) {
-                          if (context.mounted) {
-                            showDialog(
-                              context: context,
+                      } catch (e) {
+                        if (context.mounted) {
+                          showDialog(
+                            context: context,
                               builder: (context) => AlertDialog(
-                                backgroundColor: ColorClass.black,
-                                title: Row(
-                                  children: [
+                              backgroundColor: ColorClass.black,
+                              title: Row(
+                                children: [
                                     const Icon(LucideIcons.alertTriangle, color: Colors.red),
-                                    const SizedBox(width: 8),
-                                    Text(
+                                  const SizedBox(width: 8),
+                                  Text(
                                       'Error',
-                                      style: TextStyleClass.poppinsSemiBold(
-                                        fontSize: 18,
-                                        color: ColorClass.white,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                content: Text(
-                                  e.toString().replaceAll('Exception: ', ''),
-                                  style: TextStyleClass.poppinsRegular(
-                                    fontSize: 14,
-                                    color: ColorClass.white70,
-                                  ),
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: Text(
-                                      'OK',
-                                      style: TextStyleClass.poppinsMedium(
-                                        fontSize: 14,
-                                        color: ColorClass.white70,
-                                      ),
+                                    style: TextStyleClass.poppinsSemiBold(
+                                      fontSize: 18,
+                                      color: ColorClass.white,
                                     ),
                                   ),
                                 ],
                               ),
-                            );
-                          }
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: ColorClass.primaryColor,
+                              content: Text(
+                                  e.toString().replaceAll('Exception: ', ''),
+                                style: TextStyleClass.poppinsRegular(
+                                  fontSize: 14,
+                                  color: ColorClass.white70,
+                                ),
+                              ),
+                              actions: [
+                                TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                  child: Text(
+                                      'OK',
+                                    style: TextStyleClass.poppinsMedium(
+                                      fontSize: 14,
+                                      color: ColorClass.white70,
+                                    ),
+                                  ),
+                                ),
+                                ],
+                                          ),
+                                        );
+                                      }
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: ColorClass.primaryColor,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                      ),
-                      child: Text(
+                                  ),
+                                  child: Text(
                         'മലയാളം',
-                        style: TextStyleClass.poppinsMedium(
+                                    style: TextStyleClass.poppinsMedium(
                           fontSize: 16,
-                          color: Colors.white,
+                                      color: Colors.white,
                         ),
-                      ),
-                    ),
-                  ),
-                ],
+                                    ),
+                                  ),
+                                ),
+                              ],
               ),
-            ],
-          ),
+          ],
         ),
+      ),
       ),
     );
   }

@@ -67,6 +67,21 @@ class DatabaseHelper {
     return null;
   }
 
+  Future<Student?> getStudentByMobile(String mobile) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'students',
+      where: 'mobile = ?',
+      whereArgs: [mobile],
+    );
+
+    if (maps.isEmpty) {
+      return null;
+    }
+
+    return Student.fromMap(maps.first);
+  }
+
   // Update a student
   Future<int> updateStudent(Student student) async {
     final db = await database;

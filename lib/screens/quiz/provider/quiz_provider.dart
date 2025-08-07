@@ -22,6 +22,9 @@ class QuizProvider extends ChangeNotifier {
   final QuizDatabase _database = QuizDatabase.instance;
   final HomeProvider homeProvider;
   
+  // Student details
+  String? _studentMobile;
+  
   // Quiz state
   List<QuizQuestion> _allQuestions = [];
   List<QuizQuestion> _currentQuizQuestions = [];
@@ -78,6 +81,7 @@ class QuizProvider extends ChangeNotifier {
     loadQuizConfig();
     _startConfigCheckTimer();
     _loadAttemptId(); // Add this line
+    _loadLastStudentMobile(); // Add this line
   }
 
   // Add method to load attemptId
@@ -88,11 +92,39 @@ class QuizProvider extends ChangeNotifier {
       if (latestSession != null) {
         _lastAttemptId = latestSession.attemptId;
         debugPrint('Loaded attemptId: $_lastAttemptId');
+        debugPrint('Session details:');
+        debugPrint('- Session UUID: ${latestSession.sessionUuid}');
+        debugPrint('- Is Completed: ${latestSession.isCompleted}');
+        debugPrint('- Is Submitted: ${latestSession.isSubmitted}');
+        debugPrint('- Attempt ID: ${latestSession.attemptId}');
       } else {
         debugPrint('No submitted session found');
+        debugPrint('Checking all completed sessions...');
+        final allSessions = await _database.getCompletedQuizSessions();
+        debugPrint('Total completed sessions: ${allSessions.length}');
+        for (var session in allSessions) {
+          debugPrint('- Session: ${session.sessionUuid}, Submitted: ${session.isSubmitted}, AttemptId: ${session.attemptId}');
+        }
       }
     } catch (e) {
       debugPrint('Error loading attemptId: $e');
+    }
+  }
+
+  // Add method to load last student mobile
+  Future<void> _loadLastStudentMobile() async {
+    try {
+      debugPrint('Loading last student mobile from database...');
+      final dbHelper = DatabaseHelper();
+      final students = await dbHelper.getAllStudents();
+      if (students.isNotEmpty) {
+        _studentMobile = students.last.mobile;
+        debugPrint('Loaded student mobile: $_studentMobile');
+      } else {
+        debugPrint('No students found in database');
+      }
+    } catch (e) {
+      debugPrint('Error loading student mobile: $e');
     }
   }
 
@@ -571,18 +603,27 @@ class QuizProvider extends ChangeNotifier {
       
       // Get student details
       final dbHelper = DatabaseHelper();
-      final students = await dbHelper.getAllStudents();
-      if (students.isEmpty) {
-        throw Exception('No student details found');
+      if (_studentMobile == null) {
+        // If no mobile number is set, try to get the last registered student
+        final students = await dbHelper.getAllStudents();
+        if (students.isEmpty) {
+          throw Exception('No student details found. Please register first.');
+        }
+        _studentMobile = students.last.mobile;
       }
-      final lastStudent = students.last;
-      final student = quiz_submission.Student(
-        name: lastStudent.name,
-        mobile: lastStudent.mobile,
-        gender: lastStudent.gender,
-        className: lastStudent.className,
-        district: lastStudent.district,
-        language: _currentLanguage == 'en' ? 'English' : 'Malayalam', // Add language preference
+      
+      final student = await dbHelper.getStudentByMobile(_studentMobile!);
+      if (student == null) {
+        throw Exception('No student details found. Please register first.');
+      }
+
+      final studentDetails = quiz_submission.Student(
+        name: student.name,
+        mobile: student.mobile,
+        gender: student.gender,
+        className: student.className,
+        district: student.district,
+        language: _currentLanguage == 'en' ? 'English' : 'Malayalam',
       );
 
       // Prepare questions and answers for API
@@ -639,7 +680,7 @@ class QuizProvider extends ChangeNotifier {
       debugPrint('Time Taken: ${session.totalTimeTaken} seconds');
 
       final quizSubmission = quiz_submission.QuizSubmissionModel(
-        userDetails: student,
+        userDetails: studentDetails,
         questions: questions,
         answers: submissionAnswers,
         result: result,
@@ -651,7 +692,7 @@ class QuizProvider extends ChangeNotifier {
       debugPrint('API Request Body: ${jsonEncode(quizSubmission.toJson())}');
 
       final response = await http.post(
-        Uri.parse('https://zaitoon-quiz-fdaeq.ondigitalocean.app/api/quiz/submit'),
+        Uri.parse(ApiUrls.submitQuiz()),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -681,6 +722,10 @@ class QuizProvider extends ChangeNotifier {
 
       // Store attemptId from response
       final responseData = json.decode(response.body);
+      debugPrint('=== ATTEMPT ID STORAGE DEBUG ===');
+      debugPrint('Response success: ${responseData['success']}');
+      debugPrint('Response data: ${responseData['data']}');
+      
       if (responseData['success'] == true && responseData['data'] != null) {
         _lastAttemptId = responseData['data']['attemptId'];
         debugPrint('Stored attemptId from submission: $_lastAttemptId');
@@ -697,11 +742,17 @@ class QuizProvider extends ChangeNotifier {
           totalTimeTaken: session.totalTimeTaken,
           isCompleted: session.isCompleted,
           isSubmitted: true,
-          attemptId: _lastAttemptId, // Add this line
+          attemptId: _lastAttemptId,
         );
         await _database.updateQuizSession(updatedSession);
         debugPrint('Updated session with attemptId in database');
+        debugPrint('Session UUID: ${session.sessionUuid}');
+        debugPrint('Attempt ID: $_lastAttemptId');
+      } else {
+        debugPrint('Failed to get attemptId from response');
+        debugPrint('Response data structure: $responseData');
       }
+      debugPrint('=== END ATTEMPT ID STORAGE DEBUG ===');
 
       // Mark as submitted in local DB
       await _database.markSessionAsSubmitted(session.sessionUuid);
@@ -915,6 +966,12 @@ class QuizProvider extends ChangeNotifier {
       debugPrint('Checking quiz history...');
       debugPrint('Total quiz history entries: ${_quizHistory.length}');
       
+      // If _lastAttemptId is null, try to load it from database
+      if (_lastAttemptId == null) {
+        debugPrint('AttemptId is null, trying to load from database...');
+        await _loadAttemptId();
+      }
+      
       if (_lastAttemptId == null) {
         throw Exception('No attempt ID found. Please submit the quiz first.');
       }
@@ -1002,6 +1059,11 @@ class QuizProvider extends ChangeNotifier {
     } else {
       return '$remainingMinutes min remaining';
     }
+  }
+
+  // Add setter for student mobile
+  void setStudentMobile(String mobile) {
+    _studentMobile = mobile;
   }
 
   @override
