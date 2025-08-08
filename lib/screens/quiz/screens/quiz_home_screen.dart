@@ -307,47 +307,141 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+            children: [
               const Text(
                 '🧠',
                 style: TextStyle(fontSize: 32),
               ),
               const SizedBox(height: 12),
-            Text(
+              Text(
                 'Ready for a Challenge?',
-              style: TextStyleClass.poppinsSemiBold(
+                style: TextStyleClass.poppinsSemiBold(
                   fontSize: 20,
                   color: ColorClass.white,
                 ),
               ),
               const SizedBox(height: 8),
-              // Text(
-              //   'Test your knowledge with ${quizProvider.quizConfig?.totalQuestions ?? 20} questions!',
-              //   style: TextStyleClass.poppinsRegular(
-              //     fontSize: 14,
-              //     color: ColorClass.white.withOpacity(0.8),
-              //   ),
-              // ),
               if (quizProvider.quizConfig != null) ...[
                 const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Quiz ends at: ${quizProvider.formatClockTime(quizProvider.quizConfig!.endDate)}',
-                      style: TextStyleClass.poppinsRegular(
-                        fontSize: 12,
-                        color: Colors.orange,
-              ),
-            ),
-          ],
-        ),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: ColorClass.primaryColor.withOpacity(0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            LucideIcons.calendar,
+                            color: ColorClass.primaryColor,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Quiz Schedule',
+                            style: TextStyleClass.poppinsMedium(
+                              fontSize: 14,
+                              color: ColorClass.primaryColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Icon(
+                            LucideIcons.play,
+                            color: Colors.green,
+                            size: 14,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Starts: ${_formatDateTime(quizProvider.quizConfig!.startDate)}',
+                              style: TextStyleClass.poppinsRegular(
+                                fontSize: 12,
+                                color: Colors.green,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Icon(
+                            LucideIcons.square,
+                            color: Colors.red,
+                            size: 14,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Ends: ${_formatDateTime(quizProvider.quizConfig!.endDate)}',
+                              style: TextStyleClass.poppinsRegular(
+                                fontSize: 12,
+                                color: Colors.red,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      // const SizedBox(height: 8),
+                      // Row(
+                      //   children: [
+                      //     Icon(
+                      //       LucideIcons.clock,
+                      //       color: Colors.orange,
+                      //       size: 14,
+                      //     ),
+                      //     const SizedBox(width: 8),
+                      //     Expanded(
+                      //       child: Text(
+                      //         'Time Remaining: ${quizProvider.getFormattedRemainingTime()}',
+                      //         style: TextStyleClass.poppinsRegular(
+                      //           fontSize: 12,
+                      //           color: Colors.orange,
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   ],
+                      // ),
+                    ],
+                  ),
+                ),
               ],
             ],
-      ),
+          ),
         );
       },
     );
+  }
+
+  String _formatDateTime(DateTime dateTime) {
+    // Convert UTC to local time
+    final localDateTime = dateTime.toLocal();
+    
+    // Format: DD/MM/YYYY HH:MM AM/PM
+    final day = localDateTime.day.toString().padLeft(2, '0');
+    final month = localDateTime.month.toString().padLeft(2, '0');
+    final year = localDateTime.year;
+    
+    // Get hour in 12-hour format
+    int hour = localDateTime.hour % 12;
+    hour = hour == 0 ? 12 : hour; // Convert 0 to 12 for 12 AM
+    
+    // Get AM/PM
+    final period = localDateTime.hour < 12 ? 'AM' : 'PM';
+    final minute = localDateTime.minute.toString().padLeft(2, '0');
+    
+    return '$day/$month/$year $hour:$minute $period';
   }
 
   Widget _buildStatisticsSection(QuizProvider quizProvider) {
