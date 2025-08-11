@@ -19,4 +19,5 @@ class ImageClass {
   static const String language = '${imageRoot}language-icon.png';
   static const String shareAppAndroid = '${imageRoot}gplay-wt.png';
   static const String shareAppIos = '${imageRoot}apple-wt.png';
+  static const String certificate = '${imageRoot}zaitoon-certificate.png';
 }

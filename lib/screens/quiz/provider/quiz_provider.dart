@@ -1,37 +1,46 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
 import 'package:http/http.dart' as http;
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:zaitoon/screens/quiz/database/quiz_database.dart';
 import 'package:zaitoon/screens/quiz/models/quiz_models.dart';
-import 'package:zaitoon/screens/quiz/models/quiz_submission_model.dart' as quiz_submission;
+import 'package:zaitoon/screens/quiz/models/quiz_submission_model.dart'
+    as quiz_submission;
 import 'package:zaitoon/screens/quiz/models/quiz_config_model.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
 import 'package:zaitoon/screens/student_form/database/db_helper.dart';
-import 'package:zaitoon/screens/student_form/model/student_model.dart';
-import 'package:zaitoon/helper/auth_helper.dart';
-import 'package:zaitoon/constants/color_class.dart';
-import 'package:zaitoon/constants/textstyle_class.dart';
+import 'package:zaitoon/constants/image_class.dart';
 import 'package:zaitoon/constants/app_urls.dart';
 
 class QuizProvider extends ChangeNotifier {
   final QuizDatabase _database = QuizDatabase.instance;
   final HomeProvider homeProvider;
-  
+
+  // Notification plugin
+  final FlutterLocalNotificationsPlugin _notificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
   // Student details
   String? _studentMobile;
-  
+
   // Quiz state
   List<QuizQuestion> _allQuestions = [];
   List<QuizQuestion> _currentQuizQuestions = [];
   int _currentQuestionIndex = 0;
   Map<int, int> _selectedAnswers = {};
   String _currentLanguage = 'en';
-  
+
   // Quiz configuration
   QuizConfig? _quizConfig;
   Timer? _configCheckTimer;
@@ -42,22 +51,22 @@ class QuizProvider extends ChangeNotifier {
     if (_quizConfig == null) return false;
     return await canAttemptQuiz();
   }
-  
+
   // Session management
   String? _currentSessionUuid;
   DateTime? _sessionStartTime;
   DateTime? _questionStartTime;
-  
+
   // Timer
   Timer? _quizTimer;
   int _totalTimeElapsed = 0; // in seconds
   int _questionTimeElapsed = 0; // in seconds
-  
+
   // Loading states
   bool _isLoading = false;
   bool _isSubmitting = false;
   String? _error;
-  
+
   // Quiz results
   QuizResult? _currentQuizResult;
   List<QuizSession> _quizHistory = [];
@@ -75,6 +84,7 @@ class QuizProvider extends ChangeNotifier {
 
   QuizProvider(this.homeProvider) {
     _currentLanguage = homeProvider.selectedLanguage;
+    _initializeNotifications();
     _loadQuestions();
     _loadQuizHistory();
     _loadQuizStatistics();
@@ -82,6 +92,102 @@ class QuizProvider extends ChangeNotifier {
     _startConfigCheckTimer();
     _loadAttemptId(); // Add this line
     _loadLastStudentMobile(); // Add this line
+  }
+
+  // Initialize notifications
+  Future<void> _initializeNotifications() async {
+    try {
+      debugPrint('=== INITIALIZING NOTIFICATIONS ===');
+
+      // Android initialization settings
+      const AndroidInitializationSettings initializationSettingsAndroid =
+          AndroidInitializationSettings('@mipmap/ic_launcher');
+
+      // iOS initialization settings
+      const DarwinInitializationSettings initializationSettingsIOS =
+          DarwinInitializationSettings(
+        requestAlertPermission: true,
+        requestBadgePermission: true,
+        requestSoundPermission: true,
+      );
+
+      // Combined initialization settings
+      const InitializationSettings initializationSettings =
+          InitializationSettings(
+        android: initializationSettingsAndroid,
+        iOS: initializationSettingsIOS,
+      );
+
+      // Initialize the plugin
+      await _notificationsPlugin.initialize(
+        initializationSettings,
+        onDidReceiveNotificationResponse: _onNotificationTapped,
+      );
+
+      // Request permissions for Android 13+
+      if (Platform.isAndroid) {
+        await Permission.notification.request();
+      }
+
+      debugPrint('Notifications initialized successfully');
+    } catch (e) {
+      debugPrint('Error initializing notifications: $e');
+    }
+  }
+
+  // Handle notification tap
+  void _onNotificationTapped(NotificationResponse notificationResponse) {
+    debugPrint('Notification tapped: ${notificationResponse.payload}');
+
+    if (notificationResponse.payload != null) {
+      final filePath = notificationResponse.payload!;
+      _openCertificateFile(filePath);
+    }
+  }
+
+  // Show download notification
+  Future<void> _showDownloadNotification(
+      String fileName, String filePath) async {
+    try {
+      debugPrint('=== SHOWING DOWNLOAD NOTIFICATION ===');
+
+      const AndroidNotificationDetails androidPlatformChannelSpecifics =
+          AndroidNotificationDetails(
+        'download_channel',
+        'Downloads',
+        channelDescription: 'Notifications for downloaded files',
+        importance: Importance.high,
+        priority: Priority.high,
+        showWhen: true,
+        icon: '@mipmap/ic_launcher',
+        largeIcon: DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
+        styleInformation: BigTextStyleInformation(''),
+      );
+
+      const DarwinNotificationDetails iOSPlatformChannelSpecifics =
+          DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+      );
+
+      const NotificationDetails platformChannelSpecifics = NotificationDetails(
+        android: androidPlatformChannelSpecifics,
+        iOS: iOSPlatformChannelSpecifics,
+      );
+
+      await _notificationsPlugin.show(
+        0, // notification id
+        'Download Complete',
+        'Certificate saved: $fileName',
+        platformChannelSpecifics,
+        payload: filePath,
+      );
+
+      debugPrint('Download notification shown successfully');
+    } catch (e) {
+      debugPrint('Error showing download notification: $e');
+    }
   }
 
   // Add method to load attemptId
@@ -103,7 +209,8 @@ class QuizProvider extends ChangeNotifier {
         final allSessions = await _database.getCompletedQuizSessions();
         debugPrint('Total completed sessions: ${allSessions.length}');
         for (var session in allSessions) {
-          debugPrint('- Session: ${session.sessionUuid}, Submitted: ${session.isSubmitted}, AttemptId: ${session.attemptId}');
+          debugPrint(
+              '- Session: ${session.sessionUuid}, Submitted: ${session.isSubmitted}, AttemptId: ${session.attemptId}');
         }
       }
     } catch (e) {
@@ -132,10 +239,10 @@ class QuizProvider extends ChangeNotifier {
   List<QuizQuestion> get allQuestions => _allQuestions;
   List<QuizQuestion> get currentQuizQuestions => _currentQuizQuestions;
   int get currentQuestionIndex => _currentQuestionIndex;
-  QuizQuestion? get currentQuestion => 
-      _currentQuizQuestions.isNotEmpty && _currentQuestionIndex < _currentQuizQuestions.length
-          ? _currentQuizQuestions[_currentQuestionIndex]
-          : null;
+  QuizQuestion? get currentQuestion => _currentQuizQuestions.isNotEmpty &&
+          _currentQuestionIndex < _currentQuizQuestions.length
+      ? _currentQuizQuestions[_currentQuestionIndex]
+      : null;
   Map<int, int> get selectedAnswers => _selectedAnswers;
   String get currentLanguage => _currentLanguage;
   bool get isLoading => _isLoading;
@@ -144,20 +251,23 @@ class QuizProvider extends ChangeNotifier {
   QuizResult? get currentQuizResult => _currentQuizResult;
   List<QuizSession> get quizHistory => _quizHistory;
   Map<String, dynamic> get quizStatistics => _quizStatistics;
-  
+
   // Timer getters
   int get totalTimeElapsed => _totalTimeElapsed;
   int get questionTimeElapsed => _questionTimeElapsed;
   String get formattedTotalTime => _formatTime(_totalTimeElapsed);
   String get formattedQuestionTime => _formatTime(_questionTimeElapsed);
-  
+
   bool get isQuizActive => _currentSessionUuid != null;
-  bool get hasAnsweredCurrentQuestion => 
-      currentQuestion != null && _selectedAnswers.containsKey(currentQuestion!.id);
-  bool get isLastQuestion => _currentQuestionIndex == _currentQuizQuestions.length - 1;
+  bool get hasAnsweredCurrentQuestion =>
+      currentQuestion != null &&
+      _selectedAnswers.containsKey(currentQuestion!.id);
+  bool get isLastQuestion =>
+      _currentQuestionIndex == _currentQuizQuestions.length - 1;
   int get questionsAnswered => _selectedAnswers.length;
-  double get progressPercentage => 
-      _currentQuizQuestions.isEmpty ? 0.0 : questionsAnswered / _currentQuizQuestions.length;
+  double get progressPercentage => _currentQuizQuestions.isEmpty
+      ? 0.0
+      : questionsAnswered / _currentQuizQuestions.length;
 
   // Load questions from JSON
   Future<void> _loadQuestions() async {
@@ -165,15 +275,16 @@ class QuizProvider extends ChangeNotifier {
       debugPrint('=== LOADING QUESTIONS ===');
       _setLoading(true);
       _clearError();
-      
+
       debugPrint('Reading questions from JSON file...');
-      final String jsonString = await rootBundle.loadString('assets/json/quiz_questions.json');
+      final String jsonString =
+          await rootBundle.loadString('assets/json/quiz_questions.json');
       final Map<String, dynamic> jsonData = json.decode(jsonString);
-      
+
       _allQuestions = (jsonData['questions'] as List)
           .map((q) => QuizQuestion.fromJson(q))
           .toList();
-      
+
       debugPrint('Loaded ${_allQuestions.length} questions');
       _setLoading(false);
     } catch (e) {
@@ -187,18 +298,18 @@ class QuizProvider extends ChangeNotifier {
   Future<bool> canAttemptQuiz() async {
     try {
       if (_quizConfig == null) return false;
-    
+
       final now = DateTime.now();
       debugPrint('Checking quiz attempt validity:');
       debugPrint('Current time: $now');
       debugPrint('Quiz start time: ${_quizConfig!.startDate}');
       debugPrint('Quiz end time: ${_quizConfig!.endDate}');
-    
+
       if (now.isBefore(_quizConfig!.startDate)) {
         debugPrint('Quiz has not started yet');
         return false;
       }
-    
+
       if (now.isAfter(_quizConfig!.endDate)) {
         debugPrint('Quiz time is over');
         return false;
@@ -210,7 +321,7 @@ class QuizProvider extends ChangeNotifier {
         debugPrint('User has already attempted quiz (local DB check)');
         return false;
       }
-    
+
       debugPrint('Quiz can be attempted');
       return true;
     } catch (e) {
@@ -226,17 +337,17 @@ class QuizProvider extends ChangeNotifier {
       // Get completed quiz sessions from local DB
       final completedSessions = await _database.getCompletedQuizSessions();
       debugPrint('Found ${completedSessions.length} completed sessions');
-      
+
       // Check if any session exists that is completed and submitted
-      final hasCompletedSession = completedSessions.any((session) => 
-        session.isCompleted && session.isSubmitted);
-      
+      final hasCompletedSession = completedSessions
+          .any((session) => session.isCompleted && session.isSubmitted);
+
       if (hasCompletedSession) {
         debugPrint('Found completed and submitted session');
       } else {
         debugPrint('No completed and submitted session found');
       }
-      
+
       return hasCompletedSession;
     } catch (e) {
       debugPrint('Error checking quiz attempt in local DB: $e');
@@ -248,7 +359,8 @@ class QuizProvider extends ChangeNotifier {
   Future<void> loadQuizConfig() async {
     try {
       final response = await http.get(
-        Uri.parse('https://zaitoon-quiz-fdaeq.ondigitalocean.app/api/admin/dashboard'),
+        Uri.parse(
+            'https://zaitoon-quiz-fdaeq.ondigitalocean.app/api/admin/dashboard'),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -276,7 +388,7 @@ class QuizProvider extends ChangeNotifier {
         final now = DateTime.now();
         debugPrint('Checking quiz time validity at: $now');
         debugPrint('Quiz end time: ${_quizConfig!.endDate}');
-        
+
         if (now.isAfter(_quizConfig!.endDate)) {
           debugPrint('Quiz time has ended. Forcing submission.');
           timer.cancel();
@@ -296,23 +408,23 @@ class QuizProvider extends ChangeNotifier {
     try {
       debugPrint('=== FORCE SUBMITTING QUIZ ===');
       _stopTimer();
-      
+
       // Calculate results
-      final correctAnswers = _selectedAnswers.entries
-          .where((entry) {
-            final question = _currentQuizQuestions.firstWhere((q) => q.id == entry.key);
-            return entry.value == question.correctAnswer;
-          })
-          .length;
-      
+      final correctAnswers = _selectedAnswers.entries.where((entry) {
+        final question =
+            _currentQuizQuestions.firstWhere((q) => q.id == entry.key);
+        return entry.value == question.correctAnswer;
+      }).length;
+
       final percentage = (correctAnswers / _currentQuizQuestions.length) * 100;
-      
+
       debugPrint('Force submission details:');
       debugPrint('- Session UUID: $_currentSessionUuid');
-      debugPrint('- Questions Answered: ${_selectedAnswers.length}/${_currentQuizQuestions.length}');
+      debugPrint(
+          '- Questions Answered: ${_selectedAnswers.length}/${_currentQuizQuestions.length}');
       debugPrint('- Correct Answers: $correctAnswers');
       debugPrint('- Score: $percentage%');
-      
+
       // Update session in database
       final session = await _database.getQuizSession(_currentSessionUuid!);
       if (session != null) {
@@ -328,13 +440,13 @@ class QuizProvider extends ChangeNotifier {
           isCompleted: true,
           isSubmitted: false,
         );
-        
+
         await _database.updateQuizSession(updatedSession);
         debugPrint('Session updated in local database');
-        
+
         // Get quiz answers
         final answers = await _database.getQuizAnswers(_currentSessionUuid!);
-        
+
         // Try to submit to API
         try {
           await submitToAPI(updatedSession, answers);
@@ -344,14 +456,14 @@ class QuizProvider extends ChangeNotifier {
           // We don't throw here as we want to continue with local updates
         }
       }
-      
+
       // Reset quiz state
       _resetQuizState();
-      
+
       // Reload data
       await _loadQuizHistory();
       await _loadQuizStatistics();
-      
+
       debugPrint('Force submission complete');
       notifyListeners();
     } catch (e) {
@@ -367,39 +479,44 @@ class QuizProvider extends ChangeNotifier {
       if (_quizConfig == null) {
         await loadQuizConfig();
         if (_quizConfig == null) {
-          throw Exception('Quiz configuration not available. Please try again later.');
+          throw Exception(
+              'Quiz configuration not available. Please try again later.');
         }
       }
 
       // Check quiz timing
       final now = DateTime.now();
       if (now.isBefore(_quizConfig!.startDate)) {
-        throw Exception('Quiz has not started yet. Start time: ${_formatDateTime(_quizConfig!.startDate)}');
+        throw Exception(
+            'Quiz has not started yet. Start time: ${_formatDateTime(_quizConfig!.startDate)}');
       }
       if (now.isAfter(_quizConfig!.endDate)) {
-        throw Exception('Quiz time is over. End time was: ${_formatDateTime(_quizConfig!.endDate)}');
+        throw Exception(
+            'Quiz time is over. End time was: ${_formatDateTime(_quizConfig!.endDate)}');
       }
 
       // Check if user has already attempted from local DB
       final hasAttempted = await _hasAttemptedQuiz();
       if (hasAttempted) {
-        throw Exception('You have already attempted this quiz. Only one attempt is allowed.');
+        throw Exception(
+            'You have already attempted this quiz. Only one attempt is allowed.');
       }
 
       _setLoading(true);
       _clearError();
-      
+
       if (_allQuestions.isEmpty) {
         await _loadQuestions();
       }
-      
+
       // Get questions based on config
       final questions = List<QuizQuestion>.from(_allQuestions);
       if (_quizConfig!.isRandom) {
         questions.shuffle(Random());
       }
-      _currentQuizQuestions = questions.take(_quizConfig!.totalQuestions).toList();
-      
+      _currentQuizQuestions =
+          questions.take(_quizConfig!.totalQuestions).toList();
+
       // Initialize session
       _currentSessionUuid = const Uuid().v4();
       _sessionStartTime = DateTime.now();
@@ -407,7 +524,7 @@ class QuizProvider extends ChangeNotifier {
       _selectedAnswers.clear();
       _totalTimeElapsed = 0;
       _questionTimeElapsed = 0;
-      
+
       // Create quiz session in database
       final session = QuizSession(
         sessionUuid: _currentSessionUuid!,
@@ -415,13 +532,13 @@ class QuizProvider extends ChangeNotifier {
         language: _currentLanguage,
         totalQuestions: _currentQuizQuestions.length,
       );
-      
+
       await _database.insertQuizSession(session);
-      
+
       // Start timer
       _startTimer();
       _startQuestionTimer();
-      
+
       _setLoading(false);
       notifyListeners();
     } catch (e) {
@@ -433,39 +550,41 @@ class QuizProvider extends ChangeNotifier {
   // Answer current question
   Future<void> answerQuestion(int selectedOption) async {
     if (currentQuestion == null || _currentSessionUuid == null) return;
-    
+
     try {
       debugPrint('=== SAVING ANSWER DEBUG ===');
       debugPrint('Session UUID: $_currentSessionUuid');
       debugPrint('Question ID: ${currentQuestion!.id}');
       debugPrint('Selected Option Index: $selectedOption');
-      debugPrint('Question Text: ${_currentLanguage == 'en' ? currentQuestion!.questionEn : currentQuestion!.questionMl}');
-      debugPrint('Selected Answer Text: ${_currentLanguage == 'en' ? currentQuestion!.optionsEn[selectedOption] : currentQuestion!.optionsMl[selectedOption]}');
-      
+      debugPrint(
+          'Question Text: ${_currentLanguage == 'en' ? currentQuestion!.questionEn : currentQuestion!.questionMl}');
+      debugPrint(
+          'Selected Answer Text: ${_currentLanguage == 'en' ? currentQuestion!.optionsEn[selectedOption] : currentQuestion!.optionsMl[selectedOption]}');
+
       _selectedAnswers[currentQuestion!.id] = selectedOption;
-      
+
       final isCorrect = selectedOption == currentQuestion!.correctAnswer;
       final timeTaken = _questionTimeElapsed;
-      
+
       debugPrint('Is Correct Answer: $isCorrect');
       debugPrint('Time Taken: $timeTaken seconds');
-      
+
       // Create quiz answer
       final answer = QuizAnswer(
         sessionUuid: _currentSessionUuid!,
         questionId: currentQuestion!.id,
-        question: _currentLanguage == 'en' 
-            ? currentQuestion!.questionEn 
+        question: _currentLanguage == 'en'
+            ? currentQuestion!.questionEn
             : currentQuestion!.questionMl,
-        options: _currentLanguage == 'en' 
-            ? currentQuestion!.optionsEn 
+        options: _currentLanguage == 'en'
+            ? currentQuestion!.optionsEn
             : currentQuestion!.optionsMl,
         correctAnswer: currentQuestion!.correctAnswer,
         selectedAnswer: selectedOption,
         timeTaken: timeTaken,
         isCorrect: isCorrect,
       );
-      
+
       await _database.insertQuizAnswer(answer);
       notifyListeners();
     } catch (e) {
@@ -515,25 +634,24 @@ class QuizProvider extends ChangeNotifier {
   // Submit quiz
   Future<void> submitQuiz(BuildContext context) async {
     if (_currentSessionUuid == null) return;
-    
+
     try {
       _setSubmitting(true);
       _clearError();
       _needsRetry = false;
       _submissionError = null;
-      
+
       _stopTimer();
-      
+
       // Calculate results
-      final correctAnswers = _selectedAnswers.entries
-          .where((entry) {
-            final question = _currentQuizQuestions.firstWhere((q) => q.id == entry.key);
-            return entry.value == question.correctAnswer;
-          })
-          .length;
-      
+      final correctAnswers = _selectedAnswers.entries.where((entry) {
+        final question =
+            _currentQuizQuestions.firstWhere((q) => q.id == entry.key);
+        return entry.value == question.correctAnswer;
+      }).length;
+
       final percentage = (correctAnswers / _currentQuizQuestions.length) * 100;
-      
+
       debugPrint('=== QUIZ SUBMISSION DEBUG ===');
       debugPrint('Session UUID: $_currentSessionUuid');
       debugPrint('Total Questions: ${_currentQuizQuestions.length}');
@@ -541,7 +659,7 @@ class QuizProvider extends ChangeNotifier {
       debugPrint('Correct Answers: $correctAnswers');
       debugPrint('Percentage: $percentage%');
       debugPrint('Total Time: $_totalTimeElapsed seconds');
-      
+
       // Update session in database
       final session = await _database.getQuizSession(_currentSessionUuid!);
       if (session != null) {
@@ -557,18 +675,18 @@ class QuizProvider extends ChangeNotifier {
           isCompleted: true,
           isSubmitted: false,
         );
-        
+
         await _database.updateQuizSession(updatedSession);
         debugPrint('Session updated in local database');
-        
+
         // Get quiz answers
         final answers = await _database.getQuizAnswers(_currentSessionUuid!);
-        
+
         try {
           // Submit to API
           await submitToAPI(updatedSession, answers);
           debugPrint('Quiz submitted to API successfully');
-          
+
           // Reset quiz state on successful submission
           _resetQuizState();
           await _loadQuizHistory();
@@ -577,7 +695,8 @@ class QuizProvider extends ChangeNotifier {
           debugPrint('API submission error: $e');
           if (e.toString().contains('already attempted')) {
             _needsRetry = true;
-            _submissionError = 'Quiz already submitted. Please retry to sync your results.';
+            _submissionError =
+                'Quiz already submitted. Please retry to sync your results.';
           } else {
             _needsRetry = true;
             _submissionError = 'Failed to submit quiz. Please retry.';
@@ -586,7 +705,7 @@ class QuizProvider extends ChangeNotifier {
           throw e;
         }
       }
-      
+
       _setSubmitting(false);
       notifyListeners();
     } catch (e) {
@@ -597,10 +716,11 @@ class QuizProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> submitToAPI(QuizSession session, List<QuizAnswer> answers) async {
+  Future<void> submitToAPI(
+      QuizSession session, List<QuizAnswer> answers) async {
     try {
       debugPrint('=== API SUBMISSION DEBUG ===');
-      
+
       // Get student details
       final dbHelper = DatabaseHelper();
       if (_studentMobile == null) {
@@ -611,7 +731,7 @@ class QuizProvider extends ChangeNotifier {
         }
         _studentMobile = students.last.mobile;
       }
-      
+
       final student = await dbHelper.getStudentByMobile(_studentMobile!);
       if (student == null) {
         throw Exception('No student details found. Please register first.');
@@ -632,12 +752,12 @@ class QuizProvider extends ChangeNotifier {
         debugPrint('=== QUESTION MAPPING DEBUG ===');
         debugPrint('Question ${entry.key + 1}: ${q.questionEn}');
         final correctAnswerIndex = q.correctAnswer;
-        final correctAnswerText = _currentLanguage == 'en' 
-            ? q.optionsEn[correctAnswerIndex] 
+        final correctAnswerText = _currentLanguage == 'en'
+            ? q.optionsEn[correctAnswerIndex]
             : q.optionsMl[correctAnswerIndex];
         debugPrint('Correct Answer Index: $correctAnswerIndex');
         debugPrint('Correct Answer Text: $correctAnswerText');
-        
+
         return quiz_submission.QuizSubmissionQuestion(
           questionNumber: entry.key + 1,
           question: _currentLanguage == 'en' ? q.questionEn : q.questionMl,
@@ -647,19 +767,23 @@ class QuizProvider extends ChangeNotifier {
       }).toList();
 
       // Map answers in the same order as questions
-      final submissionAnswers = _currentQuizQuestions.asMap().entries.map((entry) {
+      final submissionAnswers =
+          _currentQuizQuestions.asMap().entries.map((entry) {
         final index = entry.key;
         final q = entry.value;
         final selectedAnswer = _selectedAnswers[q.id];
-        
+
         debugPrint('=== ANSWER MAPPING DEBUG ===');
-        debugPrint('Question ${index + 1}: ${_currentLanguage == 'en' ? q.questionEn : q.questionMl}');
+        debugPrint(
+            'Question ${index + 1}: ${_currentLanguage == 'en' ? q.questionEn : q.questionMl}');
         debugPrint('Selected Answer Index: $selectedAnswer');
-        final selectedAnswerText = selectedAnswer != null 
-            ? (_currentLanguage == 'en' ? q.optionsEn[selectedAnswer] : q.optionsMl[selectedAnswer])
+        final selectedAnswerText = selectedAnswer != null
+            ? (_currentLanguage == 'en'
+                ? q.optionsEn[selectedAnswer]
+                : q.optionsMl[selectedAnswer])
             : "";
         debugPrint('Selected Answer Text: $selectedAnswerText');
-        
+
         return quiz_submission.QuizSubmissionAnswer(
           questionNumber: index + 1,
           selectedAnswer: selectedAnswerText,
@@ -669,14 +793,16 @@ class QuizProvider extends ChangeNotifier {
       final result = quiz_submission.QuizSubmissionResult(
         score: session.correctAnswers ?? 0,
         correctAnswers: session.correctAnswers ?? 0,
-        percentage: (session.correctAnswers ?? 0) / session.totalQuestions * 100,
+        percentage:
+            (session.correctAnswers ?? 0) / session.totalQuestions * 100,
       );
 
       debugPrint('=== SUBMISSION DETAILS DEBUG ===');
       debugPrint('Total Questions: ${session.totalQuestions}');
       debugPrint('Questions Answered: ${_selectedAnswers.length}');
       debugPrint('Correct Answers: ${session.correctAnswers}');
-      debugPrint('Score Percentage: ${(session.correctAnswers ?? 0) / session.totalQuestions * 100}%');
+      debugPrint(
+          'Score Percentage: ${(session.correctAnswers ?? 0) / session.totalQuestions * 100}%');
       debugPrint('Time Taken: ${session.totalTimeTaken} seconds');
 
       final quizSubmission = quiz_submission.QuizSubmissionModel(
@@ -701,22 +827,24 @@ class QuizProvider extends ChangeNotifier {
 
       debugPrint('=== API RESPONSE DETAILS ===');
       debugPrint('API Response Status: ${response.statusCode}');
-      final prettyResponse = const JsonEncoder.withIndent('  ').convert(json.decode(response.body));
+      final prettyResponse = const JsonEncoder.withIndent('  ')
+          .convert(json.decode(response.body));
       debugPrint('API Response Body:');
       prettyResponse.split('\n').forEach((line) => debugPrint(line));
       debugPrint('=== END API RESPONSE DETAILS ===');
 
       if (response.statusCode != 200) {
         final errorData = json.decode(response.body);
-        final errorMessage = errorData['message'] ?? 'Failed to submit quiz to API';
-        
+        final errorMessage =
+            errorData['message'] ?? 'Failed to submit quiz to API';
+
         // Check for specific error cases that don't need retry
         if (errorMessage.toLowerCase().contains('already attempted')) {
           // Mark as submitted in local DB since it's already on server
           await _database.markSessionAsSubmitted(session.sessionUuid);
           throw Exception(errorMessage);
         }
-        
+
         throw Exception('RETRYABLE:$errorMessage');
       }
 
@@ -725,11 +853,11 @@ class QuizProvider extends ChangeNotifier {
       debugPrint('=== ATTEMPT ID STORAGE DEBUG ===');
       debugPrint('Response success: ${responseData['success']}');
       debugPrint('Response data: ${responseData['data']}');
-      
+
       if (responseData['success'] == true && responseData['data'] != null) {
         _lastAttemptId = responseData['data']['attemptId'];
         debugPrint('Stored attemptId from submission: $_lastAttemptId');
-        
+
         // Update session with attemptId
         final updatedSession = QuizSession(
           sessionId: session.sessionId,
@@ -757,7 +885,6 @@ class QuizProvider extends ChangeNotifier {
       // Mark as submitted in local DB
       await _database.markSessionAsSubmitted(session.sessionUuid);
       debugPrint('Local DB: Marked session as submitted');
-      
     } catch (e) {
       debugPrint('Error submitting to API: $e');
       throw e; // Rethrow to handle in the UI
@@ -843,15 +970,16 @@ class QuizProvider extends ChangeNotifier {
   String _formatDateTime(DateTime dt) {
     // Convert UTC to local time
     final localDt = dt.toLocal();
-    
+
     // Get hour in 12-hour format
     int hour = localDt.hour % 12;
     hour = hour == 0 ? 12 : hour; // Convert 0 to 12 for 12 AM
-    
+
     // Get AM/PM
     final period = localDt.hour < 12 ? 'AM' : 'PM';
-    
-    final formatted = '${localDt.day}/${localDt.month}/${localDt.year} ${hour}:${localDt.minute.toString().padLeft(2, '0')} $period';
+
+    final formatted =
+        '${localDt.day}/${localDt.month}/${localDt.year} ${hour}:${localDt.minute.toString().padLeft(2, '0')} $period';
     debugPrint('Formatting datetime: $dt -> $formatted (local time: $localDt)');
     return formatted;
   }
@@ -860,7 +988,8 @@ class QuizProvider extends ChangeNotifier {
   String _formatTime(int seconds) {
     final minutes = seconds ~/ 60;
     final remainingSeconds = seconds % 60;
-    final formattedTime = '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
+    final formattedTime =
+        '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
     debugPrint('Formatting duration $seconds seconds -> $formattedTime');
     return formattedTime;
   }
@@ -869,27 +998,34 @@ class QuizProvider extends ChangeNotifier {
   String formatClockTime(DateTime time) {
     // Convert UTC to local time
     final localTime = time.toLocal();
-    
+
     // Get hour in 12-hour format
     int hour = localTime.hour % 12;
     hour = hour == 0 ? 12 : hour; // Convert 0 to 12 for 12 AM
-    
+
     // Get AM/PM
     final period = localTime.hour < 12 ? 'AM' : 'PM';
-    
+
     return '$hour:${localTime.minute.toString().padLeft(2, '0')} $period';
   }
 
   String _calculateGrade(double percentage) {
     debugPrint('Calculating grade for percentage: $percentage');
     String grade;
-    if (percentage >= 90) grade = 'A+';
-    else if (percentage >= 80) grade = 'A';
-    else if (percentage >= 70) grade = 'B+';
-    else if (percentage >= 60) grade = 'B';
-    else if (percentage >= 50) grade = 'C';
-    else if (percentage >= 40) grade = 'D';
-    else grade = 'F';
+    if (percentage >= 90)
+      grade = 'A+';
+    else if (percentage >= 80)
+      grade = 'A';
+    else if (percentage >= 70)
+      grade = 'B+';
+    else if (percentage >= 60)
+      grade = 'B';
+    else if (percentage >= 50)
+      grade = 'C';
+    else if (percentage >= 40)
+      grade = 'D';
+    else
+      grade = 'F';
     debugPrint('Grade calculated: $grade');
     return grade;
   }
@@ -959,68 +1095,76 @@ class QuizProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Add method to download certificate
+  // Generate certificate locally using Flutter Canvas
   Future<Map<String, dynamic>> downloadCertificate() async {
     try {
-      debugPrint('=== DOWNLOADING CERTIFICATE ===');
+      debugPrint('=== GENERATING CERTIFICATE LOCALLY ===');
       debugPrint('Checking quiz history...');
       debugPrint('Total quiz history entries: ${_quizHistory.length}');
-      
-      // If _lastAttemptId is null, try to load it from database
-      if (_lastAttemptId == null) {
-        debugPrint('AttemptId is null, trying to load from database...');
-        await _loadAttemptId();
-      }
-      
-      if (_lastAttemptId == null) {
-        throw Exception('No attempt ID found. Please submit the quiz first.');
-      }
-      debugPrint('Using attemptId: $_lastAttemptId');
 
-      debugPrint('=== PREPARING API REQUEST ===');
-      final requestBody = {
-        'attemptId': _lastAttemptId,
-      };
-      debugPrint('Request Body: ${jsonEncode(requestBody)}');
-      debugPrint('API URL: ${ApiUrls.generateCertificate(imageId: 1)}');
+      if (_quizHistory.isEmpty) {
+        throw Exception(
+            'No quiz history found. Please complete the quiz first.');
+      }
 
-      final response = await http.post(
-        Uri.parse(ApiUrls.generateCertificate(imageId: 1)),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(requestBody),
+      // Get the latest completed quiz session
+      final latestSession = _quizHistory.first;
+      if (!latestSession.isCompleted || !latestSession.isSubmitted) {
+        throw Exception(
+            'Quiz not completed or submitted. Please complete the quiz first.');
+      }
+
+      // Get student details
+      final dbHelper = DatabaseHelper();
+      if (_studentMobile == null) {
+        final students = await dbHelper.getAllStudents();
+        if (students.isEmpty) {
+          throw Exception('No student details found. Please register first.');
+        }
+        _studentMobile = students.last.mobile;
+      }
+
+      final student = await dbHelper.getStudentByMobile(_studentMobile!);
+      if (student == null) {
+        throw Exception('No student details found. Please register first.');
+      }
+
+      debugPrint('=== STUDENT DETAILS ===');
+      debugPrint('Student Name: ${student.name}');
+      debugPrint('Student Mobile: ${student.mobile}');
+      debugPrint('Student Class: ${student.className}');
+      debugPrint('Student District: ${student.district}');
+
+      // Calculate quiz score
+      final correctAnswers = latestSession.correctAnswers ?? 0;
+      final totalQuestions = latestSession.totalQuestions;
+      final percentage = (correctAnswers / totalQuestions * 100).round();
+
+      debugPrint('=== QUIZ RESULTS ===');
+      debugPrint('Correct Answers: $correctAnswers');
+      debugPrint('Total Questions: $totalQuestions');
+      debugPrint('Percentage: $percentage%');
+
+      // Generate certificate using Canvas
+      final certificateBytes = await _generateCertificateWithCanvas(
+        student.name,
       );
 
-      debugPrint('=== API RESPONSE DETAILS ===');
-      debugPrint('Status Code: ${response.statusCode}');
-      debugPrint('Response Headers: ${response.headers}');
-      debugPrint('Response Body: ${response.body}');
+      // Save certificate to downloads folder
+      final filePath =
+          await _saveCertificateToDownloads(certificateBytes, student.name);
 
-      if (response.statusCode != 200) {
-        final errorData = json.decode(response.body);
-        final errorMessage = errorData['message'] ?? 'Failed to generate certificate';
-        debugPrint('Error generating certificate: $errorMessage');
-        throw Exception(errorMessage);
-      }
+      debugPrint('=== CERTIFICATE GENERATED SUCCESSFULLY ===');
+      debugPrint('Certificate size: ${certificateBytes.length} bytes');
+      debugPrint('Certificate saved to: $filePath');
 
-      final data = json.decode(response.body);
-      final certificate = data['certificate'] as String?;
-      final message = data['message'] as String?;
-      
-      if (certificate == null || !certificate.startsWith('data:image')) {
-        throw Exception('Invalid certificate data received from server');
-      }
-
-      debugPrint('=== CERTIFICATE GENERATED ===');
-      debugPrint('Certificate Type: ${certificate.split(';')[0]}');
-      
       return {
-        'isBase64': true,
-        'data': certificate,
-        'message': message ?? 'Certificate generated successfully',
+        'isBase64': false,
+        'filePath': filePath,
+        'message': 'Certificate downloaded successfully for ${student.name}',
+        'studentName': student.name,
+        'canShare': true,
       };
-
     } catch (e) {
       debugPrint('=== CERTIFICATE GENERATION ERROR ===');
       debugPrint('Error Type: ${e.runtimeType}');
@@ -1029,20 +1173,99 @@ class QuizProvider extends ChangeNotifier {
     }
   }
 
+  // Generate certificate using Flutter Canvas for better text rendering
+  Future<Uint8List> _generateCertificateWithCanvas(
+    String studentName,
+  ) async {
+    try {
+      debugPrint('=== GENERATING CERTIFICATE WITH CANVAS ===');
+
+      // Load the certificate template image
+      debugPrint(
+          'Loading certificate template from: ${ImageClass.certificate}');
+      final ByteData imageData = await rootBundle.load(ImageClass.certificate);
+      final Uint8List imageBytes = imageData.buffer.asUint8List();
+
+      // Decode the image to get dimensions
+      final ui.Codec codec = await ui.instantiateImageCodec(imageBytes);
+      final ui.FrameInfo frameInfo = await codec.getNextFrame();
+      final ui.Image backgroundImage = frameInfo.image;
+
+      final int width = backgroundImage.width;
+      final int height = backgroundImage.height;
+
+      debugPrint('Certificate dimensions: ${width}x$height');
+
+      // Create a picture recorder and canvas
+      final ui.PictureRecorder recorder = ui.PictureRecorder();
+      final Canvas canvas = Canvas(recorder);
+
+      // Draw the background image
+      canvas.drawImage(backgroundImage, Offset.zero, Paint());
+
+      // Set up text style for student name only
+      final TextStyle nameStyle = TextStyle(
+        fontSize: 48,
+        fontWeight: FontWeight.bold,
+        color: Colors.black,
+        fontFamily: 'serif',
+      );
+
+      // Create text painter for student name only
+      final TextPainter namePainter = TextPainter(
+        text: TextSpan(text: studentName.toUpperCase(), style: nameStyle),
+        textDirection: TextDirection.ltr,
+      );
+
+      // Layout the text
+      namePainter.layout();
+
+      // Calculate position - center horizontally and position higher than middle
+      final double centerX = width / 2;
+      final double nameY =
+          height * 0.45; // Position higher than middle (40% from top)
+
+      // Draw only the student name on the canvas
+      namePainter.paint(
+        canvas,
+        Offset(centerX - (namePainter.width / 2), nameY),
+      );
+
+      // End recording and create the image
+      final ui.Picture picture = recorder.endRecording();
+      final ui.Image finalImage = await picture.toImage(width, height);
+
+      // Convert to bytes
+      final ByteData? byteData = await finalImage.toByteData(
+        format: ui.ImageByteFormat.png,
+      );
+
+      if (byteData == null) {
+        throw Exception('Failed to convert certificate to bytes');
+      }
+
+      debugPrint('Certificate generated with Canvas successfully');
+      return byteData.buffer.asUint8List();
+    } catch (e) {
+      debugPrint('Error generating certificate with Canvas: $e');
+      throw Exception('Failed to generate certificate: $e');
+    }
+  }
+
   // Add getter for certificate availability
   bool get canDownloadCertificate {
     if (_quizHistory.isEmpty) return false;
-    
+
     final latestSession = _quizHistory.first;
-    return latestSession.isCompleted && 
-           latestSession.correctAnswers != null && 
-           latestSession.isSubmitted;
+    return latestSession.isCompleted &&
+        latestSession.correctAnswers != null &&
+        latestSession.isSubmitted;
   }
 
   // Get remaining time in minutes
   int getRemainingTime() {
     if (_quizConfig == null) return 0;
-    
+
     final now = DateTime.now();
     final end = _quizConfig!.endDate.toLocal();
     return end.difference(now).inMinutes;
@@ -1053,12 +1276,137 @@ class QuizProvider extends ChangeNotifier {
     final minutes = getRemainingTime();
     final hours = minutes ~/ 60;
     final remainingMinutes = minutes % 60;
-    
+
     if (hours > 0) {
-      return '$hours hr ${remainingMinutes} min remaining';
+      return '$hours hr $remainingMinutes min remaining';
     } else {
       return '$remainingMinutes min remaining';
     }
+  }
+
+  // Save certificate to downloads folder
+  Future<String> _saveCertificateToDownloads(
+      Uint8List certificateBytes, String studentName) async {
+    try {
+      debugPrint('=== SAVING CERTIFICATE TO DOWNLOADS ===');
+
+      // Get the downloads directory
+      Directory? downloadsDirectory;
+
+      if (Platform.isAndroid) {
+        // For Android, use the Downloads directory
+        downloadsDirectory = Directory('/storage/emulated/0/Download');
+        if (!await downloadsDirectory.exists()) {
+          // Fallback to external storage directory
+          downloadsDirectory = await getExternalStorageDirectory();
+        }
+      } else if (Platform.isIOS) {
+        // For iOS, use the documents directory (downloads not accessible)
+        downloadsDirectory = await getApplicationDocumentsDirectory();
+      } else {
+        // For other platforms, use downloads directory
+        downloadsDirectory = await getDownloadsDirectory();
+      }
+
+      if (downloadsDirectory == null) {
+        throw Exception('Could not access downloads directory');
+      }
+
+      // Create filename with timestamp to avoid conflicts
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final fileName =
+          'Zaitoon_Certificate_${studentName.replaceAll(' ', '_')}_$timestamp.png';
+      final filePath = '${downloadsDirectory.path}/$fileName';
+
+      // Write the file
+      final file = File(filePath);
+      await file.writeAsBytes(certificateBytes);
+
+      // Show download notification
+      await _showDownloadNotification(fileName, filePath);
+
+      debugPrint('Certificate saved successfully to: $filePath');
+      return filePath;
+    } catch (e) {
+      debugPrint('Error saving certificate: $e');
+      throw Exception('Failed to save certificate: $e');
+    }
+  }
+
+  // Open certificate file with system default app
+  Future<void> _openCertificateFile(String filePath) async {
+    try {
+      debugPrint('=== OPENING CERTIFICATE FILE ===');
+      debugPrint('File path: $filePath');
+
+      final file = File(filePath);
+      if (!await file.exists()) {
+        debugPrint('Certificate file not found: $filePath');
+        return;
+      }
+
+      // Use OpenFilex to open the file with default app
+      final result = await OpenFilex.open(filePath);
+
+      debugPrint('OpenFilex result: ${result.type}');
+      debugPrint('OpenFilex message: ${result.message}');
+
+      if (result.type == ResultType.done) {
+        debugPrint('Certificate opened successfully in image viewer');
+      } else if (result.type == ResultType.noAppToOpen) {
+        debugPrint('No app found to open image file, falling back to share');
+        await shareCertificate(filePath);
+      } else if (result.type == ResultType.permissionDenied) {
+        debugPrint('Permission denied to open file, falling back to share');
+        await shareCertificate(filePath);
+      } else if (result.type == ResultType.error) {
+        debugPrint(
+            'Error opening file: ${result.message}, falling back to share');
+        await shareCertificate(filePath);
+      } else {
+        debugPrint(
+            'Unknown result type: ${result.type}, falling back to share');
+        await shareCertificate(filePath);
+      }
+    } catch (e) {
+      debugPrint('Error opening certificate file: $e');
+      // Fallback: try to share the file instead
+      try {
+        await shareCertificate(filePath);
+      } catch (shareError) {
+        debugPrint('Error sharing certificate as fallback: $shareError');
+      }
+    }
+  }
+
+  // Share certificate file
+  Future<void> shareCertificate(String filePath) async {
+    try {
+      debugPrint('=== SHARING CERTIFICATE ===');
+      debugPrint('File path: $filePath');
+
+      final file = File(filePath);
+      if (!await file.exists()) {
+        throw Exception('Certificate file not found');
+      }
+
+      // Share the file
+      await Share.shareXFiles(
+        [XFile(filePath)],
+        text: 'My Zaitoon Quiz Certificate',
+        subject: 'Zaitoon Quiz Certificate',
+      );
+
+      debugPrint('Certificate shared successfully');
+    } catch (e) {
+      debugPrint('Error sharing certificate: $e');
+      throw Exception('Failed to share certificate: $e');
+    }
+  }
+
+  // Public method to open certificate file (can be called from UI)
+  Future<void> openCertificate(String filePath) async {
+    await _openCertificateFile(filePath);
   }
 
   // Add setter for student mobile
