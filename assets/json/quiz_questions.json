@@ -3,62 +3,302 @@
     {
       "id": 1,
       "type": "multiple_choice",
-      "question_en": "Which project was launched by the forest department in April 2022 as the second phase of a 2015 project to protect the endangered house sparrows (Angadikuruvi)?",
-      "question_ml": "റെയില്‍വേസ്റ്റേഷനുകളിലും മറ്റും ധാരാളമായി കണ്ടുവന്നിരുന്ന ഒരു പക്ഷിയാണ് അങ്ങാടിക്കുരുവി. ആഗോളതാപനം, പക്ഷികള്‍ക്ക് അനുയോജ്യമല്ലാത്ത കെട്ടിടനിര്‍മാണം, കീടനാശിനികളുടെ അമിതമായ ഉപയോഗം, ആഹാരത്തിന്റെ ദൗര്‍ലഭ്യം തുടങ്ങിയ കാരണങ്ങളാല്‍ വംശനാശം നേരിട്ടുകൊണ്ടിരിക്കുന്ന അങ്ങാടിക്കുരുവികളെ സംരക്ഷിക്കാന്‍ വനംവകുപ്പ് 2015ല്‍ ആരംഭിച്ച ഒരു പദ്ധതിയുടെ രണ്ടാം ഘട്ടം 2022 ഏപ്രിലില്‍ ആരംഭിച്ചു. പദ്ധതിയേത്?",
-      "options_en": ["Kuruvikkoru koodu", "Theeravanam project", "Green India Mission", "Mankood project"],
-      "options_ml": ["കുരുവിക്കൊരു കൂട്", "തീരവനം പദ്ധതി", "ഗ്രീന്‍ ഇന്ത്യാ മിഷന്‍", "മണ്‍കൂട് പദ്ധതി"],
-      "correct_answer": 0,
+      "question_en": "In 1921, many Indian prisoners were locked inside a closed goods train wagon by the British soldiers. Due to lack of water and air, they died inside the wagon. This sad event is known as the Wagon Tragedy. Who was the British district officer responsible for this?",
+      "question_ml": "1921 ല്‍ വെള്ളപ്പട്ടാളം പിടികൂടിയ തടവുകാരെ അടച്ചിട്ട ചരക്കു വണ്ടിയില്‍ ജയിലുകളിലേക്കയച്ചു. വെള്ളമോ വെളിച്ചമോ ഉണ്ടായിരുന്നില്ല. പിന്നീട് വാഗണ്‍ തുറന്നപ്പോള്‍ കണ്ടത് 64 മൃതദേഹങ്ങളായിരുന്നു. വാഗണ്‍ ട്രാജഡി എന്ന് അറിയപ്പെടുന്ന ഈ വാഗണ്‍ കൂട്ടക്കൊലക്ക് നേതൃത്വം നല്‍കിയ ജില്ലാ പട്ടാളമേധാവി?",
+      "options_en": [
+        "Colonel Watson",
+        "General Dyer",
+        "Hitchcock",
+        "Lord Curzon"
+      ],
+      "options_ml": [
+        "കേണല്‍ വാട്ട്‌സണ്‍",
+        "ജനറല്‍ ഡയര്‍",
+        "ഹിച്ച് കോക്ക്",
+        "ലോഡ് കര്‍സണ്‍"
+      ],
+      "correct_answer": 2,
       "difficulty": "medium"
     },
     {
       "id": 2,
       "type": "multiple_choice",
-      "question_en": "During which education minister's time was the revolutionary IT@School project launched, which later became KITE company in 2017?",
-      "question_ml": "പൊതുവിദ്യാലയങ്ങളിലെ അടിസ്ഥാന സൗകര്യവികസനവും വിവരസാങ്കേതിക വിദ്യ പഠനവും വ്യാപിപ്പിക്കുന്നതിനായി കേരള സര്‍ക്കാര്‍ രൂപീകരിച്ച കമ്പനിയുടെ പേരാണ് KITE. IT@SCHOOL പദ്ധതിയാണ് 2017ല്‍ KITE എന്ന കമ്പനിയായി മാറിയത്. ഏത് വിദ്യാഭ്യാസമന്ത്രിയുടെ കാലത്താണ് ഐ.ടി@സ്‌കൂള്‍ എന്ന വിപ്ലവകരമായ പദ്ധതി ആരംഭിച്ചത്?",
-      "options_en": ["Nalakat sooppy", "ET Muhammad Basheer", "MA Baby", "C. Ravindranath"],
-      "options_ml": ["നാലകത്ത് സൂപ്പി", "ഇ.ടി മുഹമ്മദ് ബഷീര്‍", "എം.എ ബേബി", "സി. രവീന്ദ്രനാഥ്"],
-      "correct_answer": 0,
+      "question_en": "Who declared, \"Swaraj is my birthright, and I shall have it\"?",
+      "question_ml": "സ്വരാജ് എന്റെ ജന്‍മാവകാശമാണ്. അത് ഞാന്‍ നേടും എന്ന് പ്രഖ്യാപിച്ചത്?",
+      "options_en": [
+        "Mahatma Gandhi",
+        "Bal Gangadhar Tilak",
+        "Subhas Chandra Bose",
+        "Jawaharlal Nehru"
+      ],
+      "options_ml": [
+        "മഹാത്മാഗാന്ധി",
+        "ബാലഗംഗാധര തിലക്",
+        "സുഭാഷ് ചന്ദ്രബോസ്",
+        "ജവഹര്‍ലാല്‍ നെഹ്‌റു"
+      ],
+      "correct_answer": 1,
       "difficulty": "medium"
     },
     {
       "id": 3,
       "type": "multiple_choice",
-      "question_en": "Who was the President of Indian National Congress during Quit India movement, instrumental in establishing UGC, and published a weekly called Paigam to propagate political ideals?",
-      "question_ml": "ക്വിറ്റ് ഇന്ത്യാ സമരം നടക്കുമ്പോള്‍ ഇന്ത്യന്‍ നാഷണല്‍ കോണ്‍ഗ്രസിന്റെ പ്രസിഡന്റ്, യു.ജി.സി സ്ഥാപിക്കുന്നതില്‍ മുഖ്യപങ്കു വഹിച്ച കേന്ദ്രമന്ത്രി, പൈഗാം എന്ന വാരിക പ്രസിദ്ധീകരിച്ചത് - ആരാണ്?",
-      "options_en": ["Abul Kalam Azad", "Dr. Rajendra Prasad", "Dr. S. Radhakrishnan", "VV Giri"],
-      "options_ml": ["അബുല്‍ കലാം ആസാദ്", "ഡോ. രാജേന്ദ്രപ്രസാദ്", "ഡോ. എസ് രാധാകൃഷ്ണന്‍", "വി.വി ഗിരി"],
-      "correct_answer": 0,
-      "difficulty": "hard"
+      "question_en": "During the Pookkottur battle in 1921, the Mappila rebels killed the British military officer. What was his name?",
+      "question_ml": "ബ്രിട്ടീഷ് പട്ടാളത്തെ പൂക്കോട്ടൂരില്‍ വെച്ച് നേരിട്ട ധീരനായിരുന്നു വടക്കേ വീട്ടില്‍ മമ്മദ്. മാപ്പിള സൈന്യം അതില്‍ വിജയം കാണുകയും ചെയ്തു. ബ്രിട്ടീഷ് പട്ടാളമേധാവിയെ കൊലപ്പെടുത്തുകയും ചെയ്തു. പട്ടാള മേധാവിയുടെ പേര്?",
+      "options_en": [
+        "Hitchcock",
+        "Lancaster",
+        "Curzon",
+        "Wellesley"
+      ],
+      "options_ml": [
+        "ഹിച്ച് കോക്ക്",
+        "ലങ്കാസ്റ്റര്‍",
+        "കര്‍സണ്‍",
+        "വാലിസ്ലി"
+      ],
+      "correct_answer": 1,
+      "difficulty": "medium"
     },
     {
       "id": 4,
       "type": "multiple_choice",
-      "question_en": "Which one of the following statements is correct?",
-      "question_ml": "താഴെക്കൊടുത്ത പ്രസ്താവനകളില്‍ ഒന്നു മാത്രമേ ശരിയായി ഉള്ളൂ. ഏത്?",
+      "question_en": "In November 1921, which brave woman fought against the British army by covering her face so they wouldn't realize she was a woman?",
+      "question_ml": "1921 നവംബറില്‍ ബ്രിട്ടീഷ് പട്ടാളത്തോട് സ്ത്രീയാണെന്ന് അറിയാതിരിക്കാന്‍ മുഖം മറച്ച് പോരാടിയ ധീര വനിത?",
       "options_en": [
-        "VS Achuthanandan has been Chief Minister for more than two times",
-        "CH Muhammad Koya has been Chief Minister, Education Minister and Assembly Speaker",
-        "K Karunakaran has been Chief Minister, Education Minister, Speaker and Home Minister",
-        "KR Gouriamma became the Chief Minister of Kerala after Pattam Thanupillai"
+        "Begum Rokeya",
+        "Annie Besant",
+        "Malu Hajjumma",
+        "Kasturba Gandhi"
       ],
       "options_ml": [
-        "വിഎസ് അച്യുതാനന്ദന്‍ രണ്ടിലധികം തവണ മുഖ്യമന്ത്രിയായിട്ടുണ്ട്",
-        "സി.എച്ച് മുഹമ്മദ് കോയ മുഖ്യമന്ത്രിയും വിദ്യാഭ്യാസ മന്ത്രിയും നിയമസഭാ സ്പീക്കറും ആയിട്ടുണ്ട്",
-        "കെ കരുണാകരന്‍ മുഖ്യമന്ത്രിയും വിദ്യാഭ്യാസ മന്ത്രിയും സ്പീക്കറും ആഭ്യന്തരമന്ത്രിയും ആയിട്ടുണ്ട്",
-        "പട്ടം താണുപിള്ളക്ക് ശേഷം കെ ആര്‍ ഗൗരിയമ്മയാണ് കേരള മുഖ്യമന്ത്രിയായത്"
+        "ബീഗം റുഖിയ",
+        "ആനി ബസന്റ്",
+        "മാളു ഹജ്ജുമ്മ",
+        "കസ്തൂര്‍ബ ഗാന്ധി"
+      ],
+      "correct_answer": 2,
+      "difficulty": "medium"
+    },
+    {
+      "id": 5,
+      "type": "multiple_choice",
+      "question_en": "Biumma, remembered in the Indian freedom struggle, was the mother of two famous leaders of the Khilafat Movement. What were their names?",
+      "question_ml": "ഇന്ത്യന്‍ സ്വാതന്ത്ര്യ പോരാട്ടത്തില്‍ ഓര്‍മ്മിക്കപ്പെടേണ്ട പേരാണ് ബിഉമ്മയുടെ പേര്. ഖിലാഫത്ത് പ്രസ്ഥാന നായകരായ അവരുടെ മക്കളുടെ പേരുകളെന്താണ്?",
+      "options_en": [
+        "Shaukat Ali and Mohammad Ali Jauhar",
+        "Ashfaqulla Khan and Abdul Ghaffar Khan",
+        "Syed Ahmed Khan and Maulana Abul Kalam Azad",
+        "Bahadur Shah Zafar and Tipu Sultan"
+      ],
+      "options_ml": [
+        "ഷൗക്കത്തലി, മുഹമ്മദ് അലി ജൗഹര്‍",
+        "അഷ്ഫാഖുള്ള ഖാന്‍, അബ്ദുല്‍ ഗഫ്ഫാര്‍ ഖാന്‍",
+        "സയ്യിദ് അഹമ്മദ് ഖാന്‍, മൗലാനാ അബുല്‍ കലാം ആസാദ്",
+        "ബഹദൂര്‍ഷാ സഫര്‍, ടിപ്പു സുല്‍ത്താന്‍"
+      ],
+      "correct_answer": 0,
+      "difficulty": "medium"
+    },
+    {
+      "id": 6,
+      "type": "multiple_choice",
+      "question_en": "Who was the famous Urdu poet who wrote the patriotic song \"Sare Jahan Se Achha, Hindustan Hamara\", which inspired the freedom movement?",
+      "question_ml": "ഉര്‍ദു സാഹിത്യലോകത്ത് അതുല്യമായ സംഭാവനകള്‍ നല്‍കിയ ഇദ്ദേഹമാണ് സാരെ ജഹാംസെ അഛാ, ഹിന്ദുസ്ഥാന്‍ ഹമാര എന്ന ദേശഭക്തിഗാനം എഴുതിയത്. സ്വാതന്ത്ര്യ സമരത്തിന് ഊര്‍ജം നല്‍കിയ ഇദ്ദേഹത്തിന്റെ പേര്?",
+      "options_en": [
+        "Mirza Ghalib",
+        "Allama Muhammad Iqbal",
+        "Bahadur Shah Zafar",
+        "Maulana Abul Kalam Azad"
+      ],
+      "options_ml": [
+        "മിര്‍സ ഗാലിബ്",
+        "അല്ലാമ മുഹമ്മദ് ഇഖ്ബാല്‍",
+        "ബഹദൂര്‍ ഷാ സഫര്‍",
+        "മൗലാന അബുല്‍ കലാം ആസാദ്"
+      ],
+      "correct_answer": 1,
+      "difficulty": "medium"
+    },
+    {
+      "id": 7,
+      "type": "multiple_choice",
+      "question_en": "Who was the freedom fighter, hanged by the British at the age of 24, and one of the founders of the Hindustan Socialist Republican Association?",
+      "question_ml": "24-ാം വയസ്സില്‍ ബ്രിട്ടീഷുകാര്‍ തൂക്കിലേറ്റിയ ഇദ്ദേഹമാണ് ഹിന്ദുസ്ഥാന്‍ സോഷ്യലിസ്റ്റ് റിപ്പബ്ലിക്കന്‍ അസോസിയേഷന്‍ എന്ന വിപ്ലവ പാര്‍ട്ടിയുണ്ടാക്കിയത്.",
+      "options_en": [
+        "Ashfaqulla Khan",
+        "Chandrashekhar Azad",
+        "Bhagat Singh",
+        "Ram Prasad Bismil"
+      ],
+      "options_ml": [
+        "അഷ്ഫാഖുല്ല ഖാന്‍",
+        "ചന്ദ്രശേഖര്‍ ആസാദ്",
+        "ഭഗത് സിംഗ്",
+        "രാം പ്രസാദ് ബിസ്മില്‍"
+      ],
+      "correct_answer": 2,
+      "difficulty": "medium"
+    },
+    {
+      "id": 8,
+      "type": "multiple_choice",
+      "question_en": "Whose life is being described? His father was exiled to the Andamans for the 1894 Mannarkkad revolt. He was arrested for trying to kill Collector Innes. He was executed by the British.",
+      "question_ml": "ആരെ കുറിച്ചാണ് പറയുന്നത്? 1894 മണ്ണാര്‍ക്കാട് ലഹളയില്‍ പങ്കെടുത്തതിന് ഇദ്ദേഹത്തിന്റെ പിതാവിനെ അന്തമാനിലേക്ക് നാടു കടത്തിയിരുന്നു. കലക്ടര്‍ ഇന്നസിനെ കൊലപ്പെടുത്താന്‍ ശ്രമിച്ചെന്ന പേരില്‍ അറസ്റ്റിലായി. ബ്രിട്ടീഷുകാര്‍ വധശിക്ഷ നടപ്പാക്കി.",
+      "options_en": [
+        "Ali Musliyar",
+        "Variyamkunnath Kunjahammad Haji",
+        "Maulana Abul Kalam Azad",
+        "Bahadur Shah Zafar"
+      ],
+      "options_ml": [
+        "ആലി മുസ്‌ലിയാര്‍",
+        "വാരിയം കുന്നത്ത് കുഞ്ഞഹമ്മദ് ഹാജി",
+        "മൗലാന അബുല്‍ കലാം ആസാദ്",
+        "ബഹദൂര്‍ഷാ സഫര്‍"
       ],
       "correct_answer": 1,
       "difficulty": "hard"
     },
     {
-      "id": 5,
+      "id": 9,
       "type": "multiple_choice",
-      "question_en": "Who is the Tamil Nadu athlete who broke Vijay Pal's 35-year-old national record of 5.10m in pole vault to 5.30m in 2018 and again to 5.31m in this year's National Games?",
-      "question_ml": "പുരുഷ പോള്‍വാള്‍ട്ടില്‍, 35 വര്‍ഷം പഴക്കമുള്ള, വിജയ് പാലിന്റെ 5.10 മീറ്റര്‍ എന്ന ദേശീയറെക്കോഡ്, 2018ല്‍ 5.30 ആയി സ്വന്തം പേരിലേക്ക് മാറ്റിയ തമിഴ്നാട്ടുകാരന്‍. ഈ വര്‍ഷം നടന്ന ദേശീയഗെയിംസില്‍ 5.31 എന്ന നിലയില്‍ ആ റിക്കാര്‍ഡ് വീണ്ടും തിരുത്തി. സ്വന്തം റെക്കോര്‍ഡ് തിരുത്തിയ ഈ കായികപ്രതിഭ ആര്?",
-      "options_en": ["Sivasubramaniam", "Rakesh Gond", "Shekhar Kumar Pandey", "Kaniah Singh"],
-      "options_ml": ["ശിവസുബ്രഹ്മണ്യം", "രാകേഷ് ഗോണ്ട്", "ശേഖര്‍ കുമാര്‍ പാണ്ഡെ", "കനയ്യ സിംഗ്"],
+      "question_en": "Mahatma Gandhi is known as the Father of the Nation of India. He was shot dead by a religious extremist who was a member of the Hindu Mahasabha. What was the name of the assassin?",
+      "question_ml": "ഇന്ത്യയുടെ രാഷ്ട്ര പിതാവാണ് മഹാത്മാ ഗാന്ധി. ഹിന്ദു മഹാസഭ പ്രവര്‍ത്തകനായ ഒരു മതഭ്രാന്തനാണ് വെടിയുതിര്‍ത്ത് ഗാന്ധിജിയെ കൊലപ്പെടുത്തിയത്. കൊലയാളിയുടെ പേര്?",
+      "options_en": [
+        "Ramesh Vaidyan",
+        "Nathuram Godse",
+        "Devanand Tripathi",
+        "Harish Chandra Rao"
+      ],
+      "options_ml": [
+        "രമേഷ് വൈദ്യന്‍",
+        "നാഥുറാം ഗോഡ്‌സെ",
+        "ദേവാനന്ദ് തൃപതി",
+        "ഹരീഷ് ചന്ദ്ര റാവു"
+      ],
+      "correct_answer": 1,
+      "difficulty": "medium"
+    },
+    {
+      "id": 10,
+      "type": "multiple_choice",
+      "question_en": "The slogan \"Inquilab Zindabad\" became a powerful phrase during India's freedom struggle and even after independence. It means \"Long Live the Revolution.\" Who was the poet who first used this slogan?",
+      "question_ml": "ഇന്ത്യന്‍ സ്വാതന്ത്ര്യ സമരത്തിലും സ്വാതന്ത്ര്യാനന്തര ഇന്ത്യയിലെ സമരങ്ങളും വിളിക്കപ്പെട്ട മുദ്രാവാക്യമാണ് ഇങ്കിലാബ് സിന്ദാബാദ്. വിപ്ലവം നീണാള്‍ വാഴട്ടെ എന്നാണ് ഇതിന്റെ അര്‍ത്ഥം. ഇത് ആദ്യമായി ഉപയോഗിച്ച കവി ആര്?",
+      "options_en": [
+        "Allama Muhammad Iqbal",
+        "Hasrat Mohani",
+        "Maulana Abul Kalam Azad",
+        "Bhagat Singh"
+      ],
+      "options_ml": [
+        "അല്ലാമ മുഹമ്മദ് ഇഖ്ബാല്‍",
+        "ഹസ്‌റത്ത് മൊഹാനി",
+        "മൗലാന അബുല്‍ കലാം ആസാദ്",
+        "ഭഗത് സിംഗ്"
+      ],
+      "correct_answer": 1,
+      "difficulty": "medium"
+    },
+    {
+      "id": 11,
+      "type": "multiple_choice",
+      "question_en": "In the Indian National Congress, who was a leader of the moderate group, which believed in a peaceful method of struggle?",
+      "question_ml": "സ്വാതന്ത്ര്യ സമരം നടത്തേണ്ടത് സമാധാനപരമായിരിക്കണം എന്ന് അഭിപ്രായമുള്ളവരെ മിതവാദികള്‍ എന്നാണ് വിളിച്ചിരുന്നത്. കോണ്‍ഗ്രസിലെ മിതവാദി വിഭാഗത്തിന്റെ നേതാക്കളിലൊരാളായിരുന്നു ഇദ്ദേഹം.",
+      "options_en": [
+        "Lala Lajpat Rai",
+        "Bipin Chandra Pal",
+        "Gopal Krishna Gokhale",
+        "Bal Gangadhar Tilak"
+      ],
+      "options_ml": [
+        "ലാലാ ലജ്പത്‌റായ്",
+        "ബിപിന്‍ ചന്ദ്രപാല്‍",
+        "ഗോപാല കൃഷ്ണ ഗോഖലെ",
+        "ബാല ഗംഗാധര തിലക്"
+      ],
+      "correct_answer": 2,
+      "difficulty": "medium"
+    },
+    {
+      "id": 12,
+      "type": "multiple_choice",
+      "question_en": "In 1921, who established a Khilafat Government in the areas taken from the British and ruled it for ten days?",
+      "question_ml": "1921 ല്‍ ബ്രിട്ടീഷുകാരില്‍ നിന്ന് പിടിച്ചടക്കിയ പ്രദേശങ്ങളില്‍ ഖിലാഫത്ത് ഗവണ്‍മെന്റ് രൂപീകരിക്കുകയും പത്ത് ദിവസം അത് ഭരിക്കുകയും ചെയ്ത പോരാളി?",
+      "options_en": [
+        "Variyamkunnath Kunjahammad Haji",
+        "Maulana Abul Kalam Azad",
+        "Ali Musliyar",
+        "Shaukat Ali"
+      ],
+      "options_ml": [
+        "വാരിയം കുന്നത്ത് കുഞ്ഞഹമ്മദാജി",
+        "മൗലാന അബുല്‍ കലാം ആസാദ്",
+        "ആലി മുസ്‌ലിയാര്‍",
+        "ഷൗക്കത്ത് അലി"
+      ],
+      "correct_answer": 2,
+      "difficulty": "medium"
+    },
+    {
+      "id": 13,
+      "type": "multiple_choice",
+      "question_en": "\"India Wins Freedom\" is the autobiography of which Indian freedom fighter?",
+      "question_ml": "ഇന്ത്യ വിന്‍സ് ഫ്രീഡം ആരുടെ ആത്മ കഥയാണ്?",
+      "options_en": [
+        "Maulana Abul Kalam Azad",
+        "Mahatma Gandhi",
+        "Jawaharlal Nehru",
+        "Dr. B. R. Ambedkar"
+      ],
+      "options_ml": [
+        "മൗലാന അബുല്‍ കലാം ആസാദ്",
+        "മഹാത്മാ ഗാന്ധി",
+        "ജവഹര്‍ലാല്‍ നെഹ്‌റു",
+        "ഡോ. ബി.ആര്‍ അംബേദ്കര്‍"
+      ],
       "correct_answer": 0,
+      "difficulty": "medium"
+    },
+    {
+      "id": 14,
+      "type": "multiple_choice",
+      "question_en": "Which famous book, written by Dadabhai Naoroji, explained the effects of British rule on India's poverty?",
+      "question_ml": "ഇന്ത്യയിലെ ബ്രിട്ടീഷ് ഭരണത്തെ ആസ്പദമാക്കി ദാദാബായ് നവറോജി എഴുതിയ പുസ്തകത്തിന്റെ പേര്?",
+      "options_en": [
+        "Hind Swaraj",
+        "Discovery of India",
+        "Poverty and Un-British Rule in India",
+        "India Wins Freedom"
+      ],
+      "options_ml": [
+        "ഹിന്ദ് സ്വരാജ്",
+        "ഡിസ്‌കവറി ഓഫ് ഇന്ത്യ",
+        "പോവര്‍ട്ടി ആന്റ് അണ്‍ ബ്രിട്ടീഷ് റൂള്‍",
+        "ഇന്ത്യ വിന്‍സ് ഫ്രീഡം"
+      ],
+      "correct_answer": 2,
+      "difficulty": "medium"
+    },
+    {
+      "id": 15,
+      "type": "multiple_choice",
+      "question_en": "In the Malabar Rebellion, who were the two brave fighters who supported Ali Musliyar like his two hands?",
+      "question_ml": "മലബാര്‍ സമരത്തില്‍ ആലിമുസ്‌ലിയാരുടെ ഇരു കൈകളെ പോലെ പ്രവര്‍ത്തിച്ചു ഈ ധീര പോരാളികള്‍. ആര്?",
+      "options_en": [
+        "Variyamkunnath Haji and Koyakutty",
+        "Kunjalavi and Lavakkutty",
+        "Shaukat Ali and Mohammad Ali",
+        "Kunhammed and Mammu Musliyar"
+      ],
+      "options_ml": [
+        "വാരിയം കുന്നത്ത് ഹാജിയും കോയക്കുട്ടിയും",
+        "കുഞ്ഞലവിയും ലവക്കുട്ടിയും",
+        "ഷൗക്കത്തലിയും മുഹമ്മദലിയും",
+        "കുഞ്ഞഹമ്മദും മമ്മു മുസ്‌ലിയാരും"
+      ],
+      "correct_answer": 1,
       "difficulty": "medium"
     }
   ]
-} 
+}

@@ -1205,7 +1205,7 @@ class QuizProvider extends ChangeNotifier {
 
       // Set up text style for student name only
       final TextStyle nameStyle = TextStyle(
-        fontSize: 48,
+        fontSize: 80,
         fontWeight: FontWeight.bold,
         color: Colors.black,
         fontFamily: 'serif',
