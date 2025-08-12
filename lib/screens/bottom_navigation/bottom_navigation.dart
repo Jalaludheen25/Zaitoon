@@ -93,55 +93,75 @@ class StoryAppBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return NavigationBar(
-      height: 65,
-      selectedIndex: currentIndex,
-      onDestinationSelected: onTap,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      indicatorColor: Theme.of(context).colorScheme.primaryContainer,
-      destinations: [
-        const NavigationDestination(
-          icon: Icon(LucideIcons.tv),
-          selectedIcon: Icon(
-            LucideIcons.tv2,
-            color: Colors.white,
+    return Theme(
+      data: Theme.of(context).copyWith(
+        navigationBarTheme: NavigationBarThemeData(
+          labelTextStyle: WidgetStateProperty.resolveWith<TextStyle?>(
+            (Set<WidgetState> states) {
+              if (states.contains(WidgetState.selected)) {
+                return const TextStyle(
+                  fontSize: 10, // Smaller font size for selected labels
+                  fontWeight: FontWeight.w600,
+                );
+              }
+              return const TextStyle(
+                fontSize: 10, // Smaller font size for unselected labels
+                fontWeight: FontWeight.w400,
+              );
+            },
           ),
-          label: 'Episodes',
         ),
-        const NavigationDestination(
-          icon: Icon(LucideIcons.book),
-          selectedIcon: Icon(
-            LucideIcons.bookOpen,
-            color: Colors.white,
-          ),
-          label: 'Stories',
-        ),
-        const NavigationDestination(
-          icon: Icon(LucideIcons.bookmark),
-          selectedIcon: Icon(
-            LucideIcons.bookMarked,
-            color: Colors.white,
-          ),
-          label: 'Bookmarks',
-        ),
-        if (showQuiz)
+      ),
+      child: NavigationBar(
+        height: 65,
+        selectedIndex: currentIndex,
+        onDestinationSelected: onTap,
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        indicatorColor: Theme.of(context).colorScheme.primaryContainer,
+        destinations: [
           const NavigationDestination(
-            icon: Icon(LucideIcons.brain),
+            icon: Icon(LucideIcons.tv),
             selectedIcon: Icon(
-              LucideIcons.brainCircuit,
+              LucideIcons.tv2,
               color: Colors.white,
             ),
-            label: 'Quiz',
+            label: 'Episodes',
           ),
-        const NavigationDestination(
-          icon: Icon(LucideIcons.settings),
-          selectedIcon: Icon(
-            LucideIcons.settings2,
-            color: Colors.white,
+          const NavigationDestination(
+            icon: Icon(LucideIcons.book),
+            selectedIcon: Icon(
+              LucideIcons.bookOpen,
+              color: Colors.white,
+            ),
+            label: 'Stories',
           ),
-          label: 'Settings',
-        ),
-      ],
+          const NavigationDestination(
+            icon: Icon(LucideIcons.bookmark),
+            selectedIcon: Icon(
+              LucideIcons.bookMarked,
+              color: Colors.white,
+            ),
+            label: 'Bookmarks',
+          ),
+          if (showQuiz)
+            const NavigationDestination(
+              icon: Icon(LucideIcons.brain),
+              selectedIcon: Icon(
+                LucideIcons.brainCircuit,
+                color: Colors.white,
+              ),
+              label: 'Quiz',
+            ),
+          const NavigationDestination(
+            icon: Icon(LucideIcons.settings),
+            selectedIcon: Icon(
+              LucideIcons.settings2,
+              color: Colors.white,
+            ),
+            label: 'Settings',
+          ),
+        ],
+      ),
     );
   }
 }
