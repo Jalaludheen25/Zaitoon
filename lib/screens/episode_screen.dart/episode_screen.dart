@@ -341,13 +341,16 @@ Join thousands of families making reading time special! 🎉
                         ),
                         const SizedBox(height: 4),
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Icon(
-                              Icons.access_time,
-                              color: Colors.white54,
-                              size: 14,
-                            ),
-                            const SizedBox(width: 4),
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.access_time,
+                                  color: Colors.white54,
+                                  size: 14,
+                                ),
+                                 const SizedBox(width: 4),
                             Text(
                               '${episode.readMinutes} min',
                               style: TextStyleClass.poppinsRegular(
@@ -355,6 +358,9 @@ Join thousands of families making reading time special! 🎉
                                 color: Colors.white54,
                               ),
                             ),
+                              ],
+                            ),
+                           
                             const SizedBox(width: 12),
                             // const Icon(
                             //   Icons.calendar_today,
@@ -369,30 +375,25 @@ Join thousands of families making reading time special! 🎉
                             //     color: Colors.white54,
                             //   ),
                             // ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Play Button
+                               Row(
+                                 children: [
+                                   Container(
+                                                       width: 30,
+                                                       height: 30,
+                                                       decoration: BoxDecoration(
+                                                         color: Colors.white.withOpacity(0.1),
+                                                         shape: BoxShape.circle,
+                                                       ),
+                                                       child: const Icon(
+                                                         Icons.chrome_reader_mode_outlined,
+                                                         color: Colors.white,
+                                                         size: 18,
+                                                       ),
+                                                     ),
+                                                      SizedBox(width: 10),
                   Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.chrome_reader_mode_outlined,
-                      color: Colors.white,
-                      size: 24,
-                    ),
-                  ),
-                  SizedBox(width: 10),
-                  Container(
-                    width: 36,
-                    height: 36,
+                    width: 30,
+                    height: 30,
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.1),
                       shape: BoxShape.circle,
@@ -402,7 +403,7 @@ Join thousands of families making reading time special! 🎉
                       icon: const Icon(
                         Icons.share_outlined,
                         color: Colors.white,
-                        size: 20,
+                        size: 15,
                       ),
                       onPressed: () => _shareEpisode(context),
                     ),
@@ -419,6 +420,17 @@ Join thousands of families making reading time special! 🎉
                         : episode.mlStoryFile!,
                     tag: tag,
                   ),
+                                 ],
+                               ),
+                 
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Play Button
+               
                 ],
               ),
             ),
@@ -554,8 +566,8 @@ class _BookmarkButtonState extends State<BookmarkButton>
               return Transform.scale(
                 scale: _scaleAnimation.value,
                 child: Container(
-                  width: 36,
-                  height: 36,
+                  width: 30,
+                  height: 30,
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.1),
                     shape: BoxShape.circle,
@@ -578,7 +590,7 @@ class _BookmarkButtonState extends State<BookmarkButton>
                           : LucideIcons.bookmark,
                       key: ValueKey<bool>(isBookmarked),
                       color: isBookmarked ? Colors.greenAccent : Colors.white,
-                      size: 24,
+                      size: 18,
                     ),
                   ),
                 ),
