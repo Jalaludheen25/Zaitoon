@@ -269,6 +269,11 @@ class QuizProvider extends ChangeNotifier {
       ? 0.0
       : questionsAnswered / _currentQuizQuestions.length;
 
+  // Public method to load questions (for external access)
+  Future<void> loadQuestions() async {
+    await _loadQuestions();
+  }
+
   // Load questions from JSON
   Future<void> _loadQuestions() async {
     try {
@@ -1301,8 +1306,15 @@ class QuizProvider extends ChangeNotifier {
           downloadsDirectory = await getExternalStorageDirectory();
         }
       } else if (Platform.isIOS) {
-        // For iOS, use the documents directory (downloads not accessible)
+        // For iOS, use the documents directory and make it accessible via Files app
         downloadsDirectory = await getApplicationDocumentsDirectory();
+        
+        // Create a subdirectory for certificates that will be visible in Files app
+        final certificatesDir = Directory('${downloadsDirectory.path}/Certificates');
+        if (!await certificatesDir.exists()) {
+          await certificatesDir.create(recursive: true);
+        }
+        downloadsDirectory = certificatesDir;
       } else {
         // For other platforms, use downloads directory
         downloadsDirectory = await getDownloadsDirectory();
@@ -1324,6 +1336,23 @@ class QuizProvider extends ChangeNotifier {
 
       // Show download notification
       await _showDownloadNotification(fileName, filePath);
+
+      // For iOS, automatically trigger share to allow user to save to Files app or Photos
+      if (Platform.isIOS) {
+        debugPrint('iOS detected - triggering automatic share for better user experience');
+        // Small delay to ensure file is written
+        await Future.delayed(const Duration(milliseconds: 500));
+        try {
+          await Share.shareXFiles(
+            [XFile(filePath)],
+            text: 'My Zaitoon Quiz Certificate',
+            subject: 'Zaitoon Quiz Certificate',
+          );
+        } catch (e) {
+          debugPrint('Error auto-sharing on iOS: $e');
+          // Continue even if share fails
+        }
+      }
 
       debugPrint('Certificate saved successfully to: $filePath');
       return filePath;
