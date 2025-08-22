@@ -18,8 +18,12 @@ class NavigationProvider extends ChangeNotifier {
   }
 
   Future<void> setIndex(int index, BuildContext context) async {
-    // Check if trying to access quiz section (index 3 when quiz is shown)
-    if (_showQuiz && index == 3) {
+    // Calculate quiz index based on whether quiz is shown
+    // Tabs: Episodes(0), Stories(1), Bookmarks(2), BrightBox(3), Quiz(4 if shown), Settings(4 or 5)
+    final quizIndex = _showQuiz ? 4 : -1;
+    
+    // Check if trying to access quiz section
+    if (_showQuiz && index == quizIndex) {
       // Check if student exists in database
       try {
         final dbHelper = DatabaseHelper();

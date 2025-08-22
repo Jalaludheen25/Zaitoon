@@ -49,4 +49,17 @@ class ApiUrls {
 
   // Quiz configuration endpoint
   static String quizConfig = "$baseUrl/items/zaitoon_quiz";
+
+  // Bright Box endpoints
+  static String brightBoxCategories = "$baseUrl/items/zaitoon_bright_box";
+  static String brightBoxSubcategories = "$baseUrl/items/zaitoon_bright_box_subcat";
+  static String brightBoxStories = "$baseUrl/items/zaitoon_bright_box_stories";
+  
+  static String getBrightBoxSubcategories(int categoryId) {
+    return "$brightBoxSubcategories?filter[category][_eq]=$categoryId";
+  }
+  
+  static String getBrightBoxStories(int subcategoryId) {
+    return "$brightBoxStories?filter[subcategory][_eq]=$subcategoryId";
+  }
 }

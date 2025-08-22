@@ -12,6 +12,7 @@ import 'package:zaitoon/screens/settings_screen/settings_screen.dart';
 import 'package:zaitoon/screens/standalone_stories/standalone_story_list_screen.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
 import 'package:zaitoon/screens/student_form/view/student_form.dart';
+import 'package:zaitoon/screens/bright_box/screens/bright_box_categories_screen.dart';
 
 class BottomNavigationScreen extends StatefulWidget {
   final int currentIndex;
@@ -60,6 +61,7 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
               const HomeScreen(),
               const StoriesScreen(),
               const BookmarkScreen(),
+              const BrightBoxCategoriesScreen(),
               if (navigationProvider.showQuiz) const StudentFormScreen(),
               const SettingsScreen(),
             ],
@@ -142,6 +144,14 @@ class StoryAppBottomNav extends StatelessWidget {
               color: Colors.white,
             ),
             label: 'Bookmarks',
+          ),
+          const NavigationDestination(
+            icon: Icon(LucideIcons.box),
+            selectedIcon: Icon(
+              LucideIcons.package,
+              color: Colors.white,
+            ),
+            label: 'Bright Box',
           ),
           if (showQuiz)
             const NavigationDestination(
