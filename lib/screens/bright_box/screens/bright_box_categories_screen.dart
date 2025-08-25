@@ -10,7 +10,8 @@ class BrightBoxCategoriesScreen extends StatefulWidget {
   const BrightBoxCategoriesScreen({super.key});
 
   @override
-  State<BrightBoxCategoriesScreen> createState() => _BrightBoxCategoriesScreenState();
+  State<BrightBoxCategoriesScreen> createState() =>
+      _BrightBoxCategoriesScreenState();
 }
 
 class _BrightBoxCategoriesScreenState extends State<BrightBoxCategoriesScreen> {
@@ -18,7 +19,9 @@ class _BrightBoxCategoriesScreenState extends State<BrightBoxCategoriesScreen> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      context.read<BrightBoxProvider>().loadCategories();
+      if (mounted) {
+        context.read<BrightBoxProvider>().loadCategories();
+      }
     });
   }
 
@@ -87,12 +90,12 @@ class _BrightBoxCategoriesScreenState extends State<BrightBoxCategoriesScreen> {
                   child: Row(
                     children: [
                       Icon(
-                        provider.currentLanguage == 'en' 
-                            ? LucideIcons.check 
+                        provider.currentLanguage == 'en'
+                            ? LucideIcons.check
                             : LucideIcons.circle,
                         size: 16,
-                        color: provider.currentLanguage == 'en' 
-                            ? Colors.green 
+                        color: provider.currentLanguage == 'en'
+                            ? Colors.green
                             : Colors.grey,
                       ),
                       const SizedBox(width: 8),
@@ -105,12 +108,12 @@ class _BrightBoxCategoriesScreenState extends State<BrightBoxCategoriesScreen> {
                   child: Row(
                     children: [
                       Icon(
-                        provider.currentLanguage == 'ml' 
-                            ? LucideIcons.check 
+                        provider.currentLanguage == 'ml'
+                            ? LucideIcons.check
                             : LucideIcons.circle,
                         size: 16,
-                        color: provider.currentLanguage == 'ml' 
-                            ? Colors.green 
+                        color: provider.currentLanguage == 'ml'
+                            ? Colors.green
                             : Colors.grey,
                       ),
                       const SizedBox(width: 8),
@@ -178,13 +181,7 @@ class _BrightBoxCategoriesScreenState extends State<BrightBoxCategoriesScreen> {
 
     return SliverPadding(
       padding: const EdgeInsets.all(16),
-      sliver: SliverGrid(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 1.2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-        ),
+      sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
           (context, index) {
             final category = provider.categories[index];
@@ -197,73 +194,83 @@ class _BrightBoxCategoriesScreenState extends State<BrightBoxCategoriesScreen> {
   }
 
   Widget _buildCategoryCard(category, BrightBoxProvider provider) {
-    final title = provider.currentLanguage == 'en' 
-        ? category.catTitleEn 
+    final title = provider.currentLanguage == 'en'
+        ? category.catTitleEn
         : category.catTitleMl;
 
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => BrightBoxSubcategoriesScreen(
-              category: category,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => BrightBoxSubcategoriesScreen(
+                category: category,
+              ),
             ),
-          ),
-        );
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              ColorClass.primaryColor.withOpacity(0.8),
-              ColorClass.primaryColor.withOpacity(0.6),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
+          );
+        },
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                ColorClass.primaryColor.withOpacity(0.2),
+                ColorClass.primaryColor.withOpacity(0.1),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
               color: ColorClass.primaryColor.withOpacity(0.3),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
+              width: 1,
             ),
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          ),
+          child: Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: ColorClass.primaryColor.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
                   LucideIcons.box,
-                  color: Colors.white,
-                  size: 32,
+                  color: ColorClass.primaryColor,
+                  size: 24,
                 ),
               ),
-              const SizedBox(height: 12),
-              Text(
-                title,
-                style: TextStyleClass.poppinsSemiBold(
-                  fontSize: 16,
-                  color: Colors.white,
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyleClass.poppinsSemiBold(
+                        fontSize: 18,
+                        color: ColorClass.white,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Tap to explore subcategories',
+                      style: TextStyleClass.poppinsRegular(
+                        fontSize: 12,
+                        color: ColorClass.white.withOpacity(0.7),
+                      ),
+                    ),
+                  ],
                 ),
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 8),
               Icon(
                 LucideIcons.chevronRight,
-                color: Colors.white.withOpacity(0.7),
-                size: 16,
+                color: ColorClass.white.withOpacity(0.5),
+                size: 20,
               ),
             ],
           ),

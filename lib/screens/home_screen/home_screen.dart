@@ -14,6 +14,7 @@ import 'package:zaitoon/screens/reading_screen/provider/pdf_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:zaitoon/screens/reading_screen/story_reader_page.dart';
+import 'package:zaitoon/screens/settings_screen/settings_screen.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
 import 'package:zaitoon/screens/version_check/force_udpate_dialog.dart';
 import 'package:zaitoon/screens/version_check/provider/version_check_provider.dart';
@@ -233,7 +234,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         ),
         _buildIconButton(
           icon: Icons.settings,
-          onPressed: () => context.read<NavigationProvider>().setIndex(3, context),
+          onPressed: () => navigatePR(
+            context: context,
+            screen: const SettingsScreen(),
+          ),
         ),
       ],
     );
@@ -300,7 +304,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     // Clamp the animation start time to prevent exceeding 1.0
     final double animationStart = (index * 0.05).clamp(0.0, 0.8);
     final double animationEnd = (animationStart + 0.2).clamp(0.2, 1.0);
-    
+
     return FadeTransition(
       opacity: CurvedAnimation(
         parent: _fadeController,

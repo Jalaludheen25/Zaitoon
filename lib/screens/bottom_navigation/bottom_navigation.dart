@@ -62,8 +62,11 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
               const StoriesScreen(),
               const BookmarkScreen(),
               const BrightBoxCategoriesScreen(),
-              if (navigationProvider.showQuiz) const StudentFormScreen(),
-              const SettingsScreen(),
+              // 5th tab: either Quiz placeholder or Settings
+              if (navigationProvider.showQuiz)
+                const StudentFormScreen() // Quiz tab (but navigation is handled in provider)
+              else
+                const SettingsScreen(), // Settings tab
             ],
           ),
           bottomNavigationBar: StoryAppBottomNav(
@@ -95,19 +98,80 @@ class StoryAppBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Build destinations list dynamically
+    List<NavigationDestination> destinations = [
+      const NavigationDestination(
+        icon: Icon(LucideIcons.tv),
+        selectedIcon: Icon(
+          LucideIcons.tv2,
+          color: Colors.white,
+        ),
+        label: 'Episodes',
+      ),
+      const NavigationDestination(
+        icon: Icon(LucideIcons.book),
+        selectedIcon: Icon(
+          LucideIcons.bookOpen,
+          color: Colors.white,
+        ),
+        label: 'Stories',
+      ),
+      const NavigationDestination(
+        icon: Icon(LucideIcons.bookmark),
+        selectedIcon: Icon(
+          LucideIcons.bookMarked,
+          color: Colors.white,
+        ),
+        label: 'Bookmarks',
+      ),
+      const NavigationDestination(
+        icon: Icon(LucideIcons.box),
+        selectedIcon: Icon(
+          LucideIcons.package,
+          color: Colors.white,
+        ),
+        label: 'Bright Box',
+      ),
+    ];
+
+    // Add either Quiz or Settings as the 5th tab (always keep 5 tabs total)
+    if (showQuiz) {
+      destinations.add(
+        const NavigationDestination(
+          icon: Icon(LucideIcons.brain),
+          selectedIcon: Icon(
+            LucideIcons.brainCircuit,
+            color: Colors.white,
+          ),
+          label: 'Quiz',
+        ),
+      );
+    } else {
+      destinations.add(
+        const NavigationDestination(
+          icon: Icon(LucideIcons.settings),
+          selectedIcon: Icon(
+            LucideIcons.settings2,
+            color: Colors.white,
+          ),
+          label: 'Settings',
+        ),
+      );
+    }
+
     return Theme(
       data: Theme.of(context).copyWith(
         navigationBarTheme: NavigationBarThemeData(
           labelTextStyle: WidgetStateProperty.resolveWith<TextStyle?>(
             (Set<WidgetState> states) {
               if (states.contains(WidgetState.selected)) {
-                return const TextStyle(
-                  fontSize: 10, // Smaller font size for selected labels
+                return TextStyle(
+                  fontSize: 10, // Consistent font size for 5 tabs
                   fontWeight: FontWeight.w600,
                 );
               }
-              return const TextStyle(
-                fontSize: 10, // Smaller font size for unselected labels
+              return TextStyle(
+                fontSize: 10, // Consistent font size for 5 tabs
                 fontWeight: FontWeight.w400,
               );
             },
@@ -115,62 +179,12 @@ class StoryAppBottomNav extends StatelessWidget {
         ),
       ),
       child: NavigationBar(
-        height: 65,
+        height: 65, // Consistent height for 5 tabs
         selectedIndex: currentIndex,
         onDestinationSelected: onTap,
         backgroundColor: Theme.of(context).colorScheme.surface,
         indicatorColor: Theme.of(context).colorScheme.primaryContainer,
-        destinations: [
-          const NavigationDestination(
-            icon: Icon(LucideIcons.tv),
-            selectedIcon: Icon(
-              LucideIcons.tv2,
-              color: Colors.white,
-            ),
-            label: 'Episodes',
-          ),
-          const NavigationDestination(
-            icon: Icon(LucideIcons.book),
-            selectedIcon: Icon(
-              LucideIcons.bookOpen,
-              color: Colors.white,
-            ),
-            label: 'Stories',
-          ),
-          const NavigationDestination(
-            icon: Icon(LucideIcons.bookmark),
-            selectedIcon: Icon(
-              LucideIcons.bookMarked,
-              color: Colors.white,
-            ),
-            label: 'Bookmarks',
-          ),
-          const NavigationDestination(
-            icon: Icon(LucideIcons.box),
-            selectedIcon: Icon(
-              LucideIcons.package,
-              color: Colors.white,
-            ),
-            label: 'Bright Box',
-          ),
-          if (showQuiz)
-            const NavigationDestination(
-              icon: Icon(LucideIcons.brain),
-              selectedIcon: Icon(
-                LucideIcons.brainCircuit,
-                color: Colors.white,
-              ),
-              label: 'Quiz',
-            ),
-          const NavigationDestination(
-            icon: Icon(LucideIcons.settings),
-            selectedIcon: Icon(
-              LucideIcons.settings2,
-              color: Colors.white,
-            ),
-            label: 'Settings',
-          ),
-        ],
+        destinations: destinations,
       ),
     );
   }

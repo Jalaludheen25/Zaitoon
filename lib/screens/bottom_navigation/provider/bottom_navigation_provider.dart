@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:zaitoon/helper/auth_helper.dart';
 import 'package:zaitoon/screens/quiz/quiz_screen.dart';
 import 'package:zaitoon/screens/student_form/view/student_form.dart';
 import 'package:zaitoon/screens/student_form/database/db_helper.dart';
@@ -18,12 +17,13 @@ class NavigationProvider extends ChangeNotifier {
   }
 
   Future<void> setIndex(int index, BuildContext context) async {
-    // Calculate quiz index based on whether quiz is shown
-    // Tabs: Episodes(0), Stories(1), Bookmarks(2), BrightBox(3), Quiz(4 if shown), Settings(4 or 5)
-    final quizIndex = _showQuiz ? 4 : -1;
+    // Always 5 tabs: Episodes(0), Stories(1), Bookmarks(2), BrightBox(3), Quiz/Settings(4)
+    // When quiz is enabled: 5th tab is Quiz (but navigates to separate screen)
+    // When quiz is disabled: 5th tab is Settings (normal tab behavior)
     
-    // Check if trying to access quiz section
-    if (_showQuiz && index == quizIndex) {
+    // Check if trying to access quiz section (index 4 when quiz is enabled)
+    if (_showQuiz && index == 4) {
+      // Don't change the current index, just navigate to quiz
       // Check if student exists in database
       try {
         final dbHelper = DatabaseHelper();
@@ -56,6 +56,7 @@ class NavigationProvider extends ChangeNotifier {
         }
       }
     } else {
+      // For all other tabs (Episodes, Stories, Bookmarks, BrightBox, Settings), update the current index
       _currentIndex = index;
       notifyListeners();
     }

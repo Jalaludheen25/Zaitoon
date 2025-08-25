@@ -5,7 +5,7 @@ import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/textstyle_class.dart';
 import 'package:zaitoon/screens/bright_box/provider/bright_box_provider.dart';
 import 'package:zaitoon/screens/bright_box/models/bright_box_models.dart';
-import 'package:zaitoon/screens/reading_screen/story_reader_page.dart';
+import 'package:zaitoon/screens/bright_box/screens/bright_box_story_reader_screen.dart';
 import 'package:zaitoon/constants/app_urls.dart';
 
 class BrightBoxStoriesScreen extends StatefulWidget {
@@ -25,9 +25,11 @@ class _BrightBoxStoriesScreenState extends State<BrightBoxStoriesScreen> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      final provider = context.read<BrightBoxProvider>();
-      provider.clearStories();
-      provider.loadStories(widget.subcategory.id);
+      if (mounted) {
+        final provider = context.read<BrightBoxProvider>();
+        provider.clearStories();
+        provider.loadStories(widget.subcategory.id);
+      }
     });
   }
 
@@ -161,29 +163,11 @@ class _BrightBoxStoriesScreenState extends State<BrightBoxStoriesScreen> {
       margin: const EdgeInsets.only(bottom: 16),
       child: GestureDetector(
         onTap: () {
-          // Get the story file URL based on current language
-          final storyFileId = provider.currentLanguage == 'en' 
-              ? story.storyEn 
-              : story.storyMl;
-          
-          // Construct the PDF URL
-          final pdfUrl = '${ApiUrls.assetBaseUrl}$storyFileId';
-          
-          // Get the story title based on current language
-          final storyTitle = provider.currentLanguage == 'en' 
-              ? story.storyTitleEn 
-              : story.storyTitleMl;
-          
-          // Navigate to PDF reader
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => StoryReadingScreen(
-                pdfUrl: pdfUrl,
-                id: story.id.toString(),
-                title: storyTitle,
-                thumbnail: '', // No thumbnail for Bright Box stories
-                tag: 'bright_box',
+              builder: (context) => BrightBoxStoryReaderScreen(
+                story: story,
               ),
             ),
           );

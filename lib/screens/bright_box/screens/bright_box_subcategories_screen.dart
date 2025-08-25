@@ -24,9 +24,11 @@ class _BrightBoxSubcategoriesScreenState extends State<BrightBoxSubcategoriesScr
   void initState() {
     super.initState();
     Future.microtask(() {
-      final provider = context.read<BrightBoxProvider>();
-      provider.clearSubcategories();
-      provider.loadSubcategories(widget.category.id);
+      if (mounted) {
+        final provider = context.read<BrightBoxProvider>();
+        provider.clearSubcategories();
+        provider.loadSubcategories(widget.category.id);
+      }
     });
   }
 
