@@ -34,25 +34,54 @@ class HighlightedCards extends StatelessWidget {
       orElse: () => StoryData(),
     );
 
-    return selectedLanguage == 'en' ? story.name ?? '' : story.mlTitle ?? '';
+    switch (selectedLanguage) {
+      case 'ml':
+        return story.mlTitle ?? story.name ?? '';
+      case 'hi':
+        return story.hinTitle ?? story.name ?? '';
+      case 'ur':
+        return story.urTitle ?? story.name ?? '';
+      default: // 'en' or any other language
+        return story.name ?? '';
+    }
   }
 
   List<dynamic> getCombinedHighlightedContent() {
     List<dynamic> combined = [];
 
-    // Add episodes
+    // Add episodes (sorted by priority if available)
     if (episodes.isNotEmpty) {
-      combined.addAll(episodes);
+      // Sort episodes by priority (lower number = higher priority)
+      final sortedEpisodes = List<EpisodeData>.from(episodes);
+      sortedEpisodes.sort((a, b) {
+        // Get priority from the story model based on episode's story ID
+        final storyA = storyModel?.data?.firstWhere(
+          (story) => story.id == a.story,
+          orElse: () => StoryData(),
+        );
+        final storyB = storyModel?.data?.firstWhere(
+          (story) => story.id == b.story,
+          orElse: () => StoryData(),
+        );
+
+        final priorityA = int.tryParse(storyA?.priority ?? '999') ?? 999;
+        final priorityB = int.tryParse(storyB?.priority ?? '999') ?? 999;
+
+        return priorityA.compareTo(priorityB);
+      });
+      combined.addAll(sortedEpisodes);
     }
 
-    // Add single stories
+    // Add single stories (highlighted ones only)
     if (singleStoryModel?.data != null) {
-      combined.addAll(
-          singleStoryModel!.data.where((story) => story.isHighlighted == true));
+      final highlightedStories = singleStoryModel!.data
+          .where((story) => story.isHighlighted == true)
+          .toList();
+      combined.addAll(highlightedStories);
     }
 
-    // Shuffle the combined list to mix stories and episodes
-    combined.shuffle();
+    // Don't shuffle if we want to maintain priority order
+    // If you want to mix them while respecting priority, you could implement a more complex sorting
 
     return combined;
   }
@@ -139,13 +168,32 @@ class HighlightedCards extends StatelessWidget {
 
   String _getItemBanner(dynamic item) {
     if (item is EpisodeData) {
-      return selectedLanguage == 'ml'
-          ? item.mlBanner ?? item.adBanner
-          : item.adBanner ?? '';
+      switch (selectedLanguage) {
+        case 'ml':
+          return item.mlBanner ?? item.adBanner ?? '';
+        case 'hi':
+          return item.hinBanner ?? item.adBanner ?? '';
+        case 'ur':
+          return item.urBanner ?? item.adBanner ?? '';
+        default: // 'en' or any other language
+          return item.adBanner ?? '';
+      }
     } else if (item is Datum) {
-      return selectedLanguage == 'ml'
-          ? item.mlBanner ?? item.enBanner
-          : item.enBanner ?? '';
+      // Handle Datum which might not have all language fields yet
+      switch (selectedLanguage) {
+        case 'ml':
+          return (item.mlBanner?.toString() ?? '') != ''
+              ? item.mlBanner.toString()
+              : (item.enBanner?.toString() ?? '');
+        case 'hi':
+          // Datum doesn't have hinBanner yet, fallback to enBanner
+          return item.enBanner?.toString() ?? '';
+        case 'ur':
+          // Datum doesn't have urBanner yet, fallback to enBanner
+          return item.enBanner?.toString() ?? '';
+        default: // 'en' or any other language
+          return item.enBanner?.toString() ?? '';
+      }
     }
     return '';
   }

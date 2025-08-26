@@ -54,7 +54,7 @@ class _BrightBoxStoryReaderScreenState extends State<BrightBoxStoryReaderScreen>
       final currentLanguage = homeProvider.selectedLanguage;
       
       // Get the appropriate PDF file ID based on language
-      final pdfFileId = currentLanguage == 'en' ? widget.story.storyEn : widget.story.storyMl;
+      final pdfFileId = _getStoryFile(widget.story, currentLanguage);
       
       if (pdfFileId.isEmpty) {
         throw Exception('PDF file not available for selected language');
@@ -123,7 +123,7 @@ class _BrightBoxStoryReaderScreenState extends State<BrightBoxStoryReaderScreen>
   String get _currentTitle {
     final homeProvider = context.read<HomeProvider>();
     final currentLanguage = homeProvider.selectedLanguage;
-    return currentLanguage == 'en' ? widget.story.storyTitleEn : widget.story.storyTitleMl;
+    return _getStoryTitle(widget.story, currentLanguage);
   }
 
   @override
@@ -630,6 +630,33 @@ Join thousands of families making reading time special! 🎉
           ),
         );
       }
+    }
+  }
+
+  // Helper methods for multi-language support
+  String _getStoryTitle(BrightBoxStory story, String language) {
+    switch (language) {
+      case 'ml':
+        return story.storyTitleMl ?? story.storyTitleEn ?? '';
+      case 'hi':
+        return story.storyTitleHi ?? story.storyTitleEn ?? '';
+      case 'ur':
+        return story.storyTitleUr ?? story.storyTitleEn ?? '';
+      default: // 'en' or any other language
+        return story.storyTitleEn ?? '';
+    }
+  }
+
+  String _getStoryFile(BrightBoxStory story, String language) {
+    switch (language) {
+      case 'ml':
+        return story.storyMl ?? story.storyEn ?? '';
+      case 'hi':
+        return story.storyHi ?? story.storyEn ?? '';
+      case 'ur':
+        return story.storyUr ?? story.storyEn ?? '';
+      default: // 'en' or any other language
+        return story.storyEn ?? '';
     }
   }
 

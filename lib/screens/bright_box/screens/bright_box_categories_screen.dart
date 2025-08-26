@@ -5,6 +5,7 @@ import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/textstyle_class.dart';
 import 'package:zaitoon/screens/bright_box/provider/bright_box_provider.dart';
 import 'package:zaitoon/screens/bright_box/screens/bright_box_subcategories_screen.dart';
+import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
 
 class BrightBoxCategoriesScreen extends StatefulWidget {
   const BrightBoxCategoriesScreen({super.key});
@@ -30,12 +31,12 @@ class _BrightBoxCategoriesScreenState extends State<BrightBoxCategoriesScreen> {
     return Scaffold(
       backgroundColor: ColorClass.black,
       body: SafeArea(
-        child: Consumer<BrightBoxProvider>(
-          builder: (context, provider, child) {
+        child: Consumer2<BrightBoxProvider, HomeProvider>(
+          builder: (context, brightBoxProvider, homeProvider, child) {
             return CustomScrollView(
               slivers: [
                 _buildAppBar(),
-                if (provider.isLoading)
+                if (brightBoxProvider.isLoading)
                   const SliverFillRemaining(
                     child: Center(
                       child: CircularProgressIndicator(
@@ -43,10 +44,10 @@ class _BrightBoxCategoriesScreenState extends State<BrightBoxCategoriesScreen> {
                       ),
                     ),
                   )
-                else if (provider.error != null)
-                  _buildErrorState(provider.error!, provider)
+                else if (brightBoxProvider.error != null)
+                  _buildErrorState(brightBoxProvider.error!, brightBoxProvider)
                 else
-                  _buildCategoriesList(provider),
+                  _buildCategoriesList(brightBoxProvider, homeProvider),
               ],
             );
           },
@@ -73,59 +74,7 @@ class _BrightBoxCategoriesScreenState extends State<BrightBoxCategoriesScreen> {
       floating: true,
       pinned: false,
       elevation: 0,
-      actions: [
-        Consumer<BrightBoxProvider>(
-          builder: (context, provider, child) {
-            return PopupMenuButton<String>(
-              icon: const Icon(
-                LucideIcons.globe,
-                color: ColorClass.white,
-              ),
-              onSelected: (String language) {
-                provider.setLanguage(language);
-              },
-              itemBuilder: (BuildContext context) => [
-                PopupMenuItem<String>(
-                  value: 'en',
-                  child: Row(
-                    children: [
-                      Icon(
-                        provider.currentLanguage == 'en'
-                            ? LucideIcons.check
-                            : LucideIcons.circle,
-                        size: 16,
-                        color: provider.currentLanguage == 'en'
-                            ? Colors.green
-                            : Colors.grey,
-                      ),
-                      const SizedBox(width: 8),
-                      const Text('English'),
-                    ],
-                  ),
-                ),
-                PopupMenuItem<String>(
-                  value: 'ml',
-                  child: Row(
-                    children: [
-                      Icon(
-                        provider.currentLanguage == 'ml'
-                            ? LucideIcons.check
-                            : LucideIcons.circle,
-                        size: 16,
-                        color: provider.currentLanguage == 'ml'
-                            ? Colors.green
-                            : Colors.grey,
-                      ),
-                      const SizedBox(width: 8),
-                      const Text('മലയാളം'),
-                    ],
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
-      ],
+
     );
   }
 
@@ -174,8 +123,8 @@ class _BrightBoxCategoriesScreenState extends State<BrightBoxCategoriesScreen> {
     );
   }
 
-  Widget _buildCategoriesList(BrightBoxProvider provider) {
-    if (provider.categories.isEmpty) {
+  Widget _buildCategoriesList(BrightBoxProvider brightBoxProvider, HomeProvider homeProvider) {
+    if (brightBoxProvider.categories.isEmpty) {
       return _buildEmptyState();
     }
 
@@ -184,19 +133,17 @@ class _BrightBoxCategoriesScreenState extends State<BrightBoxCategoriesScreen> {
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
           (context, index) {
-            final category = provider.categories[index];
-            return _buildCategoryCard(category, provider);
+            final category = brightBoxProvider.categories[index];
+            return _buildCategoryCard(category, homeProvider);
           },
-          childCount: provider.categories.length,
+          childCount: brightBoxProvider.categories.length,
         ),
       ),
     );
   }
 
-  Widget _buildCategoryCard(category, BrightBoxProvider provider) {
-    final title = provider.currentLanguage == 'en'
-        ? category.catTitleEn
-        : category.catTitleMl;
+  Widget _buildCategoryCard(category, HomeProvider homeProvider) {
+    final title = _getCategoryTitle(category, homeProvider.selectedLanguage);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -310,5 +257,19 @@ class _BrightBoxCategoriesScreenState extends State<BrightBoxCategoriesScreen> {
         ),
       ),
     );
+  }
+
+  // Helper method for multi-language support
+  String _getCategoryTitle(category, String language) {
+    switch (language) {
+      case 'ml':
+        return category.catTitleMl ?? category.catTitleEn ?? '';
+      case 'hi':
+        return category.catTitleHi ?? category.catTitleEn ?? '';
+      case 'ur':
+        return category.catTitleUr ?? category.catTitleEn ?? '';
+      default: // 'en' or any other language
+        return category.catTitleEn ?? '';
+    }
   }
 }

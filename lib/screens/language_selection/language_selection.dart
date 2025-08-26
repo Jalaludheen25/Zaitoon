@@ -106,6 +106,7 @@ class LanguageSelection extends StatelessWidget {
                   builder: (context, snapshot, child) {
                     return Column(
                       children: [
+                        // First row: English and Malayalam
                         Row(
                           children: [
                             _buildLanguageButton(
@@ -136,6 +137,41 @@ class LanguageSelection extends StatelessWidget {
                               },
                               label: 'മലയാളം',
                               fontFamily: GoogleFonts.manjari().fontFamily,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        // Second row: Hindi and Urdu
+                        Row(
+                          children: [
+                            _buildLanguageButton(
+                              context: context,
+                              isSelected: snapshot.selectedLanguage == "hi",
+                              onPressed: () {
+                                snapshot.saveSelectedLanguage("hi").then((_) {
+                                  navigatePR(
+                                    context: context,
+                                    screen: const AknowledgeScreen(),
+                                  );
+                                });
+                              },
+                              label: 'हिंदी',
+                              fontFamily: GoogleFonts.notoSansDevanagari().fontFamily,
+                            ),
+                            const SizedBox(width: 12),
+                            _buildLanguageButton(
+                              context: context,
+                              isSelected: snapshot.selectedLanguage == "ur",
+                              onPressed: () {
+                                snapshot.saveSelectedLanguage("ur").then((_) {
+                                  navigatePR(
+                                    context: context,
+                                    screen: const AknowledgeScreen(),
+                                  );
+                                });
+                              },
+                              label: 'اردو',
+                              fontFamily: GoogleFonts.notoSansArabic().fontFamily,
                             ),
                           ],
                         ),

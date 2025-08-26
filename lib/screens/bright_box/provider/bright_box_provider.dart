@@ -11,7 +11,6 @@ class BrightBoxProvider extends ChangeNotifier {
   
   bool _isLoading = false;
   String? _error;
-  String _currentLanguage = 'en';
 
   // Getters
   List<BrightBoxCategory> get categories => _categories;
@@ -19,13 +18,6 @@ class BrightBoxProvider extends ChangeNotifier {
   List<BrightBoxStory> get stories => _stories;
   bool get isLoading => _isLoading;
   String? get error => _error;
-  String get currentLanguage => _currentLanguage;
-
-  // Set language
-  void setLanguage(String language) {
-    _currentLanguage = language;
-    notifyListeners();
-  }
 
   // Load categories
   Future<void> loadCategories() async {

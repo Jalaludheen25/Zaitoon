@@ -6,6 +6,7 @@ import 'package:zaitoon/constants/textstyle_class.dart';
 import 'package:zaitoon/screens/bright_box/provider/bright_box_provider.dart';
 import 'package:zaitoon/screens/bright_box/models/bright_box_models.dart';
 import 'package:zaitoon/screens/bright_box/screens/bright_box_stories_screen.dart';
+import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
 
 class BrightBoxSubcategoriesScreen extends StatefulWidget {
   final BrightBoxCategory category;
@@ -37,16 +38,14 @@ class _BrightBoxSubcategoriesScreenState extends State<BrightBoxSubcategoriesScr
     return Scaffold(
       backgroundColor: ColorClass.black,
       body: SafeArea(
-        child: Consumer<BrightBoxProvider>(
-          builder: (context, provider, child) {
-            final categoryTitle = provider.currentLanguage == 'en' 
-                ? widget.category.catTitleEn 
-                : widget.category.catTitleMl;
+        child: Consumer2<BrightBoxProvider, HomeProvider>(
+          builder: (context, brightBoxProvider, homeProvider, child) {
+            final categoryTitle = _getCategoryTitle(widget.category, homeProvider.selectedLanguage);
 
             return CustomScrollView(
               slivers: [
                 _buildAppBar(categoryTitle),
-                if (provider.isLoading)
+                if (brightBoxProvider.isLoading)
                   const SliverFillRemaining(
                     child: Center(
                       child: CircularProgressIndicator(
@@ -54,10 +53,10 @@ class _BrightBoxSubcategoriesScreenState extends State<BrightBoxSubcategoriesScr
                       ),
                     ),
                   )
-                else if (provider.error != null)
-                  _buildErrorState(provider.error!, provider)
+                else if (brightBoxProvider.error != null)
+                  _buildErrorState(brightBoxProvider.error!, brightBoxProvider)
                 else
-                  _buildSubcategoriesList(provider),
+                  _buildSubcategoriesList(brightBoxProvider, homeProvider),
               ],
             );
           },
@@ -134,8 +133,8 @@ class _BrightBoxSubcategoriesScreenState extends State<BrightBoxSubcategoriesScr
     );
   }
 
-  Widget _buildSubcategoriesList(BrightBoxProvider provider) {
-    if (provider.subcategories.isEmpty) {
+  Widget _buildSubcategoriesList(BrightBoxProvider brightBoxProvider, HomeProvider homeProvider) {
+    if (brightBoxProvider.subcategories.isEmpty) {
       return _buildEmptyState();
     }
 
@@ -144,19 +143,17 @@ class _BrightBoxSubcategoriesScreenState extends State<BrightBoxSubcategoriesScr
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
           (context, index) {
-            final subcategory = provider.subcategories[index];
-            return _buildSubcategoryCard(subcategory, provider);
+            final subcategory = brightBoxProvider.subcategories[index];
+            return _buildSubcategoryCard(subcategory, homeProvider);
           },
-          childCount: provider.subcategories.length,
+          childCount: brightBoxProvider.subcategories.length,
         ),
       ),
     );
   }
 
-  Widget _buildSubcategoryCard(BrightBoxSubcategory subcategory, BrightBoxProvider provider) {
-    final title = provider.currentLanguage == 'en' 
-        ? subcategory.subcatTitleEn 
-        : subcategory.subcatTitleMl;
+  Widget _buildSubcategoryCard(BrightBoxSubcategory subcategory, HomeProvider homeProvider) {
+    final title = _getSubcategoryTitle(subcategory, homeProvider.selectedLanguage);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -261,5 +258,32 @@ class _BrightBoxSubcategoriesScreenState extends State<BrightBoxSubcategoriesScr
         ),
       ),
     );
+  }
+
+  // Helper methods for multi-language support
+  String _getCategoryTitle(category, String language) {
+    switch (language) {
+      case 'ml':
+        return category.catTitleMl ?? category.catTitleEn ?? '';
+      case 'hi':
+        return category.catTitleHi ?? category.catTitleEn ?? '';
+      case 'ur':
+        return category.catTitleUr ?? category.catTitleEn ?? '';
+      default: // 'en' or any other language
+        return category.catTitleEn ?? '';
+    }
+  }
+
+  String _getSubcategoryTitle(BrightBoxSubcategory subcategory, String language) {
+    switch (language) {
+      case 'ml':
+        return subcategory.subcatTitleMl ?? subcategory.subcatTitleEn ?? '';
+      case 'hi':
+        return subcategory.subcatTitleHi ?? subcategory.subcatTitleEn ?? '';
+      case 'ur':
+        return subcategory.subcatTitleUr ?? subcategory.subcatTitleEn ?? '';
+      default: // 'en' or any other language
+        return subcategory.subcatTitleEn ?? '';
+    }
   }
 }

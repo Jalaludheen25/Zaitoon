@@ -116,15 +116,8 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
                                 children: [
                                   Text(
                                     widget.title,
-                                    style: snapshot.selectedLanguage == 'en'
-                                        ? TextStyleClass.poppinsSemiBold(
-                                            fontSize: 24,
-                                            color: Colors.white,
-                                          )
-                                        : TextStyleClass.manjariSemiBold(
-                                            fontSize: 24,
-                                            color: Colors.white,
-                                          ),
+                                    style: _getLanguageTextStyle(
+                                        snapshot.selectedLanguage),
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
@@ -179,17 +172,14 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
                                   context: context,
                                   screen: StoryReadingScreen(
                                     id: episode.id.toString(),
-                                    title: snapshot.selectedLanguage == 'en'
-                                        ? "${widget.title}: ${episode.storyTile!}"
-                                        : "${widget.title}: ${episode.mlTitle!}",
+                                    title:
+                                        "${widget.title}: ${_getEpisodeTitle(episode, snapshot.selectedLanguage)}",
                                     thumbnail:
                                         '${ApiUrls.assetBaseUrl}${episode.coverImage}',
                                     tag: widget.tag,
-                                    pdfUrl: snapshot.selectedLanguage == 'en'
-                                        ? ApiUrls.assetBaseUrl +
-                                            episode.storyFile!
-                                        : ApiUrls.assetBaseUrl +
-                                            episode.mlStoryFile!,
+                                    pdfUrl: ApiUrls.assetBaseUrl +
+                                        _getEpisodeFile(
+                                            episode, snapshot.selectedLanguage),
                                   ),
                                 ),
                               ),
@@ -204,6 +194,58 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
         ),
       ),
     );
+  }
+
+  // Helper methods for multi-language support
+  String _getEpisodeTitle(EpisodeData episode, String language) {
+    switch (language) {
+      case 'ml':
+        return episode.mlTitle ?? episode.storyTile ?? '';
+      case 'hi':
+        return episode.hinTitle ?? episode.storyTile ?? '';
+      case 'ur':
+        return episode.urTitle ?? episode.storyTile ?? '';
+      default: // 'en' or any other language
+        return episode.storyTile ?? '';
+    }
+  }
+
+  String _getEpisodeFile(EpisodeData episode, String language) {
+    switch (language) {
+      case 'ml':
+        return episode.mlStoryFile ?? episode.storyFile ?? '';
+      case 'hi':
+        return episode.hinStoryFile ?? episode.storyFile ?? '';
+      case 'ur':
+        return episode.urStoryFile ?? episode.storyFile ?? '';
+      default: // 'en' or any other language
+        return episode.storyFile ?? '';
+    }
+  }
+
+  TextStyle _getLanguageTextStyle(String language) {
+    switch (language) {
+      case 'ml':
+        return TextStyleClass.manjariSemiBold(
+          fontSize: 24,
+          color: ColorClass.white,
+        );
+      case 'hi':
+        return TextStyleClass.poppinsSemiBold(
+          fontSize: 24,
+          color: ColorClass.white,
+        );
+      case 'ur':
+        return TextStyleClass.poppinsSemiBold(
+          fontSize: 24,
+          color: ColorClass.white,
+        );
+      default: // 'en' or any other language
+        return TextStyleClass.poppinsSemiBold(
+          fontSize: 24,
+          color: ColorClass.white,
+        );
+    }
   }
 }
 
@@ -233,7 +275,7 @@ class _EpisodeTile extends StatelessWidget {
     String textToShare = '''📚 Check out this amazing story on Zai Toon Kids!
 
 "$seriesTitle"
-Episode: ${selectedLanguage == 'en' ? episode.storyTile! : episode.mlTitle!}
+Episode: ${_getEpisodeTitle(episode, selectedLanguage)}
 
 🌟 Download Zai Toon Kids to start reading:
 📱 iOS: $appStoreLink\n
@@ -324,18 +366,8 @@ Join thousands of families making reading time special! 🎉
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          selectedLanguage == 'en'
-                              ? episode.storyTile!
-                              : episode.mlTitle!,
-                          style: selectedLanguage == 'en'
-                              ? TextStyleClass.poppinsSemiBold(
-                                  fontSize: 16,
-                                  color: Colors.white,
-                                )
-                              : TextStyleClass.manjariSemiBold(
-                                  fontSize: 16,
-                                  color: Colors.white,
-                                ),
+                          _getEpisodeTitle(episode, selectedLanguage),
+                          style: _getEpisodeTileTextStyle(selectedLanguage),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -350,17 +382,17 @@ Join thousands of families making reading time special! 🎉
                                   color: Colors.white54,
                                   size: 14,
                                 ),
-                                 const SizedBox(width: 4),
-                            Text(
-                              '${episode.readMinutes} min',
-                              style: TextStyleClass.poppinsRegular(
-                                fontSize: 12,
-                                color: Colors.white54,
-                              ),
-                            ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '${episode.readMinutes} min',
+                                  style: TextStyleClass.poppinsRegular(
+                                    fontSize: 12,
+                                    color: Colors.white54,
+                                  ),
+                                ),
                               ],
                             ),
-                           
+
                             const SizedBox(width: 12),
                             // const Icon(
                             //   Icons.calendar_today,
@@ -375,54 +407,52 @@ Join thousands of families making reading time special! 🎉
                             //     color: Colors.white54,
                             //   ),
                             // ),
-                               Row(
-                                 children: [
-                                   Container(
-                                                       width: 30,
-                                                       height: 30,
-                                                       decoration: BoxDecoration(
-                                                         color: Colors.white.withOpacity(0.1),
-                                                         shape: BoxShape.circle,
-                                                       ),
-                                                       child: const Icon(
-                                                         Icons.chrome_reader_mode_outlined,
-                                                         color: Colors.white,
-                                                         size: 18,
-                                                       ),
-                                                     ),
-                                                      SizedBox(width: 10),
-                  Container(
-                    width: 30,
-                    height: 30,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: IconButton(
-                      padding: EdgeInsets.zero,
-                      icon: const Icon(
-                        Icons.share_outlined,
-                        color: Colors.white,
-                        size: 15,
-                      ),
-                      onPressed: () => _shareEpisode(context),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  BookmarkButton(
-                    id: episode.id.toString(),
-                    thumbnail: ApiUrls.assetBaseUrl + episode.coverImage!,
-                    title: selectedLanguage == 'en'
-                        ? "$seriesTitle: ${episode.storyTile!}"
-                        : "$seriesTitle: ${episode.mlTitle!}",
-                    fileUrl: selectedLanguage == 'en'
-                        ? episode.storyFile ?? ''
-                        : episode.mlStoryFile!,
-                    tag: tag,
-                  ),
-                                 ],
-                               ),
-                 
+                            Row(
+                              children: [
+                                Container(
+                                  width: 30,
+                                  height: 30,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.1),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.chrome_reader_mode_outlined,
+                                    color: Colors.white,
+                                    size: 18,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Container(
+                                  width: 30,
+                                  height: 30,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.1),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: IconButton(
+                                    padding: EdgeInsets.zero,
+                                    icon: const Icon(
+                                      Icons.share_outlined,
+                                      color: Colors.white,
+                                      size: 15,
+                                    ),
+                                    onPressed: () => _shareEpisode(context),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                BookmarkButton(
+                                  id: episode.id.toString(),
+                                  thumbnail: ApiUrls.assetBaseUrl +
+                                      episode.coverImage!,
+                                  title:
+                                      "$seriesTitle: ${_getEpisodeTitle(episode, selectedLanguage)}",
+                                  fileUrl: _getEpisodeFile(
+                                      episode, selectedLanguage),
+                                  tag: tag,
+                                ),
+                              ],
+                            ),
                           ],
                         ),
                       ],
@@ -430,7 +460,6 @@ Join thousands of families making reading time special! 🎉
                   ),
 
                   // Play Button
-               
                 ],
               ),
             ),
@@ -438,6 +467,58 @@ Join thousands of families making reading time special! 🎉
         ),
       ),
     );
+  }
+
+  // Helper methods for multi-language support
+  String _getEpisodeTitle(EpisodeData episode, String language) {
+    switch (language) {
+      case 'ml':
+        return episode.mlTitle ?? episode.storyTile ?? '';
+      case 'hi':
+        return episode.hinTitle ?? episode.storyTile ?? '';
+      case 'ur':
+        return episode.urTitle ?? episode.storyTile ?? '';
+      default: // 'en' or any other language
+        return episode.storyTile ?? '';
+    }
+  }
+
+  String _getEpisodeFile(EpisodeData episode, String language) {
+    switch (language) {
+      case 'ml':
+        return episode.mlStoryFile ?? episode.storyFile ?? '';
+      case 'hi':
+        return episode.hinStoryFile ?? episode.storyFile ?? '';
+      case 'ur':
+        return episode.urStoryFile ?? episode.storyFile ?? '';
+      default: // 'en' or any other language
+        return episode.storyFile ?? '';
+    }
+  }
+
+  TextStyle _getEpisodeTileTextStyle(String language) {
+    switch (language) {
+      case 'ml':
+        return TextStyleClass.manjariSemiBold(
+          fontSize: 16,
+          color: ColorClass.white,
+        );
+      case 'hi':
+        return TextStyleClass.poppinsSemiBold(
+          fontSize: 16,
+          color: ColorClass.white,
+        );
+      case 'ur':
+        return TextStyleClass.poppinsSemiBold(
+          fontSize: 16,
+          color: ColorClass.white,
+        );
+      default: // 'en' or any other language
+        return TextStyleClass.poppinsSemiBold(
+          fontSize: 16,
+          color: ColorClass.white,
+        );
+    }
   }
 }
 
