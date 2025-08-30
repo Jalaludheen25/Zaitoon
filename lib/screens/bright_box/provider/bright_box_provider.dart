@@ -30,13 +30,20 @@ class BrightBoxProvider extends ChangeNotifier {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+        debugPrint('Categories API Response: $data');
         final List<dynamic> categoriesData = data['data'] ?? [];
         
         _categories = categoriesData
-            .map((json) => BrightBoxCategory.fromJson(json))
+            .map((json) {
+              debugPrint('Category JSON: $json');
+              return BrightBoxCategory.fromJson(json);
+            })
             .toList();
         
         debugPrint('Loaded ${_categories.length} categories');
+        for (var category in _categories) {
+          debugPrint('Category: ${category.catTitleEn}, Cover Image: ${category.coverImage}');
+        }
       } else {
         throw Exception('Failed to load categories: ${response.statusCode}');
       }

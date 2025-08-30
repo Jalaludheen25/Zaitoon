@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/textstyle_class.dart';
+import 'package:zaitoon/constants/app_urls.dart';
 import 'package:zaitoon/screens/bright_box/provider/bright_box_provider.dart';
 import 'package:zaitoon/screens/bright_box/screens/bright_box_subcategories_screen.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
@@ -74,7 +76,6 @@ class _BrightBoxCategoriesScreenState extends State<BrightBoxCategoriesScreen> {
       floating: true,
       pinned: false,
       elevation: 0,
-
     );
   }
 
@@ -123,7 +124,8 @@ class _BrightBoxCategoriesScreenState extends State<BrightBoxCategoriesScreen> {
     );
   }
 
-  Widget _buildCategoriesList(BrightBoxProvider brightBoxProvider, HomeProvider homeProvider) {
+  Widget _buildCategoriesList(
+      BrightBoxProvider brightBoxProvider, HomeProvider homeProvider) {
     if (brightBoxProvider.categories.isEmpty) {
       return _buildEmptyState();
     }
@@ -144,6 +146,7 @@ class _BrightBoxCategoriesScreenState extends State<BrightBoxCategoriesScreen> {
 
   Widget _buildCategoryCard(category, HomeProvider homeProvider) {
     final title = _getCategoryTitle(category, homeProvider.selectedLanguage);
+    debugPrint('Category: $title, Cover Image: ${category.coverImage}');
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -159,66 +162,154 @@ class _BrightBoxCategoriesScreenState extends State<BrightBoxCategoriesScreen> {
           );
         },
         child: Container(
-          padding: const EdgeInsets.all(20),
+          height: 200, // Fixed height for YouTube-style cards
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                ColorClass.primaryColor.withOpacity(0.2),
-                ColorClass.primaryColor.withOpacity(0.1),
-              ],
-            ),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: ColorClass.primaryColor.withOpacity(0.3),
-              width: 1,
-            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-          child: Row(
+          child: Stack(
             children: [
+              // Background Cover Image
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: category.coverImage.isNotEmpty
+                    ? CachedNetworkImage(
+                        imageUrl: ApiUrls.assetBaseUrl + category.coverImage,
+                        width: double.infinity,
+                        height: double.infinity,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) {
+                          debugPrint(
+                              'Loading image: ${ApiUrls.assetBaseUrl}${category.coverImage}');
+                          return Container(
+                            width: double.infinity,
+                            height: double.infinity,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  ColorClass.primaryColor.withOpacity(0.3),
+                                  ColorClass.primaryColor.withOpacity(0.1),
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                LucideIcons.box,
+                                color: ColorClass.primaryColor,
+                                size: 48,
+                              ),
+                            ),
+                          );
+                        },
+                        errorWidget: (context, url, error) {
+                          debugPrint(
+                              'Image error for ${category.coverImage}: $error');
+                          return Container(
+                            width: double.infinity,
+                            height: double.infinity,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  ColorClass.primaryColor.withOpacity(0.3),
+                                  ColorClass.primaryColor.withOpacity(0.1),
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                LucideIcons.box,
+                                color: ColorClass.primaryColor,
+                                size: 48,
+                              ),
+                            ),
+                          );
+                        },
+                      )
+                    : Container(
+                        width: double.infinity,
+                        height: double.infinity,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              ColorClass.primaryColor.withOpacity(0.3),
+                              ColorClass.primaryColor.withOpacity(0.1),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: const Center(
+                          child: Icon(
+                            LucideIcons.box,
+                            color: ColorClass.primaryColor,
+                            size: 48,
+                          ),
+                        ),
+                      ),
+              ),
+
+              // Gradient Overlay for text readability
               Container(
-                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: ColorClass.primaryColor.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  LucideIcons.box,
-                  color: ColorClass.primaryColor,
-                  size: 24,
+                  borderRadius: BorderRadius.circular(16),
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withOpacity(0.7),
+                    ],
+                  ),
                 ),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyleClass.poppinsSemiBold(
-                        fontSize: 18,
-                        color: ColorClass.white,
+
+              // Content positioned at bottom
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyleClass.poppinsSemiBold(
+                          fontSize: 20,
+                          color: Colors.white,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Tap to explore subcategories',
-                      style: TextStyleClass.poppinsRegular(
-                        fontSize: 12,
-                        color: ColorClass.white.withOpacity(0.7),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Tap to explore subcategories',
+                        style: TextStyleClass.poppinsRegular(
+                          fontSize: 14,
+                          color: Colors.white.withOpacity(0.8),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-              Icon(
-                LucideIcons.chevronRight,
-                color: ColorClass.white.withOpacity(0.5),
-                size: 20,
-              ),
+
+              // Play/Arrow indicator in top right
             ],
           ),
         ),

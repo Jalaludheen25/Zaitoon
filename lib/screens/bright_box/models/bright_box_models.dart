@@ -1,9 +1,12 @@
+import 'package:flutter/foundation.dart';
+
 class BrightBoxCategory {
   final int id;
   final String catTitleEn;
   final String catTitleMl;
   final String catTitleHi;
   final String catTitleUr;
+  final String coverImage;
 
   BrightBoxCategory({
     required this.id,
@@ -11,15 +14,28 @@ class BrightBoxCategory {
     required this.catTitleMl,
     required this.catTitleHi,
     required this.catTitleUr,
+    required this.coverImage,
   });
 
   factory BrightBoxCategory.fromJson(Map<String, dynamic> json) {
+    // Try multiple possible field names for cover image (likely 'cat_cover' based on pattern)
+    String coverImageUrl = json['cat_cover'] ?? 
+                          json['cover_image'] ?? 
+                          json['coverImage'] ?? 
+                          json['image'] ?? 
+                          json['banner'] ?? 
+                          json['thumbnail'] ?? '';
+    
+    debugPrint('Category JSON keys: ${json.keys.toList()}');
+    debugPrint('Category cover image field value: $coverImageUrl');
+    
     return BrightBoxCategory(
       id: json['id'] ?? 0,
       catTitleEn: json['cat_title_en'] ?? '',
       catTitleMl: json['cat_title_ml'] ?? '',
       catTitleHi: json['cat_title_hin'] ?? '',
       catTitleUr: json['cat_title_ur'] ?? '',
+      coverImage: coverImageUrl,
     );
   }
 
@@ -30,6 +46,7 @@ class BrightBoxCategory {
       'cat_title_ml': catTitleMl,
       'cat_title_hin': catTitleHi,
       'cat_title_ur': catTitleUr,
+      'coverImage': coverImage,
     };
   }
 }
@@ -41,6 +58,7 @@ class BrightBoxSubcategory {
   final String subcatTitleMl;
   final String subcatTitleHi;
   final String subcatTitleUr;
+  final String coverImage;
   final int category;
 
   BrightBoxSubcategory({
@@ -50,10 +68,22 @@ class BrightBoxSubcategory {
     required this.subcatTitleMl,
     required this.subcatTitleHi,
     required this.subcatTitleUr,
+    required this.coverImage,
     required this.category,
   });
 
   factory BrightBoxSubcategory.fromJson(Map<String, dynamic> json) {
+    // The correct field name for subcategory image is 'sub_cover'
+    String coverImageUrl = json['sub_cover'] ?? 
+                          json['cover_image'] ?? 
+                          json['coverImage'] ?? 
+                          json['image'] ?? 
+                          json['banner'] ?? 
+                          json['thumbnail'] ?? '';
+    
+    debugPrint('Subcategory JSON keys: ${json.keys.toList()}');
+    debugPrint('Subcategory cover image field value: $coverImageUrl');
+    
     return BrightBoxSubcategory(
       id: json['id'] ?? 0,
       dateCreated: json['date_created'] ?? '',
@@ -61,6 +91,7 @@ class BrightBoxSubcategory {
       subcatTitleMl: json['subcat_title_ml'] ?? '',
       subcatTitleHi: json['subcat_title_hin'] ?? '',
       subcatTitleUr: json['subcat_title_ur'] ?? '',
+      coverImage: coverImageUrl,
       category: json['category'] ?? 0,
     );
   }
@@ -73,6 +104,7 @@ class BrightBoxSubcategory {
       'subcat_title_ml': subcatTitleMl,
       'subcat_title_hin': subcatTitleHi,
       'subcat_title_ur': subcatTitleUr,
+      'coverImage': coverImage,
       'category': category,
     };
   }
@@ -82,6 +114,7 @@ class BrightBoxStory {
   final int id;
   final String userCreated;
   final String dateCreated;
+  final String coverImage;
   final String storyTitleEn;
   final String storyTitleMl;
   final String storyTitleHi;
@@ -96,6 +129,7 @@ class BrightBoxStory {
     required this.id,
     required this.userCreated,
     required this.dateCreated,
+    required this.coverImage,
     required this.storyTitleEn,
     required this.storyTitleMl,
     required this.storyTitleHi,
@@ -108,10 +142,22 @@ class BrightBoxStory {
   });
 
   factory BrightBoxStory.fromJson(Map<String, dynamic> json) {
+    // Try multiple possible field names for cover image (likely 'story_cover' based on pattern)
+    String coverImageUrl = json['story_cover'] ?? 
+                          json['cover_image'] ?? 
+                          json['coverImage'] ?? 
+                          json['image'] ?? 
+                          json['banner'] ?? 
+                          json['thumbnail'] ?? '';
+    
+    debugPrint('Story JSON keys: ${json.keys.toList()}');
+    debugPrint('Story cover image field value: $coverImageUrl');
+    
     return BrightBoxStory(
       id: json['id'] ?? 0,
       userCreated: json['user_created'] ?? '',
       dateCreated: json['date_created'] ?? '',
+      coverImage: coverImageUrl,
       storyTitleEn: json['story_title_en'] ?? '',
       storyTitleMl: json['story_title_ml'] ?? '',
       storyTitleHi: json['story_title_hin'] ?? '',
@@ -129,6 +175,7 @@ class BrightBoxStory {
       'id': id,
       'user_created': userCreated,
       'date_created': dateCreated,
+      'coverImage': coverImage,
       'story_title_en': storyTitleEn,
       'story_title_ml': storyTitleMl,
       'story_title_hin': storyTitleHi,

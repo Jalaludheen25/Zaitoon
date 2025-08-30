@@ -31,6 +31,7 @@ class ApiUrls {
   static String submitQuiz() {
     return 'https://zaitoon-quiz-fdaeq.ondigitalocean.app/api/quiz/submit';
   }
+
   static String generateCertificate({required int imageId}) {
     return 'https://zaitoon-quiz-fdaeq.ondigitalocean.app/api/certificate/generate';
   }
@@ -52,13 +53,14 @@ class ApiUrls {
 
   // Bright Box endpoints
   static String brightBoxCategories = "$baseUrl/items/zaitoon_bright_box";
-  static String brightBoxSubcategories = "$baseUrl/items/zaitoon_bright_box_subcat";
+  static String brightBoxSubcategories =
+      "$baseUrl/items/zaitoon_bright_box_subcat";
   static String brightBoxStories = "$baseUrl/items/zaitoon_bright_box_stories";
-  
+
   static String getBrightBoxSubcategories(int categoryId) {
     return "$brightBoxSubcategories?filter[category][_eq]=$categoryId";
   }
-  
+
   static String getBrightBoxStories(int subcategoryId) {
     return "$brightBoxStories?filter[subcategory][_eq]=$subcategoryId";
   }

@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/textstyle_class.dart';
+import 'package:zaitoon/constants/app_urls.dart';
 import 'package:zaitoon/screens/bright_box/provider/bright_box_provider.dart';
 import 'package:zaitoon/screens/bright_box/models/bright_box_models.dart';
 import 'package:zaitoon/screens/bright_box/screens/bright_box_story_reader_screen.dart';
-import 'package:zaitoon/constants/app_urls.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
 
 class BrightBoxStoriesScreen extends StatefulWidget {
@@ -189,18 +190,49 @@ class _BrightBoxStoriesScreenState extends State<BrightBoxStoriesScreen> {
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(16),
+                width: 60,
+                height: 60,
                 decoration: BoxDecoration(
                   color: ColorClass.primaryColor.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Text(
-                  '${index + 1}',
-                  style: TextStyleClass.poppinsBold(
-                    fontSize: 18,
-                    color: ColorClass.primaryColor,
-                  ),
-                ),
+                child: story.coverImage.isNotEmpty
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: CachedNetworkImage(
+                          imageUrl: ApiUrls.assetBaseUrl + story.coverImage,
+                          width: 60,
+                          height: 60,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Center(
+                            child: Text(
+                              '${index + 1}',
+                              style: TextStyleClass.poppinsBold(
+                                fontSize: 18,
+                                color: ColorClass.primaryColor,
+                              ),
+                            ),
+                          ),
+                          errorWidget: (context, url, error) => Center(
+                            child: Text(
+                              '${index + 1}',
+                              style: TextStyleClass.poppinsBold(
+                                fontSize: 18,
+                                color: ColorClass.primaryColor,
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                    : Center(
+                        child: Text(
+                          '${index + 1}',
+                          style: TextStyleClass.poppinsBold(
+                            fontSize: 18,
+                            color: ColorClass.primaryColor,
+                          ),
+                        ),
+                      ),
               ),
               const SizedBox(width: 16),
               Expanded(

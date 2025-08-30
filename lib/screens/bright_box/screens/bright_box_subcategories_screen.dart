@@ -1,6 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:zaitoon/constants/app_urls.dart';
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/textstyle_class.dart';
 import 'package:zaitoon/screens/bright_box/provider/bright_box_provider.dart';
@@ -154,6 +156,7 @@ class _BrightBoxSubcategoriesScreenState extends State<BrightBoxSubcategoriesScr
 
   Widget _buildSubcategoryCard(BrightBoxSubcategory subcategory, HomeProvider homeProvider) {
     final title = _getSubcategoryTitle(subcategory, homeProvider.selectedLanguage);
+    debugPrint('Subcategory: $title, Cover Image: ${subcategory.coverImage}');
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -181,16 +184,43 @@ class _BrightBoxSubcategoriesScreenState extends State<BrightBoxSubcategoriesScr
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(12),
+                width: 60,
+                height: 60,
                 decoration: BoxDecoration(
                   color: ColorClass.primaryColor.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(
-                  LucideIcons.folderOpen,
-                  color: ColorClass.primaryColor,
-                  size: 24,
-                ),
+                child: subcategory.coverImage.isNotEmpty
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: CachedNetworkImage(
+                          imageUrl: ApiUrls.assetBaseUrl + subcategory.coverImage,
+                          width: 60,
+                          height: 60,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) {
+                            debugPrint('Loading subcategory image: ${ApiUrls.assetBaseUrl}${subcategory.coverImage}');
+                            return const Icon(
+                              LucideIcons.folderOpen,
+                              color: ColorClass.primaryColor,
+                              size: 24,
+                            );
+                          },
+                          errorWidget: (context, url, error) {
+                            debugPrint('Subcategory image error for ${subcategory.coverImage}: $error');
+                            return const Icon(
+                              LucideIcons.folderOpen,
+                              color: ColorClass.primaryColor,
+                              size: 24,
+                            );
+                          },
+                        ),
+                      )
+                    : const Icon(
+                        LucideIcons.folderOpen,
+                        color: ColorClass.primaryColor,
+                        size: 24,
+                      ),
               ),
               const SizedBox(width: 16),
               Expanded(
