@@ -23,6 +23,7 @@ import 'package:zaitoon/screens/version_check/provider/version_check_provider.da
 import 'package:zaitoon/screens/quiz_screen/provider/quiz_login_provider.dart';
 import 'package:zaitoon/screens/quiz/provider/quiz_provider.dart';
 import 'package:zaitoon/screens/bright_box/provider/bright_box_provider.dart';
+import 'package:zaitoon/screens/registration/providers/registration_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -84,6 +85,7 @@ class MyApp extends StatelessWidget {
           create: (context) => QuizProvider(context.read<HomeProvider>()),
         ),
         ChangeNotifierProvider(create: (_) => BrightBoxProvider()),
+        ChangeNotifierProvider(create: (_) => RegistrationProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
