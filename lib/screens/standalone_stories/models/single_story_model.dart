@@ -3,6 +3,7 @@
 //     final singleStoryModel = singleStoryModelFromJson(jsonString);
 
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 
 SingleStoryModel singleStoryModelFromJson(String str) =>
     SingleStoryModel.fromJson(json.decode(str));
@@ -28,34 +29,53 @@ class SingleStoryModel {
 }
 
 class Datum {
-  final String coverImage;
-  final String description;
-  final int id;
-  final String readTime;
-  final String storyFileEn;
-  final String storyFileMl;
-  final String storyTitleEn;
-  final String storyTitleMl;
-  final String tag;
-  bool? isHighlighted;
-  dynamic enBanner;
-  dynamic mlBanner;
+  final String? coverImage;
+  final String? description;
+  final int? id;
+  final String? readTime;
+  final String? storyFileEn;
+  final String? storyFileMl;
+  final String? storyTitleEn;
+  final String? storyTitleMl;
+  final String? tag;
+  final bool? isHighlighted;
+  final dynamic enBanner;
+  final dynamic mlBanner;
+  
   Datum({
-    required this.coverImage,
-    required this.description,
-    required this.id,
-    required this.readTime,
-    required this.storyFileEn,
-    required this.storyFileMl,
-    required this.storyTitleEn,
-    required this.storyTitleMl,
-    required this.tag,
+    this.coverImage,
+    this.description,
+    this.id,
+    this.readTime,
+    this.storyFileEn,
+    this.storyFileMl,
+    this.storyTitleEn,
+    this.storyTitleMl,
+    this.tag,
     this.isHighlighted,
     this.enBanner,
     this.mlBanner,
   });
 
-  factory Datum.fromJson(Map<String, dynamic> json) => Datum(
+  factory Datum.fromJson(Map<String, dynamic> json) {
+    debugPrint('🔍 Parsing story JSON keys: ${json.keys.toList()}');
+    debugPrint('🔍 Raw JSON: $json');
+    
+    // Check each field for null values
+    debugPrint('🔍 cover_image: ${json["cover_image"]} (${json["cover_image"].runtimeType})');
+    debugPrint('🔍 description: ${json["description"]} (${json["description"].runtimeType})');
+    debugPrint('🔍 id: ${json["id"]} (${json["id"].runtimeType})');
+    debugPrint('🔍 read_time: ${json["read_time"]} (${json["read_time"].runtimeType})');
+    debugPrint('🔍 story_file_en: ${json["story_file_en"]} (${json["story_file_en"].runtimeType})');
+    debugPrint('🔍 story_file_ml: ${json["story_file_ml"]} (${json["story_file_ml"].runtimeType})');
+    debugPrint('🔍 story_tile_en: ${json["story_tile_en"]} (${json["story_tile_en"].runtimeType})');
+    debugPrint('🔍 story_title_ml: ${json["story_title_ml"]} (${json["story_title_ml"].runtimeType})');
+    debugPrint('🔍 tag: ${json["tag"]} (${json["tag"].runtimeType})');
+    debugPrint('🔍 isHighlighted: ${json["isHighlighted"]} (${json["isHighlighted"].runtimeType})');
+    debugPrint('🔍 en_banner: ${json["en_banner"]} (${json["en_banner"].runtimeType})');
+    debugPrint('🔍 ml_banner: ${json["ml_banner"]} (${json["ml_banner"].runtimeType})');
+    
+    return Datum(
         coverImage: json["cover_image"],
         description: json["description"],
         id: json["id"],
@@ -69,6 +89,7 @@ class Datum {
         enBanner: json["en_banner"],
         mlBanner: json["ml_banner"],
       );
+  }
 
   Map<String, dynamic> toJson() => {
         "cover_image": coverImage,

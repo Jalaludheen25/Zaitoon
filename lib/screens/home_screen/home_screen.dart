@@ -143,8 +143,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                               title: _getStoryTitle(
                                   story, provider.selectedLanguage),
                               thumbnail:
-                                  ApiUrls.assetBaseUrl + story.coverImage,
-                              tag: story.tag,
+                                  ApiUrls.assetBaseUrl + story.coverImage!,
+                              tag: story.tag!,
                               pdfUrl: ApiUrls.assetBaseUrl +
                                   _getStoryFile(
                                       story, provider.selectedLanguage),
@@ -441,26 +441,26 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   String _getStoryTitle(Datum story, String language) {
     switch (language) {
       case 'ml':
-        return story.storyTitleMl;
+        return story.storyTitleMl!;
       case 'hi':
-        return story.storyTitleEn; // Fallback to English for now
+        return story.storyTitleEn!; // Fallback to English for now
       case 'ur':
-        return story.storyTitleEn; // Fallback to English for now
+        return story.storyTitleEn!; // Fallback to English for now
       default: // 'en' or any other language
-        return story.storyTitleEn;
+        return story.storyTitleEn!;
     }
   }
 
   String _getStoryFile(Datum story, String language) {
     switch (language) {
       case 'ml':
-        return story.storyFileMl;
+        return story.storyFileMl!;
       case 'hi':
-        return story.storyFileEn; // Fallback to English for now
+        return story.storyFileEn!; // Fallback to English for now
       case 'ur':
-        return story.storyFileEn; // Fallback to English for now
+        return story.storyFileEn!; // Fallback to English for now
       default: // 'en' or any other language
-        return story.storyFileEn;
+        return story.storyFileEn!;
     }
   }
 
@@ -508,6 +508,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       ApiUrls.assetBaseUrl + storyData.coverimage!,
     );
   }
+
+
 
   @override
   void dispose() {
