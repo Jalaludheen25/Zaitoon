@@ -12,6 +12,74 @@ import 'package:provider/provider.dart';
 class LanguageSelection extends StatelessWidget {
   const LanguageSelection({super.key});
 
+  void _showLanguageNotAvailableDialog(BuildContext context, String languageName) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: ColorClass.black,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(color: ColorClass.primaryColor.withOpacity(0.3)),
+          ),
+          title: Row(
+            children: [
+              Icon(
+                Icons.info_outline,
+                color: ColorClass.primaryColor,
+                size: 24,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Coming Soon!',
+                style: GoogleFonts.poppins(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: ColorClass.white,
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '$languageName content is not available yet.',
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  color: ColorClass.white.withOpacity(0.8),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Please select English or Malayalam to enjoy our stories.',
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  color: ColorClass.primaryColor,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(
+                'OK',
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  color: ColorClass.primaryColor,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -148,12 +216,7 @@ class LanguageSelection extends StatelessWidget {
                               context: context,
                               isSelected: snapshot.selectedLanguage == "hi",
                               onPressed: () {
-                                snapshot.saveSelectedLanguage("hi").then((_) {
-                                  navigatePR(
-                                    context: context,
-                                    screen: const AknowledgeScreen(),
-                                  );
-                                });
+                                _showLanguageNotAvailableDialog(context, 'Hindi');
                               },
                               label: 'हिंदी',
                               fontFamily: GoogleFonts.notoSansDevanagari().fontFamily,
@@ -163,12 +226,7 @@ class LanguageSelection extends StatelessWidget {
                               context: context,
                               isSelected: snapshot.selectedLanguage == "ur",
                               onPressed: () {
-                                snapshot.saveSelectedLanguage("ur").then((_) {
-                                  navigatePR(
-                                    context: context,
-                                    screen: const AknowledgeScreen(),
-                                  );
-                                });
+                                _showLanguageNotAvailableDialog(context, 'Urdu');
                               },
                               label: 'اردو',
                               fontFamily: GoogleFonts.notoSansArabic().fontFamily,

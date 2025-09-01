@@ -135,32 +135,35 @@ class _StoriesScreenState extends State<StoriesScreen> {
                           navigatePR(
                             context: context,
                             screen: StoryReadingScreen(
-                              id: story.id.toString(),
+                              id: (story.id ?? 0).toString(),
                               title: homeProvider.selectedLanguage == 'en'
-                                  ? story.storyTitleEn
-                                  : story.storyTitleMl,
+                                  ? (story.storyTitleEn ?? 'Untitled')
+                                  : (story.storyTitleMl ?? 'Untitled'),
                               thumbnail:
-                                  '${ApiUrls.assetBaseUrl}${story.coverImage}',
-                              tag: story.tag,
+                                  '${ApiUrls.assetBaseUrl}${story.coverImage ?? ''}',
+                              tag: story.tag ?? '',
                               pdfUrl: homeProvider.selectedLanguage == 'en'
-                                  ? ApiUrls.assetBaseUrl + story.storyFileEn
-                                  : ApiUrls.assetBaseUrl + story.storyFileMl,
+                                  ? ApiUrls.assetBaseUrl +
+                                      (story.storyFileEn ?? '')
+                                  : ApiUrls.assetBaseUrl +
+                                      (story.storyFileMl ?? ''),
                             ),
                           );
                         },
                         child: StoryCard(
-                          id: story.id.toString(),
+                          id: (story.id ?? 0).toString(),
                           title: homeProvider.selectedLanguage == 'en'
-                              ? story.storyTitleEn
-                              : story.storyTitleMl,
-                          category: story.tag,
+                              ? (story.storyTitleEn ?? 'Untitled')
+                              : (story.storyTitleMl ?? 'Untitled'),
+                          category: story.tag ?? 'Story',
                           fileUrl: homeProvider.selectedLanguage == 'en'
-                              ? ApiUrls.assetBaseUrl + story.storyFileEn
-                              : ApiUrls.assetBaseUrl + story.storyFileMl,
-                          duration: '${story.readTime} min',
+                              ? ApiUrls.assetBaseUrl + (story.storyFileEn ?? '')
+                              : ApiUrls.assetBaseUrl +
+                                  (story.storyFileMl ?? ''),
+                          duration: '${story.readTime ?? '0'} min',
                           imageUrl:
-                              '${ApiUrls.assetBaseUrl}${story.coverImage}',
-                          description: story.description,
+                              '${ApiUrls.assetBaseUrl}${story.coverImage ?? ''}',
+                          description: story.description ?? '',
                         ),
                       );
                     },
