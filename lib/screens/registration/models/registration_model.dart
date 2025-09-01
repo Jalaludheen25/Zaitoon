@@ -27,16 +27,13 @@ class RegistrationModel {
 
   Map<String, dynamic> toJson() {
     return {
-      'student_name': studentName,
+      'name': studentName,
       'class': className,
-      'school_name': schoolName,
+      'school': schoolName,
       'gender': gender,
-      'district_id': districtId,
-      'district_name': districtName,
-      'area_id': areaId,
-      'area_name': areaName,
-      'unit_id': unitId,
-      'unit_name': unitName,
+      'district': districtId,
+      'area': areaId,
+      'unit': unitId,
     };
   }
 

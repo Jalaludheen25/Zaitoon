@@ -16,24 +16,11 @@ class _RegistrationPopupState extends State<RegistrationPopup> {
   final _studentNameController = TextEditingController();
   final _schoolNameController = TextEditingController();
 
-  String _selectedGender = 'Boy';
-  String _selectedClass = 'LKG';
+  String _selectedGender = 'boy';
+  String _selectedClass = '1';
 
-  final List<String> _genderOptions = ['Boy', 'Girl'];
-  final List<String> _classOptions = [
-    'LKG',
-    'UKG',
-    '1st',
-    '2nd',
-    '3rd',
-    '4th',
-    '5th',
-    '6th',
-    '7th',
-    '8th',
-    '9th',
-    '10th'
-  ];
+  final List<String> _genderOptions = ['boy', 'girl'];
+  final List<String> _classOptions = ['1', '2', '3', '4', '5', '6', '7'];
 
   @override
   void initState() {

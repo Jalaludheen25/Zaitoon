@@ -4,7 +4,10 @@ import '../models/registration_model.dart';
 
 class RegistrationService {
   static const String baseUrl = 'https://cenloginbackend.d4dx.co';
-  static const String registrationEndpoint = '$baseUrl/api/registrations';
+  static const String registrationBaseUrl =
+      'https://malarvadi-scholor-backend-mzax5.ondigitalocean.app/api';
+  static const String registrationEndpoint =
+      '$registrationBaseUrl/registrations';
   static const String districtEndpoint = '$baseUrl/api/districts';
   static const String areaEndpoint = '$baseUrl/api/areas/district';
   static const String unitEndpoint = '$baseUrl/api/halqas/area';
@@ -111,15 +114,6 @@ class RegistrationService {
       print('Registration API URL: $registrationEndpoint');
       print('Registration Request Body: $requestBody');
 
-      // TODO: Replace this with actual API call once endpoint is ready
-      // For now, simulate a successful submission for testing
-      await Future.delayed(
-          const Duration(seconds: 1)); // Simulate network delay
-
-      print('Registration submitted successfully (simulated)');
-      return true;
-
-      /* Uncomment this when the actual API endpoint is ready:
       final response = await http.post(
         Uri.parse(registrationEndpoint),
         headers: {'Content-Type': 'application/json'},
@@ -135,7 +129,6 @@ class RegistrationService {
         throw Exception(
             'Failed to submit registration: ${response.statusCode}');
       }
-      */
     } catch (e) {
       throw Exception('Error submitting registration: $e');
     }
