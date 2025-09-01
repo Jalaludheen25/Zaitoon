@@ -22,6 +22,7 @@ import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_p
 import 'package:zaitoon/screens/version_check/force_udpate_dialog.dart';
 import 'package:zaitoon/screens/version_check/provider/version_check_provider.dart';
 import 'package:zaitoon/screens/home_screen/components/highlighted_cards.dart';
+import 'package:zaitoon/screens/registration/widgets/registration_popup.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -219,6 +220,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget _buildActionButtons(BuildContext context) {
     return Row(
       children: [
+        _buildIconButton(
+          icon: Icons.person_add,
+          onPressed: () => _showRegistrationPopup(context),
+        ),
         _buildIconButton(
           icon: 'assets/icons/language.png',
           onPressed: () => navigatePR(
@@ -509,6 +514,33 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
+
+  void _showRegistrationPopup(BuildContext context) async {
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) => const RegistrationPopup(),
+    );
+
+    if (result == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Registration submitted successfully!',
+            style: TextStyleClass.poppinsRegular(
+              fontSize: 14,
+              color: ColorClass.white,
+            ),
+          ),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
+    }
+  }
 
 
   @override
