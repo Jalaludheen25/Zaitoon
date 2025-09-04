@@ -23,6 +23,7 @@ import 'package:zaitoon/screens/version_check/force_udpate_dialog.dart';
 import 'package:zaitoon/screens/version_check/provider/version_check_provider.dart';
 import 'package:zaitoon/screens/home_screen/components/highlighted_cards.dart';
 import 'package:zaitoon/screens/registration/widgets/registration_popup.dart';
+import 'package:zaitoon/screens/registration/providers/registration_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -45,11 +46,122 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     Future.microtask(() {
       HomeProvider homeProvider =
           Provider.of<HomeProvider>(context, listen: false);
+      
       homeProvider.fetchStories().then((value) {
         homeProvider.fetchHighlightedContent();
         checkForUpdates();
       });
     });
+  }
+
+  Future<void> _showMalarvadiRegistrationPopup() async {
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) => const RegistrationPopup(isCompulsory: false),
+    );
+
+    if (result == true && mounted) {
+      // Registration completed successfully
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Malarvadi membership registration completed successfully!',
+            style: TextStyleClass.poppinsRegular(
+              fontSize: 14,
+              color: ColorClass.white,
+            ),
+          ),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
+    }
+  }
+
+  Widget _buildMalarvadiBanner() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      child: GestureDetector(
+        onTap: () => _showMalarvadiRegistrationPopup(),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                ColorClass.primaryColor,
+                ColorClass.primaryColor.withOpacity(0.8),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: ColorClass.primaryColor.withOpacity(0.3),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.card_membership,
+                  color: Colors.white,
+                  size: 28,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'JOIN MALARVADI',
+                      style: TextStyleClass.poppinsBold(
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Tap to register Malarvadi Membership',
+                      style: TextStyleClass.poppinsRegular(
+                        fontSize: 14,
+                        color: Colors.white.withOpacity(0.9),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.white,
+                  size: 16,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   void checkForUpdates() async {
@@ -156,6 +268,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     },
                   ),
                   SizedBox(height: 30),
+                  _buildMalarvadiBanner(),
+                  SizedBox(height: 30),
                   Padding(
                     padding: const EdgeInsets.only(left: 16.0),
                     child: Text(
@@ -220,10 +334,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget _buildActionButtons(BuildContext context) {
     return Row(
       children: [
-        _buildIconButton(
-          icon: Icons.person_add,
-          onPressed: () => _showRegistrationPopup(context),
-        ),
         _buildIconButton(
           icon: 'assets/icons/language.png',
           onPressed: () => navigatePR(
@@ -515,32 +625,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
 
-  void _showRegistrationPopup(BuildContext context) async {
-    final result = await showDialog<bool>(
-      context: context,
-      barrierDismissible: true,
-      builder: (context) => const RegistrationPopup(),
-    );
 
-    if (result == true && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Registration submitted successfully!',
-            style: TextStyleClass.poppinsRegular(
-              fontSize: 14,
-              color: ColorClass.white,
-            ),
-          ),
-          backgroundColor: Colors.green,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      );
-    }
-  }
 
 
   @override

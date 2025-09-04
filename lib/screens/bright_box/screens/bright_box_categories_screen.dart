@@ -323,26 +323,27 @@ class _BrightBoxCategoriesScreenState extends State<BrightBoxCategoriesScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              LucideIcons.box,
+            Icon(
+              LucideIcons.clock,
               size: 64,
-              color: Colors.grey,
+              color: ColorClass.primaryColor.withOpacity(0.6),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
             Text(
-              'No categories available',
-              style: TextStyleClass.poppinsMedium(
-                fontSize: 18,
-                color: Colors.grey,
+              'Coming Soon',
+              style: TextStyleClass.poppinsSemiBold(
+                fontSize: 24,
+                color: ColorClass.white,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Text(
-              'Check back later for new content!',
+              'Exciting new content is on the way!\nStay tuned for amazing stories.',
               style: TextStyleClass.poppinsRegular(
-                fontSize: 14,
-                color: Colors.grey,
+                fontSize: 16,
+                color: ColorClass.white.withOpacity(0.7),
               ),
+              textAlign: TextAlign.center,
             ),
           ],
         ),

@@ -5,7 +5,12 @@ import '../../../constants/textstyle_class.dart';
 import '../providers/registration_provider.dart';
 
 class RegistrationPopup extends StatefulWidget {
-  const RegistrationPopup({super.key});
+  final bool isCompulsory;
+
+  const RegistrationPopup({
+    super.key, 
+    this.isCompulsory = false,
+  });
 
   @override
   State<RegistrationPopup> createState() => _RegistrationPopupState();
@@ -39,39 +44,76 @@ class _RegistrationPopupState extends State<RegistrationPopup> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 500, maxHeight: 700),
-        decoration: BoxDecoration(
-          color: ColorClass.black,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: ColorClass.primaryColor.withOpacity(0.3)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildHeader(),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildStudentInfoSection(),
-                      const SizedBox(height: 20),
-                      _buildLocationSection(),
-                      const SizedBox(height: 30),
-                      _buildSubmitButton(),
-                    ],
+    return PopScope(
+      canPop: !widget.isCompulsory,
+      child: Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 500, maxHeight: 700),
+          decoration: BoxDecoration(
+            color: ColorClass.black,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: ColorClass.primaryColor.withOpacity(0.3)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildHeader(),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(20),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildCompulsoryMessage(),
+                        _buildStudentInfoSection(),
+                        const SizedBox(height: 20),
+                        _buildLocationSection(),
+                        const SizedBox(height: 30),
+                        _buildSubmitButton(),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildCompulsoryMessage() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: ColorClass.primaryColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: ColorClass.primaryColor.withOpacity(0.3)),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.info_outline,
+            color: ColorClass.primaryColor,
+            size: 20,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child:             Text(
+              widget.isCompulsory 
+                ? 'Registration is required to use this app. Please complete the form below to continue.'
+                : 'Join Malarvadi to get exclusive access to educational content and connect with our community.',
+              style: TextStyleClass.poppinsRegular(
+                fontSize: 14,
+                color: ColorClass.white.withOpacity(0.9),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -96,18 +138,20 @@ class _RegistrationPopupState extends State<RegistrationPopup> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Student Registration',
+              widget.isCompulsory ? 'Complete Registration' : 'Malarvadi Membership Registration',
               style: TextStyleClass.poppinsSemiBold(
                 fontSize: 18,
                 color: ColorClass.white,
               ),
             ),
           ),
-          IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: const Icon(Icons.close),
-            color: ColorClass.white,
-          ),
+          // Only show close button if registration is not compulsory
+          if (!widget.isCompulsory)
+            IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(Icons.close),
+              color: ColorClass.white,
+            ),
         ],
       ),
     );

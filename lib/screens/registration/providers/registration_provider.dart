@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import '../models/registration_model.dart';
 import '../services/registration_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RegistrationProvider extends ChangeNotifier {
+  static const String _registrationStatusKey = 'user_registration_completed';
+  
   List<District> _districts = [];
   List<Area> _areas = [];
   List<Unit> _units = [];
@@ -16,6 +19,7 @@ class RegistrationProvider extends ChangeNotifier {
   bool _isLoadingAreas = false;
   bool _isLoadingUnits = false;
   bool _isSubmitting = false;
+  bool _isRegistrationCompleted = false;
 
   String? _error;
 
@@ -33,8 +37,39 @@ class RegistrationProvider extends ChangeNotifier {
   bool get isLoadingAreas => _isLoadingAreas;
   bool get isLoadingUnits => _isLoadingUnits;
   bool get isSubmitting => _isSubmitting;
+  bool get isRegistrationCompleted => _isRegistrationCompleted;
 
   String? get error => _error;
+
+  // Initialize and check registration status
+  Future<void> initialize() async {
+    await checkRegistrationStatus();
+  }
+
+  // Check if user has completed registration
+  Future<void> checkRegistrationStatus() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _isRegistrationCompleted = prefs.getBool(_registrationStatusKey) ?? false;
+      notifyListeners();
+    } catch (e) {
+      _error = 'Failed to check registration status: $e';
+      notifyListeners();
+    }
+  }
+
+  // Mark registration as completed
+  Future<void> markRegistrationCompleted() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_registrationStatusKey, true);
+      _isRegistrationCompleted = true;
+      notifyListeners();
+    } catch (e) {
+      _error = 'Failed to save registration status: $e';
+      notifyListeners();
+    }
+  }
 
   // Clear error
   void clearError() {
@@ -155,6 +190,8 @@ class RegistrationProvider extends ChangeNotifier {
           await RegistrationService.submitRegistration(registration);
 
       if (success) {
+        // Mark registration as completed
+        await markRegistrationCompleted();
         // Reset form
         resetForm();
       }
@@ -204,6 +241,19 @@ class RegistrationProvider extends ChangeNotifier {
       _error = e.toString();
       notifyListeners();
       return false;
+    }
+  }
+
+  // Debug method to reset registration status (for testing)
+  Future<void> resetRegistrationStatus() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_registrationStatusKey);
+      _isRegistrationCompleted = false;
+      notifyListeners();
+    } catch (e) {
+      _error = 'Failed to reset registration status: $e';
+      notifyListeners();
     }
   }
 }
