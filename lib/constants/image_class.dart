@@ -13,6 +13,7 @@ class ImageClass {
   static const String onboarding1 = '${imageRoot}onboarding1.png';
   static const String onboarding2 = '${imageRoot}onboarding2.png';
   static const String onboarding3 = '${imageRoot}onboarding3.png';
+  static const String onboarding4 = '${imageRoot}onboarding4.png';
   static const String malarvadiLogo = '${imageRoot}malarvadi-logo.png';
   static const String d4Logo = '${imageRoot}D4DX _logo.png';
   static const String d4dxLogo = '${imageRoot}D4media_logo.png';

@@ -8,41 +8,77 @@ import 'package:flutter/material.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
 import 'package:zaitoon/screens/login_screen/login_screen.dart';
 
-class OnboardingScreen extends StatelessWidget {
+class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
+
+  @override
+  State<OnboardingScreen> createState() => _OnboardingScreenState();
+}
+
+class _OnboardingScreenState extends State<OnboardingScreen> {
+  late PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ColorClass.black,
-      body: SafeArea(
-        child: Column(
+      body: Consumer<HomeProvider>(
+        builder: (context, provider, child) => Stack(
           children: [
-            const Spacer(flex: 2),
-            Expanded(
-              flex: 14,
-              child: Consumer<HomeProvider>(
-                builder: (context, provider, child) => PageView.builder(
-                  itemCount: demoData.length,
-                  onPageChanged: (value) {
-                    provider.setCurrentPage(value);
-                  },
-                  itemBuilder: (context, index) => AnimatedContainer(
-                    duration: const Duration(milliseconds: 250),
-                    child: OnboardContent(
-                      illustration: demoData[provider.currentPage]
-                          ["illustration"],
-                      title: demoData[provider.currentPage]["title"],
-                      text: demoData[provider.currentPage]["text"],
-                    ),
+            // Full screen PageView with images
+            PageView.builder(
+              controller: _pageController,
+              itemCount: demoData.length,
+              onPageChanged: (value) {
+                provider.setCurrentPage(value);
+              },
+              itemBuilder: (context, index) => OnboardContent(
+                illustration: demoData[index]["illustration"],
+                title: demoData[index]["title"],
+                text: demoData[index]["text"],
+              ),
+            ),
+
+            // Skip button - top right (simple text)
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 16,
+              right: 16,
+              child: GestureDetector(
+                onTap: () async {
+                  await provider.setOnboardingCompleted();
+                  navigateAndRemove(
+                    context: context,
+                    screen: const AuthScreen(),
+                  );
+                },
+                child: const Text(
+                  'Skip',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
             ),
-            const Spacer(),
-            Consumer<HomeProvider>(
-              builder: (context, provider, child) => Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+
+            // Dot indicators - left bottom corner
+            Positioned(
+              bottom: MediaQuery.of(context).padding.bottom + 40,
+              left: 20,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: List.generate(
                   demoData.length,
                   (index) =>
@@ -50,35 +86,81 @@ class OnboardingScreen extends StatelessWidget {
                 ),
               ),
             ),
-            const Spacer(flex: 2),
-            Consumer<HomeProvider>(
-              builder: (context, provider, child) => Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: ElevatedButton(
-                  onPressed: () async {
-                    if (provider.currentPage < demoData.length - 1) {
-                      provider.nextPage();
-                    } else {
-                      await provider.setOnboardingCompleted();
-                      navigateAndRemove(
-                        context: context,
-                        screen: const AuthScreen(),
-                      );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: ColorClass.primaryColor,
-                    foregroundColor: ColorClass.white,
-                    minimumSize: const Size(double.infinity, 40),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+
+            // Get Started button - half-cut pill shape on right side (only on last slide)
+            if (provider.currentPage == demoData.length - 1)
+              Positioned(
+                bottom: MediaQuery.of(context).padding.bottom + 40,
+                right: 0,
+                child: Container(
+                  width: 140,
+                  height: 50,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(25),
+                      bottomLeft: Radius.circular(25),
                     ),
                   ),
-                  child: Text("Get Started".toUpperCase()),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(25),
+                        bottomLeft: Radius.circular(25),
+                      ),
+                      onTap: () async {
+                        await provider.setOnboardingCompleted();
+                        navigateAndRemove(
+                          context: context,
+                          screen: const AuthScreen(),
+                        );
+                      },
+                      child: const Center(
+                        child: Padding(
+                          padding: EdgeInsets.only(right: 16),
+                          child: Text(
+                            'Get Started',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
-            ),
-            const Spacer(),
+
+            // Next button - bottom right (for other slides)
+            if (provider.currentPage != demoData.length - 1)
+              Positioned(
+                bottom: MediaQuery.of(context).padding.bottom + 40,
+                right: 16,
+                child: Container(
+                  width: 56,
+                  height: 56,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconButton(
+                    onPressed: () {
+                      _pageController.nextPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                    },
+                    icon: const Icon(
+                      Icons.arrow_forward,
+                      color: Colors.black,
+                      size: 24,
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -98,39 +180,65 @@ class OnboardContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Stack(
       children: [
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: AspectRatio(
-              aspectRatio: 1,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Image.asset(
-                  illustration!,
-                  fit: BoxFit.cover,
-                ),
+        // Full screen background image
+        Positioned.fill(
+          child: Image.asset(
+            illustration!,
+            fit: BoxFit.cover,
+          ),
+        ),
+
+        // Gradient overlay for better text readability
+        Positioned.fill(
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.transparent,
+                  Colors.transparent,
+                  Colors.black.withOpacity(0.3),
+                  Colors.black.withOpacity(0.7),
+                ],
+                stops: const [0.0, 0.4, 0.7, 1.0],
               ),
             ),
           ),
         ),
-        const SizedBox(height: 16),
-        Text(
-          title!,
-          style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                fontWeight: FontWeight.bold,
-                color: ColorClass.white,
+
+        // Text content positioned lower
+        Positioned(
+          bottom: 140,
+          left: 20,
+          right: 20,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                title!,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  height: 1.2,
+                ),
+                textAlign: TextAlign.center,
               ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          text!,
-          style: Theme.of(context)
-              .textTheme
-              .bodyMedium!
-              .copyWith(color: ColorClass.white),
-          textAlign: TextAlign.center,
+              const SizedBox(height: 12),
+              Text(
+                text!,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.white,
+                  height: 1.4,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -141,7 +249,7 @@ class DotIndicator extends StatelessWidget {
   const DotIndicator({
     super.key,
     this.isActive = false,
-    this.activeColor = ColorClass.primaryColor,
+    this.activeColor = ColorClass.white,
     this.inActiveColor = const Color(0xFF868686),
   });
 
@@ -152,12 +260,12 @@ class DotIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 250),
-      margin: const EdgeInsets.symmetric(horizontal: 16 / 2),
-      height: 5,
-      width: 8,
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      height: 8,
+      width: isActive ? 24 : 8,
       decoration: BoxDecoration(
-        color: isActive ? activeColor : inActiveColor.withOpacity(0.25),
-        borderRadius: const BorderRadius.all(Radius.circular(20)),
+        color: isActive ? activeColor : inActiveColor.withOpacity(0.5),
+        borderRadius: const BorderRadius.all(Radius.circular(4)),
       ),
     );
   }
@@ -167,17 +275,26 @@ class DotIndicator extends StatelessWidget {
 List<Map<String, dynamic>> demoData = [
   {
     "illustration": ImageClass.onboarding1,
-    "title": "Magical Stories Every Day",
-    "text": "Discover enchanting tales that spark your child's imagination",
+    "title": "ZaiToon Kids – Where\nStories Come Alive!",
+    "text":
+        "Discover magical stories in\nMalayalam, English, Hindi & Urdu –\ncrafted to spark imagination and joy.",
   },
   {
     "illustration": ImageClass.onboarding2,
-    "title": "Read Together, Grow Together",
-    "text": "Create precious bedtime moments with interactive storytelling",
+    "title": "Playful Reading\nAdventures.",
+    "text":
+        "Dive into enchanting tales and fun\nquizzes that spark imagination,\ncreativity, and language skills.",
   },
   {
     "illustration": ImageClass.onboarding3,
-    "title": "Learning Made Fun",
-    "text": "Stories filled with values, morals and educational adventures",
+    "title": "Watch & Enjoy\nTogether",
+    "text":
+        "A safe platform filled with kid-\nfriendly entertainment and\neducational content.",
+  },
+  {
+    "illustration": ImageClass.onboarding4,
+    "title": "Create Your Story\nWorld",
+    "text":
+        "Bookmark stories, continue where\nyou left off, and enjoy bedtime reads\nwith your favorites.",
   },
 ];
