@@ -96,7 +96,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   width: 140,
                   height: 50,
                   decoration: const BoxDecoration(
-                    color: Colors.white,
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        ColorClass.violet30,
+                        ColorClass.violet10,
+                      ],
+                    ),
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(25),
                       bottomLeft: Radius.circular(25),
@@ -124,7 +131,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
-                              color: Colors.black,
+                              color: Colors.white,
                             ),
                           ),
                         ),
@@ -142,8 +149,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 child: Container(
                   width: 56,
                   height: 56,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        ColorClass.violet30,
+                        ColorClass.violet10,
+                      ],
+                    ),
                     shape: BoxShape.circle,
                   ),
                   child: IconButton(
@@ -155,7 +169,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     },
                     icon: const Icon(
                       Icons.arrow_forward,
-                      color: Colors.black,
+                      color: ColorClass.white,
                       size: 24,
                     ),
                   ),
@@ -264,7 +278,17 @@ class DotIndicator extends StatelessWidget {
       height: 8,
       width: isActive ? 24 : 8,
       decoration: BoxDecoration(
-        color: isActive ? activeColor : inActiveColor.withOpacity(0.5),
+        gradient: isActive
+            ? const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  ColorClass.violet30,
+                  ColorClass.violet10,
+                ],
+              )
+            : null,
+        color: isActive ? null : inActiveColor.withOpacity(0.5),
         borderRadius: const BorderRadius.all(Radius.circular(4)),
       ),
     );

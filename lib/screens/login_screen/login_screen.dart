@@ -43,14 +43,24 @@ class AuthScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 15),
-                  // Headline text
-                  Text(
-                    'Welcome to Zai Toon',
-                    style: TextStyleClass.poppinsRegular(
-                      fontSize: 22,
-                      color: Colors.white,
+                  // Headline text with gradient
+                  ShaderMask(
+                    shaderCallback: (bounds) => const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        ColorClass.violet30,
+                        ColorClass.violet10,
+                      ],
+                    ).createShader(bounds),
+                    child: Text(
+                      'Welcome to Zai Toon',
+                      style: TextStyleClass.poppinsRegular(
+                        fontSize: 22,
+                        color: ColorClass.white,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
                   // Subtitle
