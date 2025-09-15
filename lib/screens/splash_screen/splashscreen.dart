@@ -11,9 +11,12 @@ import 'package:zaitoon/constants/image_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/bottom_navigation/bottom_navigation.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
+import 'package:zaitoon/screens/language_selection/language_selection.dart';
 import 'package:zaitoon/screens/login_screen/login_screen.dart';
 import 'package:zaitoon/screens/login_screen/provider/auth_provider.dart';
 import 'package:zaitoon/screens/splash_screen/onboarding_screens.dart';
+import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
+import 'package:zaitoon/screens/user_data_collection_screen/user_data_collection_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -58,10 +61,45 @@ class _SplashScreenState extends State<SplashScreen>
     }
 
     if (authProvider.isSignedIn) {
-      navigateAndRemove(
-          context: context, screen: const BottomNavigationScreen());
+      // User is signed in, check if they've completed the full onboarding flow
+      await _checkUserFlowCompletion();
     } else {
       navigateAndRemove(context: context, screen: const AuthScreen());
+    }
+  }
+
+  Future<void> _checkUserFlowCompletion() async {
+    try {
+      final homeProvider = Provider.of<HomeProvider>(context, listen: false);
+      final userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
+      
+      // Check if language is selected
+      if (homeProvider.selectedLanguage.isEmpty) {
+        navigateAndRemove(context: context, screen: const LanguageSelection());
+        return;
+      }
+      
+      // Load user data and check if it's complete
+      await userDataProvider.loadUserDetails();
+      
+      if (userDataProvider.name == null ||
+          userDataProvider.name!.isEmpty ||
+          userDataProvider.age == null ||
+          userDataProvider.age! <= 0 ||
+          userDataProvider.gender.isEmpty) {
+        // User data is incomplete, go to user data collection
+        navigateAndRemove(
+          context: context,
+          screen: const UserDataCollection(isFromOnboarding: true),
+        );
+      } else {
+        // Everything is complete, go to home screen
+        navigateAndRemove(context: context, screen: const BottomNavigationScreen());
+      }
+    } catch (e) {
+      print('Error checking user flow completion: $e');
+      // On error, start from language selection
+      navigateAndRemove(context: context, screen: const LanguageSelection());
     }
   }
 

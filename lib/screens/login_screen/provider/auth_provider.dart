@@ -12,10 +12,9 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
-import 'package:zaitoon/screens/bottom_navigation/bottom_navigation.dart';
+import 'package:zaitoon/screens/language_selection/language_selection.dart';
 import 'package:zaitoon/screens/login_screen/login_screen.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
-import 'package:zaitoon/screens/user_data_collection_screen/user_data_collection_screen.dart';
 
 class AuthProvider with ChangeNotifier {
   /// firebase auth
@@ -274,37 +273,18 @@ class AuthProvider with ChangeNotifier {
 
   Future<void> checkAndLoadUserData({required BuildContext context}) async {
     try {
-      final provider = Provider.of<UserDataProvider>(context, listen: false);
-      await provider.loadUserDetails(); // Load details from SharedPreferences
-
-      // Check if all required user details exist
-      if (provider.name == null ||
-          provider.name!.isEmpty ||
-          provider.age == null ||
-          provider.age! <= 0 ||
-          provider.gender.isEmpty) {
-        // Navigate to user collection screen if any details are missing
-        navigateAndRemove(
-          context: context,
-          screen: const UserDataCollection(
-            isFromOnboarding: true,
-          ),
-        );
-      } else {
-        // All details exist, navigate to home screen
-        navigateAndRemove(
-          context: context,
-          screen: const BottomNavigationScreen(),
-        );
-      }
-    } catch (e) {
-      print('Error loading user data: $e');
-      // On error, direct to user collection screen
+      // After successful login, always go to Language Selection first
+      // The language selection will then handle the flow to UserDataCollection or Home
       navigateAndRemove(
         context: context,
-        screen: const UserDataCollection(
-          isFromOnboarding: true,
-        ),
+        screen: const LanguageSelection(),
+      );
+    } catch (e) {
+      print('Error in navigation flow: $e');
+      // On error, still go to language selection as fallback
+      navigateAndRemove(
+        context: context,
+        screen: const LanguageSelection(),
       );
     }
   }

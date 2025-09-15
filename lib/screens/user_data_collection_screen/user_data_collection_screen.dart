@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:fluttermoji/fluttermoji.dart';
-import 'package:zaitoon/screens/language_selection/language_selection.dart';
+import 'package:zaitoon/screens/bottom_navigation/bottom_navigation.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/components/custom_text_field.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/components/gender_card.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/components/submit_button.dart';
@@ -71,9 +71,10 @@ class _UserDataCollectionState extends State<UserDataCollection> {
 
         if (success) {
           if (widget.isFromOnboarding) {
+            // After completing user data collection during onboarding, go to home screen
             navigateAndRemove(
               context: context,
-              screen: const LanguageSelection(),
+              screen: const BottomNavigationScreen(),
             );
           } else {
             navigateBack(context);

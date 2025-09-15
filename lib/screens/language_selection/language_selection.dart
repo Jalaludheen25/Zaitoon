@@ -3,14 +3,25 @@
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/image_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
-import 'package:zaitoon/screens/aknowledge_screen/aknowledge_screen.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
+import 'package:zaitoon/screens/user_data_collection_screen/user_data_collection_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 class LanguageSelection extends StatelessWidget {
   const LanguageSelection({super.key});
+
+  Future<void> _handleLanguageSelection(BuildContext context) async {
+    // After language selection, always go to UserDataCollection screen
+    // This ensures the proper flow: Language Selection → UserDataCollection → Home
+    navigateAndRemove(
+      context: context,
+      screen: const UserDataCollection(
+        isFromOnboarding: true,
+      ),
+    );
+  }
 
   void _showLanguageNotAvailableDialog(BuildContext context, String languageName) {
     showDialog(
@@ -180,13 +191,9 @@ class LanguageSelection extends StatelessWidget {
                             _buildLanguageButton(
                               context: context,
                               isSelected: snapshot.selectedLanguage == "en",
-                              onPressed: () {
-                                snapshot.saveSelectedLanguage("en").then((_) {
-                                  navigatePR(
-                                    context: context,
-                                    screen: const AknowledgeScreen(),
-                                  );
-                                });
+                              onPressed: () async {
+                                await snapshot.saveSelectedLanguage("en");
+                                await _handleLanguageSelection(context);
                               },
                               label: 'English',
                               fontFamily: GoogleFonts.poppins().fontFamily,
@@ -195,13 +202,9 @@ class LanguageSelection extends StatelessWidget {
                             _buildLanguageButton(
                               context: context,
                               isSelected: snapshot.selectedLanguage == "ml",
-                              onPressed: () {
-                                snapshot.saveSelectedLanguage("ml").then((_) {
-                                  navigatePR(
-                                    context: context,
-                                    screen: const AknowledgeScreen(),
-                                  );
-                                });
+                              onPressed: () async {
+                                await snapshot.saveSelectedLanguage("ml");
+                                await _handleLanguageSelection(context);
                               },
                               label: 'മലയാളം',
                               fontFamily: GoogleFonts.manjari().fontFamily,
