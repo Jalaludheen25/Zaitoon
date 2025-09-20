@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/image_class.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
 import 'package:zaitoon/screens/login_screen/login_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -33,8 +34,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Set system UI overlay style for white status bar
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarIconBrightness: Brightness.light,
+      ),
+    );
+
     return Scaffold(
-      //extendBodyBehindAppBar: true,
+      extendBodyBehindAppBar: true,
       body: Consumer<HomeProvider>(
         builder: (context, provider, child) => PageView.builder(
           controller: _pageController,
@@ -294,7 +306,7 @@ class OnboardContent extends StatelessWidget {
                 child: Text(
                   currentPage == totalPages - 1 ? "Get Started" : "Next",
                   style: GoogleFonts.inter(
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w400,
                     fontSize: 16.0,
                     color: Colors.white,
                     letterSpacing: 0.5,

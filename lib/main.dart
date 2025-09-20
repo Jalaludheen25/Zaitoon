@@ -60,7 +60,7 @@ void main() async {
   // Configure system UI for full screen experience
   SystemChrome.setEnabledSystemUIMode(
     SystemUiMode.edgeToEdge,
-    overlays: [SystemUiOverlay.top],
+    overlays: [], // Empty array hides all overlays (both top and bottom)
   );
 
   runApp(MyApp(bookmarkProvider: bookmarkProvider));

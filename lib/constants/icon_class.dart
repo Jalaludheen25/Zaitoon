@@ -1,6 +1,8 @@
 class IconClass {
   static const String iconRoot = 'assets/icons/';
   static const String logo = '${iconRoot}logo.svg';
+  static const String googleIcon = '${iconRoot}google-icon.png';
+  static const String appleIcon = '${iconRoot}apple.png';
   static const String launcherImage = '${iconRoot}launcherImage.svg';
   static const String menuIcon = '${iconRoot}Menu_Icon.svg';
   static const String settingsIcon = '${iconRoot}Setting_Icon.svg';
