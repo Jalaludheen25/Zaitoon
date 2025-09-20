@@ -9,6 +9,7 @@ import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/bottom_navigation/bottom_navigation.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
 import 'package:zaitoon/screens/language_selection/language_selection.dart';
+import 'package:zaitoon/screens/login_screen/login_screen.dart';
 import 'package:zaitoon/screens/login_screen/provider/auth_provider.dart';
 import 'package:zaitoon/screens/splash_screen/onboarding_screens.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
@@ -51,18 +52,17 @@ class _SplashScreenState extends State<SplashScreen>
     final bool isOnboardingCompleted =
         await homeProvider.isOnboardingCompleted();
 
-    debugPrint('🔍 Onboarding completed: $isOnboardingCompleted');
-    debugPrint('🔍 User signed in: ${authProvider.isSignedIn}');
-
-    // Show onboarding if not completed OR if user is not logged in
-    if (!isOnboardingCompleted || !authProvider.isSignedIn) {
-      debugPrint('🚀 Navigating to Onboarding Screen');
+    if (!isOnboardingCompleted) {
       navigateAndRemove(context: context, screen: const OnboardingScreen());
       return;
     }
 
-    // User is signed in and onboarding is completed, check full flow
-    await _checkUserFlowCompletion();
+    if (authProvider.isSignedIn) {
+      // User is signed in, check if they've completed the full onboarding flow
+      await _checkUserFlowCompletion();
+    } else {
+      navigateAndRemove(context: context, screen: const AuthScreen());
+    }
   }
 
   Future<void> _checkUserFlowCompletion() async {
