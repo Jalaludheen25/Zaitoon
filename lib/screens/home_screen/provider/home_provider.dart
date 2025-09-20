@@ -64,7 +64,7 @@ class HomeProvider extends ChangeNotifier {
   }
 
   // save selected language locally and shared preference
-  String selectedLanguage = "none";
+  String selectedLanguage = "en";
   Future<void> saveSelectedLanguage(String language) async {
     try {
       selectedLanguage = language;
@@ -154,9 +154,11 @@ class HomeProvider extends ChangeNotifier {
     try {
       // Fetch both highlighted episodes and stories in parallel
       final results = await Future.wait([
-        http.get(Uri.parse(ApiUrls.highlightedEpisodes))
+        http
+            .get(Uri.parse(ApiUrls.highlightedEpisodes))
             .timeout(const Duration(seconds: 15)),
-        http.get(Uri.parse(ApiUrls.highlightedStories))
+        http
+            .get(Uri.parse(ApiUrls.highlightedStories))
             .timeout(const Duration(seconds: 15)),
       ]);
 
@@ -177,5 +179,4 @@ class HomeProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
-
 }

@@ -42,41 +42,31 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark(useMaterial3: true).copyWith(
-        scaffoldBackgroundColor: const Color(0xFF121212),
-        colorScheme: ColorScheme.dark(
-          primary: Colors.deepPurpleAccent,
-          secondary: Colors.amber[300]!,
-          surface: const Color(0xFF1E1E1E),
+    return Consumer<NavigationProvider>(
+        builder: (context, navigationProvider, child) {
+      return Scaffold(
+        backgroundColor: const Color(0xFF121212),
+        body: IndexedStack(
+          index: navigationProvider.currentIndex,
+          children: [
+            const HomeScreen(),
+            const StoriesScreen(),
+            const BookmarkScreen(),
+            const BrightBoxCategoriesScreen(),
+            // 5th tab: either Quiz placeholder or Settings
+            if (navigationProvider.showQuiz)
+              const StudentFormScreen() // Quiz tab (but navigation is handled in provider)
+            else
+              const SettingsScreen(), // Settings tab
+          ],
         ),
-      ),
-      home: Consumer<NavigationProvider>(
-          builder: (context, navigationProvider, child) {
-        return Scaffold(
-          body: IndexedStack(
-            index: navigationProvider.currentIndex,
-            children: [
-              const HomeScreen(),
-              const StoriesScreen(),
-              const BookmarkScreen(),
-              const BrightBoxCategoriesScreen(),
-              // 5th tab: either Quiz placeholder or Settings
-              if (navigationProvider.showQuiz)
-                const StudentFormScreen() // Quiz tab (but navigation is handled in provider)
-              else
-                const SettingsScreen(), // Settings tab
-            ],
-          ),
-          bottomNavigationBar: StoryAppBottomNav(
-            currentIndex: navigationProvider.currentIndex,
-            onTap: (index) => navigationProvider.setIndex(index, context),
-            showQuiz: navigationProvider.showQuiz,
-          ),
-        );
-      }),
-    );
+        bottomNavigationBar: StoryAppBottomNav(
+          currentIndex: navigationProvider.currentIndex,
+          onTap: (index) => navigationProvider.setIndex(index, context),
+          showQuiz: navigationProvider.showQuiz,
+        ),
+      );
+    });
   }
 }
 

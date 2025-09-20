@@ -23,7 +23,6 @@ import 'package:zaitoon/screens/version_check/force_udpate_dialog.dart';
 import 'package:zaitoon/screens/version_check/provider/version_check_provider.dart';
 import 'package:zaitoon/screens/home_screen/components/highlighted_cards.dart';
 import 'package:zaitoon/screens/registration/widgets/registration_popup.dart';
-import 'package:zaitoon/screens/registration/providers/registration_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -46,7 +45,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     Future.microtask(() {
       HomeProvider homeProvider =
           Provider.of<HomeProvider>(context, listen: false);
-      
+
       homeProvider.fetchStories().then((value) {
         homeProvider.fetchHighlightedContent();
         checkForUpdates();
@@ -222,9 +221,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 children: [
                   Consumer<HomeProvider>(
                     builder: (context, provider, _) {
-                      if (provider.isHighlightedLoading ||
-                          (provider.highlightedEpisodes == null &&
-                              provider.singleStoryModel == null)) {
+                      if (provider.isHighlightedLoading) {
+                        return const Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(20.0),
+                            child: CircularProgressIndicator(
+                              color: ColorClass.primaryColor,
+                            ),
+                          ),
+                        );
+                      }
+                      if (provider.highlightedEpisodes == null &&
+                          provider.singleStoryModel == null) {
                         return const SizedBox.shrink();
                       }
                       return HighlightedCards(
@@ -381,6 +389,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         if (snapshot.isStoryLoading) {
           return _buildLoadingIndicator();
         }
+        if (snapshot.error != null && snapshot.error!.isNotEmpty) {
+          return _buildErrorState(snapshot.error!);
+        }
         if (snapshot.storyModel == null) {
           return _buildEmptyState();
         }
@@ -502,27 +513,55 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  void _handleStoryTap(
-    int index,
-    HomeProvider snapshot,
-    PdfProvider pdfSnapshot,
-  ) {
-    navigatePR(
-      context: context,
-      screen: EpisodeScreen(
-        title: _getStoryModelTitle(
-            snapshot.storyModel!.data![index], snapshot.selectedLanguage),
-        id: snapshot.storyModel!.data![index].id.toString(),
-        imageUrl: ApiUrls.assetBaseUrl +
-            snapshot.storyModel!.data![index].coverimage!,
-        tag: snapshot.storyModel!.data![index].tag ?? '',
+  Widget _buildErrorState(String error) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(
+            Icons.error_outline,
+            size: 64,
+            color: Colors.red,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Error loading stories',
+            style: TextStyleClass.poppinsMedium(
+              fontSize: 18,
+              color: ColorClass.white,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            error,
+            style: TextStyleClass.poppinsRegular(
+              fontSize: 14,
+              color: ColorClass.white.withOpacity(0.7),
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () {
+              // Retry loading stories
+              final provider =
+                  Provider.of<HomeProvider>(context, listen: false);
+              provider.fetchStories();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ColorClass.primaryColor,
+              foregroundColor: Colors.white,
+            ),
+            child: Text(
+              'Retry',
+              style: TextStyleClass.poppinsMedium(
+                fontSize: 16,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
       ),
-    );
-    pdfSnapshot.setCurrentStory(
-      snapshot.storyModel!.data![index].id,
-      _getStoryModelTitle(
-          snapshot.storyModel!.data![index], snapshot.selectedLanguage),
-      ApiUrls.assetBaseUrl + snapshot.storyModel!.data![index].coverimage!,
     );
   }
 
@@ -623,10 +662,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       ApiUrls.assetBaseUrl + storyData.coverimage!,
     );
   }
-
-
-
-
 
   @override
   void dispose() {

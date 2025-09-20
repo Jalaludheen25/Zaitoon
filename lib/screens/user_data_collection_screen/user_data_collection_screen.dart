@@ -1,17 +1,20 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter/services.dart';
+import 'dart:ui';
 import 'package:provider/provider.dart';
-import 'package:fluttermoji/fluttermoji.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:zaitoon/screens/bottom_navigation/bottom_navigation.dart';
-import 'package:zaitoon/screens/user_data_collection_screen/components/custom_text_field.dart';
-import 'package:zaitoon/screens/user_data_collection_screen/components/gender_card.dart';
-import 'package:zaitoon/screens/user_data_collection_screen/components/submit_button.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
+import 'package:zaitoon/screens/user_data_collection_screen/components/gender_card.dart';
+import 'package:zaitoon/screens/user_data_collection_screen/components/custom_text_field.dart';
+import 'package:zaitoon/screens/user_data_collection_screen/components/submit_button.dart';
+import 'package:zaitoon/routes/app_routes.dart';
 
 import '../../../constants/color_class.dart';
-import '../../../constants/textstyle_class.dart';
+import '../../../constants/image_class.dart';
+import '../../../constants/icon_class.dart';
 import '../../../helper/navigation_helper.dart';
 
 class UserDataCollection extends StatefulWidget {
@@ -26,11 +29,25 @@ class _UserDataCollectionState extends State<UserDataCollection> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _ageController = TextEditingController();
-  bool _isCustomizerVisible = false;
+  late final PageController _avatarPageController;
+  double _avatarCurrentPage = 0;
+  final List<String> _avatars = const [
+    ImageClass.avatar1,
+    ImageClass.avatar2,
+    ImageClass.avatar3,
+  ];
 
   @override
   void initState() {
     super.initState();
+    _avatarPageController =
+        PageController(viewportFraction: 1.0, initialPage: 1000);
+    _avatarCurrentPage = _avatarPageController.initialPage.toDouble();
+    _avatarPageController.addListener(() {
+      setState(() {
+        _avatarCurrentPage = _avatarPageController.page ?? _avatarCurrentPage;
+      });
+    });
     Future.microtask(() async {
       final provider = Provider.of<UserDataProvider>(context, listen: false);
       await provider.loadUserDetails();
@@ -55,6 +72,7 @@ class _UserDataCollectionState extends State<UserDataCollection> {
   void dispose() {
     _nameController.dispose();
     _ageController.dispose();
+    _avatarPageController.dispose();
     super.dispose();
   }
 
@@ -91,243 +109,413 @@ class _UserDataCollectionState extends State<UserDataCollection> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Text(
-          'My Profile',
-          style: TextStyleClass.poppinsRegular(
-            color: Colors.white,
-            fontSize: 18,
-          ),
-        ),
-        backgroundColor: Colors.black,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+    // Set system UI overlay style to dark
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarIconBrightness: Brightness.dark,
       ),
+    );
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: true,
       body: Consumer<UserDataProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading &&
               (_nameController.text.isEmpty && _ageController.text.isEmpty)) {
             return const Center(
               child: CircularProgressIndicator(
-                color: Colors.deepPurpleAccent,
+                color: ColorClass.violet30,
               ),
             );
           }
 
-          return SafeArea(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Center(
-                        child: FluttermojiCircleAvatar(
-                          backgroundColor: ColorClass.grey,
-                          radius: 75,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      _buildAvatarCustomizer(context),
-                      _buildCustomizeButton(),
-                      const SizedBox(height: 20),
-                      _buildNameSection(provider),
-                      const SizedBox(height: 24),
-                      _buildAgeSection(provider),
-                      const SizedBox(height: 24),
-                      _buildGenderSection(provider),
-                      if (provider.error.isNotEmpty) ...[
-                        const SizedBox(height: 8),
-                        Text(
-                          provider.error,
-                          style: const TextStyle(
-                            color: Colors.redAccent,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                      const SizedBox(height: 40),
-                      SubmitButton(
-                        isLoading: provider.isLoading,
-                        onPressed: _handleSubmit,
-                      ),
-                      const SizedBox(height: 20),
+          return Stack(
+            children: [
+              // Background with blur effects
+              Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color(0xFFF8F9FF),
+                      Colors.white,
+                      Color(0xFFF8F9FF),
                     ],
                   ),
                 ),
               ),
-            ),
+
+              // Top left blur effect
+              Positioned(
+                top: 300,
+                left: -40,
+                child: Container(
+                  width: 200,
+                  height: 200,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        ColorClass.violet30.withOpacity(0.1),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              // Top right blur effect
+              Positioned(
+                top: -30,
+                right: -50,
+                child: Container(
+                  width: 200,
+                  height: 200,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        ColorClass.grad1.withOpacity(0.1),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              // Main content
+              SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 10),
+
+                      // My Profile Title with Gradient
+                      ShaderMask(
+                        shaderCallback: (bounds) => const LinearGradient(
+                          colors: [
+                            ColorClass.grad1,
+                            ColorClass.grad2,
+                            ColorClass.grad3,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ).createShader(bounds),
+                        child: Text(
+                          "My Profile",
+                          style: GoogleFonts.fredoka(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+
+                      const SizedBox(height: 15),
+
+                      // Avatar Selection Row (carousel)
+                      _buildAvatarSelectionRow(),
+
+                      const SizedBox(height: 15),
+
+                      // Choose Avatar Button with navigation to customizer
+                      Container(
+                        width: 184,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [
+                              ColorClass.grad1,
+                              ColorClass.grad2,
+                              ColorClass.grad3,
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Center(
+                          child: Text(
+                            "Choose Avatar",
+                            style: GoogleFonts.fredoka(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 25),
+
+                      // Form Fields
+                      Expanded(
+                        child: SingleChildScrollView(
+                          keyboardDismissBehavior:
+                              ScrollViewKeyboardDismissBehavior.onDrag,
+                          padding: EdgeInsets.only(
+                            bottom:
+                                MediaQuery.of(context).viewInsets.bottom + 24,
+                          ),
+                          child: Form(
+                            key: _formKey,
+                            child: Column(
+                              children: [
+                                // Name Section
+                                CustomTextField(
+                                  title: "What's your name?",
+                                  controller: _nameController,
+                                  hint: "Enter your name",
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter your name';
+                                    }
+                                    return null;
+                                  },
+                                ),
+
+                                const SizedBox(height: 20),
+
+                                // Age Section
+                                CustomTextField(
+                                  title: "How old are you?",
+                                  controller: _ageController,
+                                  hint: "Enter your age",
+                                  keyboardType: TextInputType.number,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter your age';
+                                    }
+                                    final age = int.tryParse(value);
+                                    if (age == null || age < 1) {
+                                      return 'Please enter a valid age';
+                                    }
+                                    return null;
+                                  },
+                                ),
+
+                                const SizedBox(height: 20),
+
+                                // Gender Section
+                                // Gender Section using GenderCard component
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "What's your Gender?",
+                                      style: GoogleFonts.openSans(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                        color: ColorClass.black,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: GenderCard(
+                                            icon: IconClass.boy,
+                                            label: "I'm a Boy",
+                                            isSelected:
+                                                provider.gender == 'boy',
+                                            onTap: () =>
+                                                provider.updateGender('boy'),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 16),
+                                        Expanded(
+                                          child: GenderCard(
+                                            icon: IconClass.girl,
+                                            label: "I'm a Girl",
+                                            isSelected:
+                                                provider.gender == 'girl',
+                                            onTap: () =>
+                                                provider.updateGender('girl'),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+
+                                const SizedBox(height: 30),
+
+                                // Error Message
+                                if (provider.error.isNotEmpty)
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    margin: const EdgeInsets.only(bottom: 16),
+                                    decoration: BoxDecoration(
+                                      color: Colors.redAccent.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color:
+                                            Colors.redAccent.withOpacity(0.3),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      provider.error,
+                                      style: GoogleFonts.inter(
+                                        color: Colors.redAccent,
+                                        fontSize: 12,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+
+                                // Get Started Button component
+                                SubmitButton(
+                                  isLoading: provider.isLoading,
+                                  onPressed: _handleSubmit,
+                                ),
+
+                                const SizedBox(height: 20),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           );
         },
       ),
     );
   }
 
-  Widget _buildAvatarCustomizer(BuildContext context) {
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 300),
-      child: _isCustomizerVisible
-          ? Column(
-              key: const ValueKey('customizer'),
-              children: [
-                const SizedBox(height: 20),
-                FluttermojiCustomizer(
-                  autosave: true,
-                  scaffoldWidth: MediaQuery.of(context).size.width,
-                  theme: FluttermojiThemeData(
-                    primaryBgColor: Colors.black,
-                    secondaryBgColor: ColorClass.grey800,
-                    iconColor: Colors.white,
-                    selectedIconColor: Colors.deepPurpleAccent,
-                    unselectedIconColor: Colors.grey[600],
-                    labelTextStyle: const TextStyle(color: Colors.white),
-                    selectedTileDecoration: BoxDecoration(
-                      color: Colors.deepPurpleAccent.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(10),
+  Widget _buildAvatarSelectionRow() {
+    int mod(int a, int b) => (a % b + b) % b;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double maxWidth = constraints.maxWidth;
+        final double big = (maxWidth * 0.28).clamp(90.0, 120.0);
+        final double small = (big * 0.62).clamp(56.0, 90.0);
+        // Evenly distribute remaining width as spacing (four gaps: left, between, between, right)
+        final double usedWidth = big + small * 2;
+        final double remaining = (maxWidth - usedWidth).clamp(0.0, maxWidth);
+        final double gap = remaining / 4.0;
+
+        return SizedBox(
+          height: big + 12,
+          child: PageView.builder(
+            controller: _avatarPageController,
+            physics: const BouncingScrollPhysics(),
+            itemBuilder: (context, pageIndex) {
+              final int len = _avatars.length;
+              final int center = mod(pageIndex, len);
+              final int left = mod(center - 1, len);
+              final int right = mod(center + 1, len);
+
+              return Padding(
+                padding: EdgeInsets.symmetric(horizontal: gap),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        _avatarPageController.animateToPage(
+                          (_avatarCurrentPage.round()) - 1,
+                          duration: const Duration(milliseconds: 220),
+                          curve: Curves.easeOut,
+                        );
+                      },
+                      child: _buildAvatarCircle(
+                        _avatars[left],
+                        small,
+                        false,
+                        blurred: true,
+                      ),
                     ),
-                    unselectedTileDecoration: BoxDecoration(
-                      color: ColorClass.grey400,
-                      borderRadius: BorderRadius.circular(10),
+                    _buildAvatarCircle(
+                      _avatars[center],
+                      big,
+                      true,
+                      blurred: false,
                     ),
-                  ),
+                    GestureDetector(
+                      onTap: () {
+                        _avatarPageController.animateToPage(
+                          (_avatarCurrentPage.round()) + 1,
+                          duration: const Duration(milliseconds: 220),
+                          curve: Curves.easeOut,
+                        );
+                      },
+                      child: _buildAvatarCircle(
+                        _avatars[right],
+                        small,
+                        false,
+                        blurred: true,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 20),
-              ],
-            )
-          : const SizedBox.shrink(),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildCustomizeButton() {
-    return Center(
-      child: ElevatedButton(
-        onPressed: () {
-          setState(() {
-            _isCustomizerVisible = !_isCustomizerVisible;
-          });
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.deepPurpleAccent,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
+  Widget _buildAvatarCircle(String assetPath, double size, bool highlight,
+      {bool blurred = false}) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: highlight ? ColorClass.violet30 : Colors.transparent,
+          width: highlight ? 3 : 0,
         ),
-        child: Text(
-          _isCustomizerVisible ? 'Close Customizer' : 'Customize Avatar',
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+        boxShadow: [
+          if (highlight)
+            BoxShadow(
+              color: ColorClass.violet30.withOpacity(0.25),
+              blurRadius: 18,
+              offset: const Offset(0, 6),
+            ),
+        ],
+      ),
+      child: ClipOval(
+        child: ImageFiltered(
+          imageFilter: ImageFilter.blur(
+            sigmaX: blurred ? 2.5 : 0.0,
+            sigmaY: blurred ? 2.5 : 0.0,
+          ),
+          child: Image.asset(
+            assetPath,
+            fit: BoxFit.cover,
           ),
         ),
       ),
     );
   }
 
-  Widget _buildNameSection(UserDataProvider provider) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'What\'s your name?',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: Colors.white,
-          ),
-        ),
-        const SizedBox(height: 8),
-        CustomTextField(
-          controller: _nameController,
-          hint: 'Enter your name',
-          icon: LucideIcons.user,
-          enabled: !provider.isLoading,
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please enter your name';
-            }
-            return null;
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAgeSection(UserDataProvider provider) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'How old are you?',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: Colors.white,
-          ),
-        ),
-        const SizedBox(height: 8),
-        CustomTextField(
-          controller: _ageController,
-          hint: 'Enter your age',
-          icon: LucideIcons.cake,
-          enabled: !provider.isLoading,
-          keyboardType: TextInputType.number,
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please enter your age';
-            }
-            final age = int.tryParse(value);
-            if (age == null || age < 1) {
-              return 'Please enter a valid age';
-            }
-            return null;
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildGenderSection(UserDataProvider provider) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'What\'s your gender?',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: Colors.white,
-          ),
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            GenderCard(
-              icon: LucideIcons.baby,
-              label: "I'm a Boy",
-              value: 'boy',
-              selectedGender: provider.gender,
-              onSelect: provider.isLoading ? null : provider.updateGender,
-              enabled: !provider.isLoading,
-            ),
-            const SizedBox(width: 16),
-            GenderCard(
-              icon: LucideIcons.baby,
-              label: "I'm a Girl",
-              value: 'girl',
-              selectedGender: provider.gender,
-              onSelect: provider.isLoading ? null : provider.updateGender,
-              enabled: !provider.isLoading,
-            ),
-          ],
-        ),
-      ],
-    );
-  }
+  // String _getAvatarImage(int index) {
+  //   String imagePath;
+  //   switch (index) {
+  //     case 0:
+  //       imagePath = ImageClass.avatar1;
+  //       break;
+  //     case 1:
+  //       imagePath = ImageClass.avatar2;
+  //       break;
+  //     case 2:
+  //       imagePath = ImageClass.avatar3;
+  //       break;
+  //     default:
+  //       imagePath = ImageClass.avatar1;
+  //   }
+  //   return imagePath;
+  // }
 }

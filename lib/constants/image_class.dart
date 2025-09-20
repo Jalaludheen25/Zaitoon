@@ -3,7 +3,7 @@ class ImageClass {
   static const String appIcon = '${imageRoot}appicon.png';
   static const String appIconPlain = '${imageRoot}appicon_plain.png';
   static const String splashBg = '${imageRoot}spalsh-bg.png';
-  static const String whiteLogo = '${imageRoot}Color Logo 1.png';
+  static const String whiteLogo = '${imageRoot}appicon_plain.png';
   static const String loginBg = '${imageRoot}loginbg.png';
   static const String languageBg = '${imageRoot}languageBg.png';
   // Onboarding screens
@@ -11,6 +11,12 @@ class ImageClass {
   static const String onboard2 = '${imageRoot}onboard2.png';
   static const String onboard3 = '${imageRoot}onboard3.png';
   static const String onboard4 = '${imageRoot}onboard4.png';
+
+  //Avatar eLlipses
+  static const String avatar1 = '${imageRoot}Ellipse 7.png';
+  static const String avatar2 = '${imageRoot}Ellipse 8.png';
+  static const String avatar3 = '${imageRoot}Ellipse 9.png';
+  
   // static const String onboarding1 = '${imageRoot}onboarding1.png';
   // static const String onboarding2 = '${imageRoot}onboarding2.png';
   // static const String onboarding3 = '${imageRoot}onboarding3.png';

@@ -5,9 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:zaitoon/constants/app_constants.dart';
 import 'package:zaitoon/constants/color_class.dart';
-import 'package:zaitoon/constants/icon_class.dart';
 import 'package:zaitoon/constants/image_class.dart';
-import 'package:zaitoon/constants/textstyle_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/helper/url_launcher.dart';
 import 'package:zaitoon/screens/language_selection/language_selection.dart';
@@ -39,16 +37,16 @@ class AuthScreen extends StatelessWidget {
                   width: 357,
                   height: 370,
                   decoration: BoxDecoration(
-                    color: ColorClass.containerBg.withOpacity(0.4),
+                    color: ColorClass.containerBg.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        blurRadius: 15,
-                        offset: const Offset(0, 8),
-                        spreadRadius: 0,
-                      ),
-                    ],
+                    // boxShadow: [
+                    //   BoxShadow(
+                    //     color: Colors.black.withOpacity(0.2),
+                    //     blurRadius: 15,
+                    //     offset: const Offset(0, 8),
+                    //     spreadRadius: 0,
+                    //   ),
+                    // ],
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(22.0),

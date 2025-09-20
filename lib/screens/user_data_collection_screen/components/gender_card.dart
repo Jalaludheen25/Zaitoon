@@ -1,60 +1,71 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:zaitoon/constants/color_class.dart';
 
 class GenderCard extends StatelessWidget {
-  final IconData icon;
+  final String icon; // SVG asset path
   final String label;
-  final String value;
-  final String selectedGender;
-  final Function(String)? onSelect;
-  final bool enabled;
+  final bool isSelected;
+  final VoidCallback onTap;
 
   const GenderCard({
     super.key,
     required this.icon,
     required this.label,
-    required this.value,
-    required this.selectedGender,
-    required this.onSelect,
-    this.enabled = true,
+    required this.isSelected,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final isSelected = selectedGender == value;
-    return Expanded(
-      child: Opacity(
-        opacity: enabled ? 1.0 : 0.5,
-        child: InkWell(
-          onTap: enabled ? () => onSelect?.call(value) : null,
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        height: 92,
+        decoration: BoxDecoration(
+          color:
+              isSelected ? ColorClass.violet30.withOpacity(0.1) : Colors.white,
           borderRadius: BorderRadius.circular(16),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            decoration: BoxDecoration(
-              color: isSelected ? Colors.deepPurpleAccent : Colors.grey[900],
-              borderRadius: BorderRadius.circular(16),
-              border: isSelected
-                  ? Border.all(color: Colors.deepPurpleAccent, width: 2)
-                  : null,
-            ),
-            child: Column(
-              children: [
-                Icon(
-                  icon,
-                  color: isSelected ? Colors.white : Colors.grey[600],
-                  size: 32,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  label,
-                  style: TextStyle(
-                    color: isSelected ? Colors.white : Colors.grey[600],
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                  ),
-                ),
-              ],
-            ),
+          border: Border.all(
+            color: isSelected
+                ? ColorClass.violet30
+                : ColorClass.black87.withOpacity(0.1),
+            width: isSelected ? 2 : 1,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: isSelected
+                  ? ColorClass.violet30.withOpacity(0.2)
+                  : Colors.black.withOpacity(0.05),
+              blurRadius: isSelected ? 15 : 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SvgPicture.asset(
+              icon,
+              width: 32,
+              height: 32,
+              color: isSelected
+                  ? ColorClass.violet30
+                  : ColorClass.black87.withOpacity(0.6),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: isSelected
+                    ? ColorClass.violet30
+                    : ColorClass.black87.withOpacity(0.7),
+              ),
+            ),
+          ],
         ),
       ),
     );
