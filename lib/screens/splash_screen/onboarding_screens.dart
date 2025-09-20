@@ -3,10 +3,10 @@
 import 'package:provider/provider.dart';
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/image_class.dart';
-import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
 import 'package:zaitoon/screens/login_screen/login_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -22,6 +22,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   void initState() {
     super.initState();
     _pageController = PageController();
+    debugPrint('🎯 OnboardingScreen initialized');
   }
 
   @override
@@ -33,149 +34,47 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      //extendBodyBehindAppBar: true,
       body: Consumer<HomeProvider>(
-        builder: (context, provider, child) => Stack(
-          children: [
-            // Full screen PageView with images
-            PageView.builder(
-              controller: _pageController,
-              itemCount: demoData.length,
-              onPageChanged: (value) {
-                provider.setCurrentPage(value);
-              },
-              itemBuilder: (context, index) => OnboardContent(
-                illustration: demoData[index]["illustration"],
-                title: demoData[index]["title"],
-                text: demoData[index]["text"],
-              ),
-            ),
-
-            // Skip button - top right (simple text)
-            Positioned(
-              top: MediaQuery.of(context).padding.top + 16,
-              right: 16,
-              child: GestureDetector(
-                onTap: () async {
-                  await provider.setOnboardingCompleted();
-                  navigateAndRemove(
-                    context: context,
-                    screen: const AuthScreen(),
+        builder: (context, provider, child) => PageView.builder(
+          controller: _pageController,
+          itemCount: data.length,
+          onPageChanged: (value) {
+            provider.setCurrentPage(value);
+          },
+          physics: const NeverScrollableScrollPhysics(),
+          pageSnapping: true,
+          itemBuilder: (context, index) => OnboardContent(
+            illustration: data[index]["illustration"],
+            title: data[index]["title"],
+            text: data[index]["text"],
+            currentPage: provider.currentPage,
+            totalPages: data.length,
+            onNext: () {
+              if (provider.currentPage == data.length - 1) {
+                // Last page - go to login screen
+                provider.setOnboardingCompleted().then((_) {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const AuthScreen()),
                   );
-                },
-                child: const Text(
-                  'Skip',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ),
-
-            // Dot indicators - left bottom corner
-            Positioned(
-              bottom: MediaQuery.of(context).padding.bottom + 40,
-              left: 20,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: List.generate(
-                  demoData.length,
-                  (index) =>
-                      DotIndicator(isActive: index == provider.currentPage),
-                ),
-              ),
-            ),
-
-            // Get Started button - half-cut pill shape on right side (only on last slide)
-            if (provider.currentPage == demoData.length - 1)
-              Positioned(
-                bottom: MediaQuery.of(context).padding.bottom + 40,
-                right: 0,
-                child: Container(
-                  width: 140,
-                  height: 50,
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        ColorClass.violet30,
-                        ColorClass.violet10,
-                      ],
-                    ),
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(25),
-                      bottomLeft: Radius.circular(25),
-                    ),
-                  ),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(25),
-                        bottomLeft: Radius.circular(25),
-                      ),
-                      onTap: () async {
-                        await provider.setOnboardingCompleted();
-                        navigateAndRemove(
-                          context: context,
-                          screen: const AuthScreen(),
-                        );
-                      },
-                      child: const Center(
-                        child: Padding(
-                          padding: EdgeInsets.only(right: 16),
-                          child: Text(
-                            'Get Started',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-            // Next button - bottom right (for other slides)
-            if (provider.currentPage != demoData.length - 1)
-              Positioned(
-                bottom: MediaQuery.of(context).padding.bottom + 40,
-                right: 16,
-                child: Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        ColorClass.violet30,
-                        ColorClass.violet10,
-                      ],
-                    ),
-                    shape: BoxShape.circle,
-                  ),
-                  child: IconButton(
-                    onPressed: () {
-                      _pageController.nextPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      );
-                    },
-                    icon: const Icon(
-                      Icons.arrow_forward,
-                      color: ColorClass.white,
-                      size: 24,
-                    ),
-                  ),
-                ),
-              ),
-          ],
+                });
+              } else {
+                // Next page with smooth slide animation
+                _pageController.nextPage(
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeInOutCubic,
+                );
+              }
+            },
+            onSkip: () async {
+              await provider.setOnboardingCompleted();
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const AuthScreen()),
+              );
+            },
+          ),
         ),
       ),
     );
@@ -188,135 +87,250 @@ class OnboardContent extends StatelessWidget {
     required this.illustration,
     required this.title,
     required this.text,
+    required this.currentPage,
+    required this.totalPages,
+    required this.onNext,
+    required this.onSkip,
   });
 
   final String? illustration, title, text;
+  final int currentPage;
+  final int totalPages;
+  final VoidCallback onNext;
+  final VoidCallback onSkip;
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        // Full screen background image
-        Positioned.fill(
-          child: Image.asset(
-            illustration!,
-            fit: BoxFit.cover,
+    return SizedBox(
+      width: double.infinity,
+      height: double.infinity,
+      child: Stack(
+        children: [
+          // Full screen background image
+          Positioned.fill(
+            child: Image.asset(
+              illustration!,
+              fit: BoxFit.cover,
+              filterQuality: FilterQuality.high,
+              isAntiAlias: true,
+              alignment: Alignment.center,
+            ),
           ),
-        ),
 
-        // Gradient overlay for better text readability
-        Positioned.fill(
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.transparent,
-                  Colors.transparent,
-                  Colors.black.withOpacity(0.3),
-                  Colors.black.withOpacity(0.7),
+          // Skip Button - Top Right with system UI consideration
+          if (currentPage != totalPages - 1)
+            Positioned(
+              top: MediaQuery.of(context).padding.top +
+                  20, // Account for status bar
+              right: 20,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                child: GestureDetector(
+                  onTap: onSkip,
+                  child: Text(
+                    "Skip",
+                    style: GoogleFonts.openSans(
+                      fontWeight: FontWeight.w400,
+                      fontSize: 16.0,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+          // Bottom overlay with text and controls - extending over screen
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              padding: EdgeInsets.fromLTRB(
+                32,
+                40,
+                32,
+                MediaQuery.of(context).padding.bottom +
+                    40, // Account for navigation bar
+              ),
+              child: Column(
+                children: [
+                  // Text 1 (Title) with gradient
+                  ShaderMask(
+                    shaderCallback: (bounds) => const LinearGradient(
+                      colors: [
+                        ColorClass.grad1,
+                        ColorClass.grad2,
+                        ColorClass.grad3,
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ).createShader(bounds),
+                    child: Text(
+                      title!,
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.fredoka(
+                        fontSize: 24.0,
+                        height: 1.2,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Text 2 (Description)
+                  Text(
+                    text!,
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.openSans(
+                      fontWeight: FontWeight.w400,
+                      color: ColorClass.black87,
+                      fontSize: 16.0,
+                      height: 1.5,
+                    ),
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  // Page indicators and Next button
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildPageIndicator(),
+                      _buildNextButton(),
+                    ],
+                  ),
                 ],
-                stops: const [0.0, 0.4, 0.7, 1.0],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPageIndicator() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: List.generate(totalPages, (index) {
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          margin: const EdgeInsets.only(right: 8.0),
+          width: index == currentPage ? 20.0 : 8.0,
+          height: 8.0,
+          decoration: BoxDecoration(
+            gradient: index == currentPage
+                ? const LinearGradient(
+                    colors: [
+                      ColorClass.grad1,
+                      ColorClass.grad2,
+                      ColorClass.grad3,
+                    ],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  )
+                : null,
+            color: index == currentPage ? null : ColorClass.black87,
+            borderRadius: BorderRadius.circular(4.0),
+            boxShadow: index == currentPage
+                ? [
+                    BoxShadow(
+                      color: ColorClass.grad2.withOpacity(0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    )
+                  ]
+                : null,
+          ),
+        );
+      }),
+    );
+  }
+
+  Widget _buildNextButton() {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+      child: GestureDetector(
+        onTap: onNext,
+        child: Container(
+          width: 117.0,
+          height: 45.0,
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [
+                ColorClass.grad1,
+                ColorClass.grad2,
+                ColorClass.grad3,
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(24.0),
+            boxShadow: [
+              BoxShadow(
+                color: ColorClass.grad2.withOpacity(0.4),
+                blurRadius: 3,
+                offset: const Offset(0, 1),
+                spreadRadius: 0,
+              ),
+              BoxShadow(
+                color: ColorClass.grad1.withOpacity(0.2),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+                spreadRadius: 0,
+              ),
+            ],
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(24.0),
+              onTap: onNext,
+              child: Center(
+                child: Text(
+                  currentPage == totalPages - 1 ? "Get Started" : "Next",
+                  style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16.0,
+                    color: Colors.white,
+                    letterSpacing: 0.5,
+                  ),
+                ),
               ),
             ),
           ),
         ),
-
-        // Text content positioned lower
-        Positioned(
-          bottom: 140,
-          left: 20,
-          right: 20,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                title!,
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  height: 1.2,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 12),
-              Text(
-                text!,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.white,
-                  height: 1.4,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class DotIndicator extends StatelessWidget {
-  const DotIndicator({
-    super.key,
-    this.isActive = false,
-    this.activeColor = ColorClass.white,
-    this.inActiveColor = const Color(0xFF868686),
-  });
-
-  final bool isActive;
-  final Color activeColor, inActiveColor;
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 250),
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      height: 8,
-      width: isActive ? 24 : 8,
-      decoration: BoxDecoration(
-        gradient: isActive
-            ? const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  ColorClass.violet30,
-                  ColorClass.violet10,
-                ],
-              )
-            : null,
-        color: isActive ? null : inActiveColor.withOpacity(0.5),
-        borderRadius: const BorderRadius.all(Radius.circular(4)),
       ),
     );
   }
 }
 
 // Demo data for our Onboarding screen
-List<Map<String, dynamic>> demoData = [
+List<Map<String, dynamic>> data = [
   {
-    "illustration": ImageClass.onboarding1,
+    "illustration": ImageClass.onboard1,
     "title": "ZaiToon Kids – Where\nStories Come Alive!",
     "text":
         "Discover magical stories in\nMalayalam, English, Hindi & Urdu –\ncrafted to spark imagination and joy.",
   },
   {
-    "illustration": ImageClass.onboarding2,
+    "illustration": ImageClass.onboard2,
     "title": "Playful Reading\nAdventures.",
     "text":
         "Dive into enchanting tales and fun\nquizzes that spark imagination,\ncreativity, and language skills.",
   },
   {
-    "illustration": ImageClass.onboarding3,
+    "illustration": ImageClass.onboard3,
     "title": "Watch & Enjoy\nTogether",
     "text":
         "A safe platform filled with kid-\nfriendly entertainment and\neducational content.",
   },
   {
-    "illustration": ImageClass.onboarding4,
+    "illustration": ImageClass.onboard4,
     "title": "Create Your Story\nWorld",
     "text":
         "Bookmark stories, continue where\nyou left off, and enjoy bedtime reads\nwith your favorites.",

@@ -24,4 +24,10 @@ class ColorClass {
 
   // Neutral Color Palette
   static const Color neutral900 = Color(0xff0A0D14);
+
+  
+  //gradient colors
+  static const Color grad1 = Color(0xffAC28DC);
+  static const Color grad2 = Color(0xff7E1EB7);
+  static const Color grad3 = Color(0xff501392);
 }

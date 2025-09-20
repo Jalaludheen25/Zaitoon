@@ -294,11 +294,16 @@ class AuthProvider with ChangeNotifier {
       await _googleSignIn.signOut();
       await _auth.signOut();
       final SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.clear();
-      print('User signed out');
+
+      // Clear user data first
       UserDataProvider provider =
           Provider.of<UserDataProvider>(context, listen: false);
       provider.clearUserData();
+
+      // Clear all preferences (this will reset onboarding status)
+      await prefs.clear();
+      print('User signed out and onboarding status reset');
+
       _isSignedIn = false;
       _user = null;
       notifyListeners();

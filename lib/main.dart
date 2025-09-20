@@ -15,6 +15,7 @@ import 'package:zaitoon/screens/kids_corner_screen/provider/kids_corner_provider
 import 'package:zaitoon/screens/login_screen/provider/auth_provider.dart';
 import 'package:zaitoon/screens/reading_screen/provider/pdf_provider.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
+import 'package:zaitoon/services/navigation_service.dart';
 import 'package:zaitoon/screens/splash_screen/splashscreen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -56,6 +57,12 @@ void main() async {
   final bookmarkProvider = BookmarkProvider();
   await bookmarkProvider.initHive();
 
+  // Configure system UI for full screen experience
+  SystemChrome.setEnabledSystemUIMode(
+    SystemUiMode.edgeToEdge,
+    overlays: [SystemUiOverlay.top],
+  );
+
   runApp(MyApp(bookmarkProvider: bookmarkProvider));
 }
 
@@ -91,6 +98,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Zai Toon',
         theme: AppTheme.lightTheme(context),
+        navigatorKey: NavigationService.navigatorKey,
         home: const SplashScreen(),
       ),
     );
