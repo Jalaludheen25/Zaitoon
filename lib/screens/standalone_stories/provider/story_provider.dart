@@ -38,18 +38,18 @@ class StoriesProvider extends ChangeNotifier {
           for (int i = 0; i < _singleStoryModel!.data.length; i++) {
             final story = _singleStoryModel!.data[i];
             debugPrint('📖 Story $i: ${story.storyTitleEn ?? 'No Title'}');
-            debugPrint('   - ID: ${story.id}');
-            debugPrint('   - Cover Image: ${story.coverImage}');
-            debugPrint('   - Description: ${story.description}');
-            debugPrint('   - Read Time: ${story.readTime}');
-            debugPrint('   - Story File EN: ${story.storyFileEn}');
-            debugPrint('   - Story File ML: ${story.storyFileMl}');
-            debugPrint('   - Story Title EN: ${story.storyTitleEn}');
-            debugPrint('   - Story Title ML: ${story.storyTitleMl}');
-            debugPrint('   - Tag: ${story.tag}');
-            debugPrint('   - Is Highlighted: ${story.isHighlighted}');
-            debugPrint('   - EN Banner: ${story.enBanner}');
-            debugPrint('   - ML Banner: ${story.mlBanner}');
+            // debugPrint('   - ID: ${story.id}');
+            // debugPrint('   - Cover Image: ${story.coverImage}');
+            // debugPrint('   - Description: ${story.description}');
+            // debugPrint('   - Read Time: ${story.readTime}');
+            // debugPrint('   - Story File EN: ${story.storyFileEn}');
+            // debugPrint('   - Story File ML: ${story.storyFileMl}');
+            // debugPrint('   - Story Title EN: ${story.storyTitleEn}');
+            // debugPrint('   - Story Title ML: ${story.storyTitleMl}');
+            // debugPrint('   - Tag: ${story.tag}');
+            // debugPrint('   - Is Highlighted: ${story.isHighlighted}');
+            // debugPrint('   - EN Banner: ${story.enBanner}');
+            // debugPrint('   - ML Banner: ${story.mlBanner}');
           }
         }
       } else {

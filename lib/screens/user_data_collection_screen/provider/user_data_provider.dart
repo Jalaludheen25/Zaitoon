@@ -19,6 +19,7 @@ class UserDataProvider with ChangeNotifier {
   String? _uid;
   String? _email;
   String _gender = 'boy';
+  String? _avatar; // asset path for selected avatar
   bool _isLoading = false;
   String _error = '';
   bool _isOnboardingCompleted = false;
@@ -33,6 +34,7 @@ class UserDataProvider with ChangeNotifier {
   String get error => _error;
   bool get isGenderEmpty => _gender.isEmpty;
   bool get isOnboardingCompleted => _isOnboardingCompleted;
+  String? get avatar => _avatar;
 
   void clearUserData() {
     _name = null;
@@ -40,6 +42,7 @@ class UserDataProvider with ChangeNotifier {
     _email = null;
     _uid = null;
     _gender = '';
+    _avatar = null;
     notifyListeners();
   }
 
@@ -223,6 +226,7 @@ class UserDataProvider with ChangeNotifier {
       _name = prefs.getString(_nameKey);
       _age = prefs.getInt(_ageKey);
       _gender = prefs.getString(_genderKey) ?? '';
+      _avatar = prefs.getString('user_avatar');
       _uid = prefs.getString(_uidKey);
       _email = prefs.getString(_emailKey);
 
@@ -244,6 +248,7 @@ class UserDataProvider with ChangeNotifier {
         prefs.remove(_nameKey),
         prefs.remove(_ageKey),
         prefs.remove(_genderKey),
+        prefs.remove('user_avatar'),
       ]);
 
       if (_uid != null) {
@@ -253,6 +258,7 @@ class UserDataProvider with ChangeNotifier {
       _name = null;
       _age = null;
       _gender = '';
+      _avatar = null;
       _isOnboardingCompleted = false;
 
       notifyListeners();
@@ -287,6 +293,9 @@ class UserDataProvider with ChangeNotifier {
         await prefs.setString(_genderKey, gender);
         _gender = gender;
       }
+      if (_avatar != null) {
+        await prefs.setString('user_avatar', _avatar!);
+      }
 
       if (_uid != null && updateFirestore) {
         await _firestore.collection('users').doc(_uid).update({
@@ -305,6 +314,16 @@ class UserDataProvider with ChangeNotifier {
     } finally {
       setLoading(false);
     }
+  }
+
+  // Avatar setter
+  void setAvatar(String assetPath) async {
+    _avatar = assetPath;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('user_avatar', assetPath);
+    } catch (_) {}
+    notifyListeners();
   }
 
   Future<bool> hasUserDetail(String key) async {

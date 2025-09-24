@@ -93,7 +93,7 @@ class AuthScreen extends StatelessWidget {
                                 // Apple Sign In Button
                                 ElevatedButton(
                                   onPressed: () {
-                                    auth.signInWithApple(context);
+                                    auth.signInWithGoogle(context);
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.white,
@@ -124,11 +124,11 @@ class AuthScreen extends StatelessWidget {
                                     ],
                                   ),
                                 ),
-                                const SizedBox(height: 16),
+                                const SizedBox(height: 14),
                                 // Google Sign In Button
                                 ElevatedButton(
                                   onPressed: () {
-                                    auth.signInWithGoogle(context);
+                                    auth.signInWithApple(context);
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: ColorClass.white,

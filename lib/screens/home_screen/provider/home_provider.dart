@@ -16,6 +16,9 @@ class HomeProvider extends ChangeNotifier {
   String? _error;
   EpisodeModel? _highlightedEpisodes;
   bool _isHighlightedLoading = false;
+  // Cache of episode counts per story to avoid fetching on every render
+  final Map<int, int> _episodeCountByStoryId = {};
+  final Map<int, bool> _isEpisodeCountLoading = {};
 
   StoryModel? get storyModel => _storyModel;
   bool get isStoryLoading => _isLoading;
@@ -25,6 +28,30 @@ class HomeProvider extends ChangeNotifier {
   String? get error => _error;
   EpisodeModel? get highlightedEpisodes => _highlightedEpisodes;
   bool get isHighlightedLoading => _isHighlightedLoading;
+
+  // Returns cached episode count if known; otherwise null
+  int? getEpisodeCountCached(int storyId) => _episodeCountByStoryId[storyId];
+
+  // Ensure episode count for a story is fetched and cached
+  Future<void> ensureEpisodeCount(int storyId) async {
+    if (_episodeCountByStoryId.containsKey(storyId)) return;
+    if (_isEpisodeCountLoading[storyId] == true) return;
+    _isEpisodeCountLoading[storyId] = true;
+    try {
+      final response = await http
+          .get(Uri.parse(ApiUrls.getEpisode(storyId.toString())))
+          .timeout(const Duration(seconds: 15));
+      if (response.statusCode == 200) {
+        final model = episodeModelFromJson(response.body);
+        _episodeCountByStoryId[storyId] = (model.data ?? []).length;
+      }
+    } catch (_) {
+      // Silently ignore; we will keep showing fallback text
+    } finally {
+      _isEpisodeCountLoading[storyId] = false;
+      notifyListeners();
+    }
+  }
 
   Future<void> fetchStories() async {
     _isLoading = true;

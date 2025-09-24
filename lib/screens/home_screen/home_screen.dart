@@ -1,11 +1,12 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, unused_import, unused_element
 
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:zaitoon/constants/app_urls.dart';
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/textstyle_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/bookmark_screen/bookmark_screen.dart';
-
+import 'package:google_fonts/google_fonts.dart';
 import 'package:zaitoon/screens/episode_screen.dart/episode_screen.dart';
 import 'package:zaitoon/screens/home_screen/models/episode_model.dart';
 import 'package:zaitoon/screens/home_screen/models/story_model.dart';
@@ -23,6 +24,12 @@ import 'package:zaitoon/screens/version_check/force_udpate_dialog.dart';
 import 'package:zaitoon/screens/version_check/provider/version_check_provider.dart';
 import 'package:zaitoon/screens/home_screen/components/highlighted_cards.dart';
 import 'package:zaitoon/screens/registration/widgets/registration_popup.dart';
+import 'package:zaitoon/screens/standalone_stories/provider/story_provider.dart';
+import 'package:zaitoon/screens/bookmark_screen/provider/bookmark_provider.dart';
+import 'package:zaitoon/constants/image_class.dart';
+import 'package:zaitoon/screens/standalone_stories/standalone_story_list_screen.dart'
+    show StoriesScreen;
+import 'package:flutter/services.dart' as services;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -112,7 +119,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.black.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
@@ -147,12 +154,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.black.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
                   Icons.arrow_forward_ios,
-                  color: Colors.white,
+                  color: Colors.black,
                   size: 16,
                 ),
               ),
@@ -185,113 +192,426 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ColorClass.black,
+      backgroundColor: Colors.white,
       body: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    ColorClass.primaryColor.withOpacity(0.15),
-                    Colors.transparent,
-                  ],
+        child: Consumer3<UserDataProvider, StoriesProvider, BookmarkProvider>(
+          builder: (context, user, storiesProvider, bookmarkProvider, _) {
+            services.SystemChrome.setSystemUIOverlayStyle(
+                const services.SystemUiOverlayStyle(
+              statusBarColor: Colors.transparent,
+              statusBarIconBrightness: Brightness.dark,
+              statusBarBrightness: Brightness.light,
+              systemNavigationBarColor: Colors.white,
+              systemNavigationBarIconBrightness: Brightness.dark,
+            ));
+            return ListView(
+              padding: const EdgeInsets.symmetric(vertical: 0),
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 10),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      _buildGreetingSection(user.name ?? '', user),
+                    ],
+                  ),
                 ),
+                Consumer<HomeProvider>(
+                  builder: (context, provider, _) {
+                    if (provider.isHighlightedLoading) {
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(20.0),
+                          child: CircularProgressIndicator(
+                            color: ColorClass.primaryColor,
+                          ),
+                        ),
+                      );
+                    }
+                    if (provider.highlightedEpisodes == null &&
+                        provider.singleStoryModel == null) {
+                      return const SizedBox.shrink();
+                    }
+                    return HighlightedCards(
+                      storyModel: provider.storyModel,
+                      singleStoryModel: provider.singleStoryModel,
+                      episodes: provider.highlightedEpisodes?.data ?? [],
+                      selectedLanguage: provider.selectedLanguage,
+                      onEpisodeTap: (episode) {
+                        navigatePR(
+                          context: context,
+                          screen: StoryReadingScreen(
+                            id: episode.id.toString(),
+                            title: _getEpisodeTitle(
+                                episode, provider.selectedLanguage),
+                            thumbnail:
+                                ApiUrls.assetBaseUrl + episode.coverImage!,
+                            tag: '',
+                            pdfUrl: ApiUrls.assetBaseUrl +
+                                _getEpisodeFile(
+                                    episode, provider.selectedLanguage),
+                          ),
+                        );
+                      },
+                      onStoryTap: (story) {
+                        navigatePR(
+                          context: context,
+                          screen: StoryReadingScreen(
+                            id: story.id.toString(),
+                            title: _getStoryTitle(
+                                story, provider.selectedLanguage),
+                            thumbnail: ApiUrls.assetBaseUrl + story.coverImage!,
+                            tag: story.tag!,
+                            pdfUrl: ApiUrls.assetBaseUrl +
+                                _getStoryFile(story, provider.selectedLanguage),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+                const SizedBox(height: 20),
+                if (bookmarkProvider.bookmarks.isNotEmpty) ...[
+                  _buildSectionTitle('Continue Reading'),
+                  const SizedBox(height: 12),
+                  _buildContinueReadingList(context, bookmarkProvider),
+                  const SizedBox(height: 24),
+                ],
+                Consumer<StoriesProvider>(
+                  builder: (context, provider, child) {
+                    final singleStories =
+                        (provider.singleStoryModel?.data ?? [])
+                            .reversed
+                            .toList();
+                    if (singleStories.isEmpty) {
+                      return const SizedBox.shrink();
+                    }
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSectionTitle('Single Stories',
+                            trailing: _buildSeeAll(context)),
+                        const SizedBox(height: 12),
+                        _buildSingleStoriesList(context, singleStories),
+                        const SizedBox(height: 24),
+                      ],
+                    );
+                  },
+                ),
+                _buildSectionTitle('Recent Upload videos'),
+                const SizedBox(height: 12),
+                _buildRecentUploadsList(context),
+                const SizedBox(height: 24),
+                _buildSectionTitle('All Stories'),
+                const SizedBox(height: 12),
+                _buildAllStoriesHorizontal(context),
+                const SizedBox(height: 24),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGreetingSection(String name, UserDataProvider user) {
+    final String avatarAsset = user.avatar ??
+        (user.gender == 'girl' ? ImageClass.avatar2 : ImageClass.avatar1);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          children: [
+            Text(
+              'Hello ',
+              style: GoogleFonts.fredoka(
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+                color: Colors.black,
               ),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                child: Column(
-                  children: [
-                    Consumer<UserDataProvider>(
-                      builder: (context, data, child) => Row(
-                        children: [
-                          _buildGreetingSection(data.name ?? ''),
-                          _buildActionButtons(context),
-                        ],
-                      ),
-                    ),
-                  ],
+            ),
+            ShaderMask(
+              shaderCallback: (bounds) => const LinearGradient(
+                colors: [ColorClass.grad1, ColorClass.grad2, ColorClass.grad3],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ).createShader(bounds),
+              child: Text(
+                name.isEmpty ? 'Friend' : name,
+                style: GoogleFonts.fredoka(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
                 ),
               ),
             ),
-            Expanded(
-              child: ListView(
-                children: [
-                  Consumer<HomeProvider>(
-                    builder: (context, provider, _) {
-                      if (provider.isHighlightedLoading) {
-                        return const Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(20.0),
-                            child: CircularProgressIndicator(
-                              color: ColorClass.primaryColor,
-                            ),
-                          ),
-                        );
-                      }
-                      if (provider.highlightedEpisodes == null &&
-                          provider.singleStoryModel == null) {
-                        return const SizedBox.shrink();
-                      }
-                      return HighlightedCards(
-                        storyModel: provider.storyModel,
-                        singleStoryModel: provider.singleStoryModel,
-                        episodes: provider.highlightedEpisodes?.data ?? [],
-                        selectedLanguage: provider.selectedLanguage,
-                        onEpisodeTap: (episode) {
-                          navigatePR(
-                            context: context,
-                            screen: StoryReadingScreen(
-                              id: episode.id.toString(),
-                              title: _getEpisodeTitle(
-                                  episode, provider.selectedLanguage),
-                              thumbnail:
-                                  ApiUrls.assetBaseUrl + episode.coverImage!,
-                              tag: '',
-                              pdfUrl: ApiUrls.assetBaseUrl +
-                                  _getEpisodeFile(
-                                      episode, provider.selectedLanguage),
-                            ),
-                          );
-                        },
-                        onStoryTap: (story) {
-                          navigatePR(
-                            context: context,
-                            screen: StoryReadingScreen(
-                              id: story.id.toString(),
-                              title: _getStoryTitle(
-                                  story, provider.selectedLanguage),
-                              thumbnail:
-                                  ApiUrls.assetBaseUrl + story.coverImage!,
-                              tag: story.tag!,
-                              pdfUrl: ApiUrls.assetBaseUrl +
-                                  _getStoryFile(
-                                      story, provider.selectedLanguage),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  ),
-                  SizedBox(height: 30),
-                  _buildMalarvadiBanner(),
-                  SizedBox(height: 30),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 16.0),
-                    child: Text(
-                      'All Stories',
-                      style: TextStyleClass.poppinsSemiBold(
-                        fontSize: 16,
-                        color: ColorClass.white,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  _buildStoriesGrid(),
-                ],
+            Text(' 👋', style: TextStyle(fontSize: 20)),
+            const SizedBox(width: 120),
+            IconButton(
+              onPressed: () => navigatePR(
+                context: context,
+                screen: const LanguageSelection(),
               ),
+              icon: const Icon(LucideIcons.search, color: Colors.black),
+            ),
+            ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: Image.asset(
+            avatarAsset,
+            width: 40,
+            height: 40,
+            fit: BoxFit.cover,
+          ),
+        ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Let’s explore magical stories together!',
+          style: GoogleFonts.openSans(
+            fontSize: 14,
+            color: Colors.black.withOpacity(0.7),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Widget _buildHeroBanner(UserDataProvider user) {
+  //   return Padding(
+  //     padding: const EdgeInsets.symmetric(horizontal: 16),
+  //     child: ClipRRect(
+  //       borderRadius: BorderRadius.circular(24),
+  //       child: Container(
+  //         height: 180,
+  //         width: double.infinity,
+  //         decoration: BoxDecoration(
+  //           image: DecorationImage(
+  //             image: AssetImage(user.gender == 'girl'
+  //                 ? ImageClass.avatar2
+  //                 : ImageClass.avatar1),
+  //             fit: BoxFit.cover,
+  //           ),
+  //         ),
+  //         child: Container(color: Colors.black.withOpacity(0.15)),
+  //       ),
+  //     ),
+  //   );
+  // }
+
+  Widget _buildSectionTitle(String title, {Widget? trailing}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              title,
+              style: GoogleFonts.fredoka(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: Colors.black,
+              ),
+            ),
+          ),
+          if (trailing != null) trailing,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSeeAll(BuildContext context) {
+    return TextButton(
+      onPressed: () => navigatePR(
+        context: context,
+        screen: const StoriesScreen(),
+      ),
+      child: Text(
+        'See all',
+        style: GoogleFonts.openSans(color: Colors.black, fontSize: 14),
+      ),
+    );
+  }
+
+  Widget _buildContinueReadingList(
+      BuildContext context, BookmarkProvider provider) {
+    final items = provider.bookmarks.reversed.toList();
+    return SizedBox(
+      height: 170,
+      child: ListView.separated(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        scrollDirection: Axis.horizontal,
+        itemBuilder: (context, index) {
+          final item = items[index];
+          return _buildSmallPoster(
+            imageUrl: item.thumbnail,
+            title: item.title,
+            onTap: () {
+              navigatePR(
+                context: context,
+                screen: StoryReadingScreen(
+                  id: item.id,
+                  title: item.title,
+                  thumbnail: item.thumbnail,
+                  tag: item.tag,
+                  pdfUrl: item.fileUrl,
+                ),
+              );
+            },
+          );
+        },
+        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        itemCount: items.length.clamp(0, 10),
+      ),
+    );
+  }
+
+  Widget _buildSingleStoriesList(
+      BuildContext context, List<Datum> singleStories) {
+    final home = Provider.of<HomeProvider>(context, listen: false);
+    return SizedBox(
+      height: 260,
+      child: ListView.separated(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        scrollDirection: Axis.horizontal,
+        itemBuilder: (context, index) {
+          final story = singleStories[index];
+          return _buildTallCard(
+            imageUrl: ApiUrls.assetBaseUrl + (story.coverImage ?? ''),
+            title: home.selectedLanguage == 'en'
+                ? (story.storyTitleEn ?? 'Untitled')
+                : (story.storyTitleMl ?? 'Untitled'),
+            subtitle: '${story.readTime ?? '0'} mnt',
+            cardType: 'single',
+            onTap: () {
+              navigatePR(
+                context: context,
+                screen: StoryReadingScreen(
+                  id: (story.id ?? 0).toString(),
+                  title: home.selectedLanguage == 'en'
+                      ? (story.storyTitleEn ?? 'Untitled')
+                      : (story.storyTitleMl ?? 'Untitled'),
+                  thumbnail: ApiUrls.assetBaseUrl + (story.coverImage ?? ''),
+                  tag: story.tag ?? '',
+                  pdfUrl: home.selectedLanguage == 'en'
+                      ? ApiUrls.assetBaseUrl + (story.storyFileEn ?? '')
+                      : ApiUrls.assetBaseUrl + (story.storyFileMl ?? ''),
+                ),
+              );
+            },
+          );
+        },
+        separatorBuilder: (_, __) => const SizedBox(width: 14),
+        itemCount: singleStories.length,
+      ),
+    );
+  }
+
+  Widget _buildRecentUploadsList(BuildContext context) {
+    return Consumer<HomeProvider>(
+      builder: (context, provider, _) {
+        final stories = provider.storyModel?.data ?? [];
+        if (stories.isEmpty) return _buildEmptyState();
+        final latest = List<StoryData>.from(stories)
+          ..sort((a, b) => (int.tryParse(b.id.toString()) ?? 0)
+              .compareTo(int.tryParse(a.id.toString()) ?? 0));
+        return SizedBox(
+          height: 140,
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            scrollDirection: Axis.horizontal,
+            itemBuilder: (context, index) {
+              final s = latest[index];
+              return _buildWideThumb(
+                imageUrl: ApiUrls.assetBaseUrl + (s.coverimage ?? ''),
+                onTap: () {
+                  navigatePR(
+                    context: context,
+                    screen: EpisodeScreen(
+                      title: _getStoryModelTitle(s, provider.selectedLanguage),
+                      id: s.id.toString(),
+                      imageUrl: ApiUrls.assetBaseUrl + (s.coverimage ?? ''),
+                      tag: s.tag ?? '',
+                    ),
+                  );
+                },
+              );
+            },
+            separatorBuilder: (_, __) => const SizedBox(width: 12),
+            itemCount: latest.length.clamp(0, 10),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildAllStoriesHorizontal(BuildContext context) {
+    return Consumer2<HomeProvider, PdfProvider>(
+      builder: (context, home, pdf, _) {
+        if (home.isStoryLoading) return _buildLoadingIndicator();
+        final list = home.storyModel?.data ?? [];
+        if (list.isEmpty) return _buildEmptyState();
+        final sorted = _getSortedStories(list);
+        return SizedBox(
+          height: 250,
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            scrollDirection: Axis.horizontal,
+            itemBuilder: (context, index) {
+              final item = sorted[index];
+              return _buildTallCard(
+                imageUrl: ApiUrls.assetBaseUrl + (item.coverimage ?? ''),
+                title: _getStoryModelTitle(item, home.selectedLanguage),
+                subtitle: _episodeCountText(item),
+                cardType: 'all',
+                onTap: () => _handleStoryTapWithData(item, home, pdf),
+              );
+            },
+            separatorBuilder: (_, __) => const SizedBox(width: 14),
+            itemCount: sorted.length,
+          ),
+        );
+      },
+    );
+  }
+
+  String _episodeCountText(StoryData story) {
+    final home = Provider.of<HomeProvider>(context, listen: false);
+    final int storyId = story.id ?? 0;
+    if (storyId == 0) return 'Episodes';
+
+    final cachedCount = home.getEpisodeCountCached(storyId);
+    if (cachedCount != null) {
+      return '$cachedCount episodes';
+    }
+
+    // Trigger background fetch; UI will rebuild when count arrives
+    // ignore: discarded_futures
+    home.ensureEpisodeCount(storyId);
+    return 'Episodes';
+  }
+
+  Widget _buildSmallPoster(
+      {required String imageUrl,
+      required String title,
+      required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Stack(
+          children: [
+            Image.network(
+              imageUrl,
+              width: 116,
+              height: 159,
+              fit: BoxFit.cover,
+            ),
+            Container(
+              width: 116,
+              height: 159,
+              color: const Color(0x33000000),
             ),
           ],
         ),
@@ -299,86 +619,115 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildGreetingSection(String name) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min, // Add this
-        children: [
-          FittedBox(
-            // Wrap the row in FittedBox
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
-            child: Row(
-              children: [
-                Text(
-                  "Hello", // Add text truncation
-                  style: TextStyleClass.poppinsSemiBold(
-                    fontSize: 20,
-                    color: ColorClass.white,
+  Widget _buildWideThumb(
+      {required String imageUrl, required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Image.network(
+              imageUrl,
+              width: 182,
+              height: 126,
+              fit: BoxFit.cover,
+            ),
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.play_arrow, color: Colors.black),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTallCard({
+    required String imageUrl,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+    String cardType =
+        'single', // 'single' for single stories, 'all' for all stories
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: SizedBox(
+        width: 169,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: Stack(
+                children: [
+                  Image.network(
+                    imageUrl,
+                    width: 169,
+                    height: 200,
+                    fit: BoxFit.cover,
                   ),
-                  maxLines: 1, // Limit to single line
-                  overflow: TextOverflow.ellipsis, // Add ellipsis for overflow
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
+                      width: 28,
+                      height: 28,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.8),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.bookmark_border,
+                        size: 18,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.openSans(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.black,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Row(
+              children: [
+                if (cardType == 'single')
+                  Icon(
+                    LucideIcons.clock,
+                    size: 14,
+                    color: Colors.black54,
+                  ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    subtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style:
+                        GoogleFonts.openSans(fontSize: 12, color: Colors.black),
+                  ),
                 ),
-                const Text(" 👋", style: TextStyle(fontSize: 20)),
               ],
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            name,
-            style: TextStyleClass.poppinsRegular(
-              fontSize: 16,
-              color: ColorClass.white.withOpacity(0.7),
-            ),
-            maxLines: 1, // Limit to single line
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActionButtons(BuildContext context) {
-    return Row(
-      children: [
-        _buildIconButton(
-          icon: 'assets/icons/language.png',
-          onPressed: () => navigatePR(
-            context: context,
-            screen: const LanguageSelection(),
-          ),
+          ],
         ),
-        _buildIconButton(
-          icon: Icons.bookmark_outline_outlined,
-          onPressed: () => navigatePR(
-            context: context,
-            screen: const BookmarkScreen(),
-          ),
-        ),
-        _buildIconButton(
-          icon: Icons.settings,
-          onPressed: () => navigatePR(
-            context: context,
-            screen: const SettingsScreen(),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildIconButton({dynamic icon, required VoidCallback onPressed}) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      decoration: BoxDecoration(
-        color: ColorClass.primaryColor.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: IconButton(
-        onPressed: onPressed,
-        icon: icon is String
-            ? Image.asset(icon, color: ColorClass.white, height: 24)
-            : Icon(icon as IconData, color: ColorClass.white),
       ),
     );
   }
@@ -505,7 +854,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             'No stories found',
             style: TextStyleClass.poppinsMedium(
               fontSize: 18,
-              color: ColorClass.white,
+              color: ColorClass.black,
             ),
           ),
         ],
@@ -528,7 +877,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             'Error loading stories',
             style: TextStyleClass.poppinsMedium(
               fontSize: 18,
-              color: ColorClass.white,
+              color: ColorClass.black,
             ),
           ),
           const SizedBox(height: 8),
@@ -536,7 +885,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             error,
             style: TextStyleClass.poppinsRegular(
               fontSize: 14,
-              color: ColorClass.white.withOpacity(0.7),
+              color: ColorClass.black.withOpacity(0.7),
             ),
             textAlign: TextAlign.center,
           ),
@@ -550,13 +899,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: ColorClass.primaryColor,
-              foregroundColor: Colors.white,
+              foregroundColor: Colors.black,
             ),
             child: Text(
               'Retry',
               style: TextStyleClass.poppinsMedium(
                 fontSize: 16,
-                color: Colors.white,
+                color: Colors.black,
               ),
             ),
           ),

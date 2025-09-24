@@ -8,7 +8,7 @@ import 'package:zaitoon/screens/home_screen/models/episode_model.dart';
 import 'package:zaitoon/screens/home_screen/models/story_model.dart';
 import 'package:zaitoon/screens/standalone_stories/models/single_story_model.dart';
 
-class HighlightedCards extends StatelessWidget {
+class HighlightedCards extends StatefulWidget {
   final List<EpisodeData> episodes;
   final String selectedLanguage;
   final Function(EpisodeData) onEpisodeTap;
@@ -26,15 +26,22 @@ class HighlightedCards extends StatelessWidget {
     required this.singleStoryModel,
   });
 
-  String getStoryName(int? storyId) {
-    if (storyModel?.data == null || storyId == null) return '';
+  @override
+  State<HighlightedCards> createState() => _HighlightedCardsState();
+}
 
-    final story = storyModel!.data!.firstWhere(
+class _HighlightedCardsState extends State<HighlightedCards> {
+  int _currentIndex = 0;
+
+  String getStoryName(int? storyId) {
+    if (widget.storyModel?.data == null || storyId == null) return '';
+
+    final story = widget.storyModel!.data!.firstWhere(
       (story) => story.id == storyId,
       orElse: () => StoryData(),
     );
 
-    switch (selectedLanguage) {
+    switch (widget.selectedLanguage) {
       case 'ml':
         return story.mlTitle ?? story.name ?? '';
       case 'hi':
@@ -49,17 +56,14 @@ class HighlightedCards extends StatelessWidget {
   List<dynamic> getCombinedHighlightedContent() {
     List<dynamic> combined = [];
 
-    // Add episodes (sorted by priority if available)
-    if (episodes.isNotEmpty) {
-      // Sort episodes by priority (lower number = higher priority)
-      final sortedEpisodes = List<EpisodeData>.from(episodes);
+    if (widget.episodes.isNotEmpty) {
+      final sortedEpisodes = List<EpisodeData>.from(widget.episodes);
       sortedEpisodes.sort((a, b) {
-        // Get priority from the story model based on episode's story ID
-        final storyA = storyModel?.data?.firstWhere(
+        final storyA = widget.storyModel?.data?.firstWhere(
           (story) => story.id == a.story,
           orElse: () => StoryData(),
         );
-        final storyB = storyModel?.data?.firstWhere(
+        final storyB = widget.storyModel?.data?.firstWhere(
           (story) => story.id == b.story,
           orElse: () => StoryData(),
         );
@@ -72,16 +76,12 @@ class HighlightedCards extends StatelessWidget {
       combined.addAll(sortedEpisodes);
     }
 
-    // Add single stories (highlighted ones only)
-    if (singleStoryModel?.data != null) {
-      final highlightedStories = singleStoryModel!.data
+    if (widget.singleStoryModel?.data != null) {
+      final highlightedStories = widget.singleStoryModel!.data
           .where((story) => story.isHighlighted == true)
           .toList();
       combined.addAll(highlightedStories);
     }
-
-    // Don't shuffle if we want to maintain priority order
-    // If you want to mix them while respecting priority, you could implement a more complex sorting
 
     return combined;
   }
@@ -96,35 +96,35 @@ class HighlightedCards extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(0),
           child: Text(
             'Featured Content',
-            style: TextStyleClass.poppinsSemiBold(
+            style: TextStyleClass.openSans(
               fontSize: 16,
               color: ColorClass.white,
             ),
           ),
         ),
         SizedBox(
-          height: 250,
+          width: 357,
           child: FlutterCarousel(
             items: combinedContent.map((item) {
               return GestureDetector(
                 onTap: () {
                   if (item is EpisodeData) {
-                    onEpisodeTap(item);
+                    widget.onEpisodeTap(item);
                   } else if (item is Datum) {
-                    onStoryTap(item);
+                    widget.onStoryTap(item);
                   }
                 },
                 child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 8),
+                  margin: const EdgeInsets.symmetric(horizontal: 2),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(24),
                     color: Colors.grey[900],
                   ),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(24),
                     child: Stack(
                       children: [
                         Positioned.fill(
@@ -155,20 +155,27 @@ class HighlightedCards extends StatelessWidget {
               autoPlay: true,
               autoPlayAnimationDuration: const Duration(milliseconds: 800),
               autoPlayCurve: Curves.fastOutSlowIn,
-              showIndicator: true,
+              showIndicator: false,
               enableInfiniteScroll: true,
               autoPlayInterval: const Duration(seconds: 2),
-              height: 250,
+              height: 130,
+              onPageChanged: (index, reason) {
+                setState(() {
+                  _currentIndex = index;
+                });
+              },
             ),
           ),
         ),
+        const SizedBox(height: 16),
+        _buildPageIndicator(combinedContent.length),
       ],
     );
   }
 
   String _getItemBanner(dynamic item) {
     if (item is EpisodeData) {
-      switch (selectedLanguage) {
+      switch (widget.selectedLanguage) {
         case 'ml':
           return item.mlBanner ?? item.adBanner ?? '';
         case 'hi':
@@ -179,22 +186,59 @@ class HighlightedCards extends StatelessWidget {
           return item.adBanner ?? '';
       }
     } else if (item is Datum) {
-      // Handle Datum which might not have all language fields yet
-      switch (selectedLanguage) {
+      switch (widget.selectedLanguage) {
         case 'ml':
           return (item.mlBanner?.toString() ?? '') != ''
               ? item.mlBanner.toString()
               : (item.enBanner?.toString() ?? '');
         case 'hi':
-          // Datum doesn't have hinBanner yet, fallback to enBanner
           return item.enBanner?.toString() ?? '';
         case 'ur':
-          // Datum doesn't have urBanner yet, fallback to enBanner
           return item.enBanner?.toString() ?? '';
         default: // 'en' or any other language
           return item.enBanner?.toString() ?? '';
       }
     }
     return '';
+  }
+
+  Widget _buildPageIndicator(int total) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(total, (index) {
+        final bool isActive = index == _currentIndex;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          margin: const EdgeInsets.only(right: 8.0),
+          width: isActive ? 20.0 : 8.0,
+          height: 8.0,
+          decoration: BoxDecoration(
+            gradient: isActive
+                ? const LinearGradient(
+                    colors: [
+                      ColorClass.grad1,
+                      ColorClass.grad2,
+                      ColorClass.grad3,
+                    ],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  )
+                : null,
+            color: isActive ? null : ColorClass.black87,
+            borderRadius: BorderRadius.circular(4.0),
+            boxShadow: isActive
+                ? [
+                    BoxShadow(
+                      color: ColorClass.grad2.withOpacity(0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    )
+                  ]
+                : null,
+          ),
+        );
+      }),
+    );
   }
 }
