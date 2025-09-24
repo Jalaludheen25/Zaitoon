@@ -16,11 +16,17 @@ class NavigationProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Method to set index directly without navigation logic (for initialization)
+  void setIndexDirectly(int index) {
+    _currentIndex = index;
+    notifyListeners();
+  }
+
   Future<void> setIndex(int index, BuildContext context) async {
     // Always 5 tabs: Episodes(0), Stories(1), Bookmarks(2), BrightBox(3), Quiz/Settings(4)
     // When quiz is enabled: 5th tab is Quiz (but navigates to separate screen)
     // When quiz is disabled: 5th tab is Settings (normal tab behavior)
-    
+
     // Check if trying to access quiz section (index 4 when quiz is enabled)
     if (_showQuiz && index == 4) {
       // Don't change the current index, just navigate to quiz
@@ -28,7 +34,7 @@ class NavigationProvider extends ChangeNotifier {
       try {
         final dbHelper = DatabaseHelper();
         final students = await dbHelper.getAllStudents();
-        
+
         if (students.isNotEmpty) {
           // Student exists, navigate to quiz screen
           if (context.mounted) {
@@ -42,7 +48,8 @@ class NavigationProvider extends ChangeNotifier {
           if (context.mounted) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const StudentFormScreen()),
+              MaterialPageRoute(
+                  builder: (context) => const StudentFormScreen()),
             );
           }
         }

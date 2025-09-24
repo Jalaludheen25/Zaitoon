@@ -37,6 +37,9 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
       }
       // Check quiz visibility from API
       context.read<NavigationProvider>().checkQuizVisibility();
+
+      // Set the current index to the provided index (important for back navigation)
+      context.read<NavigationProvider>().setIndexDirectly(widget.currentIndex);
     });
   }
 

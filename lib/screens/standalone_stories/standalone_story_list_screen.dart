@@ -11,7 +11,8 @@ import 'package:zaitoon/constants/textstyle_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/bookmark_screen/bookmark_screen.dart';
 import 'package:zaitoon/screens/bookmark_screen/provider/bookmark_provider.dart';
-import 'package:zaitoon/screens/home_screen/home_screen.dart';
+import 'package:zaitoon/screens/bottom_navigation/bottom_navigation.dart';
+import 'package:zaitoon/screens/bottom_navigation/provider/bottom_navigation_provider.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
 import 'package:zaitoon/screens/reading_screen/story_reader_page.dart';
 import 'package:zaitoon/screens/standalone_stories/provider/story_provider.dart';
@@ -89,9 +90,23 @@ class _StoriesScreenState extends State<StoriesScreen> {
                       // Back Button with gradient
                       GestureDetector(
                         onTap: () {
-                          navigatePR(
-                            context: context,
-                            screen: const HomeScreen(),
+                          debugPrint('🔙 Back button pressed in StoriesScreen');
+                          debugPrint(
+                              '🔙 Force navigating to BottomNavigationScreen with index 0');
+
+                          // Always navigate to home with explicit index 0
+                          // First set the navigation provider to index 0
+                          context
+                              .read<NavigationProvider>()
+                              .setIndexDirectly(0);
+
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const BottomNavigationScreen(currentIndex: 0),
+                            ),
+                            (route) => false,
                           );
                         },
                         child: Container(
