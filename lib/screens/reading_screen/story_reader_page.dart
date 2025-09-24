@@ -202,7 +202,7 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Text(
                       widget.title,
-                      style: TextStyleClass.poppinsSemiBold(
+                      style: TextStyleClass.fredoka(
                         fontSize: 16,
                         color: ColorClass.white,
                       ),
@@ -238,7 +238,15 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: ColorClass.primaryColor.withOpacity(0.3),
+                gradient: LinearGradient(
+                  colors: [
+                    ColorClass.grad1,
+                    ColorClass.grad2,
+                    ColorClass.grad3,
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
@@ -248,16 +256,16 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
                   ),
                 ],
               ),
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('📖', style: TextStyle(fontSize: 20)),
-                  SizedBox(width: 8),
+                  const Text('📖', style: TextStyle(fontSize: 20)),
+                  const SizedBox(width: 8),
                   Text(
                     'Keep Reading!',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                    style: TextStyleClass.fredoka(
+                      fontSize: 14,
+                      color: ColorClass.white,
                     ),
                   ),
                 ],
@@ -356,16 +364,16 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
     required VoidCallback onPressed,
   }) {
     return Container(
+      width: 40,
+      height: 40,
       decoration: BoxDecoration(
-        color: ColorClass.primaryColor.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: ColorClass.primaryColor.withOpacity(0.3),
-        ),
+        color: ColorClass.white.withOpacity(0.2),
+        shape: BoxShape.circle,
       ),
       child: IconButton(
         icon: Icon(icon, color: ColorClass.white, size: 20),
         onPressed: onPressed,
+        padding: EdgeInsets.zero,
       ),
     );
   }
@@ -375,12 +383,11 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
       builder: (context, bookmarkProvider, child) {
         final isBookmarked = bookmarkProvider.isBookmarked(widget.id);
         return Container(
+          width: 40,
+          height: 40,
           decoration: BoxDecoration(
-            color: ColorClass.primaryColor.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: ColorClass.primaryColor.withOpacity(0.3),
-            ),
+            color: ColorClass.white.withOpacity(0.2),
+            shape: BoxShape.circle,
           ),
           child: IconButton(
             icon: AnimatedSwitcher(
@@ -394,6 +401,7 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
               ),
             ),
             onPressed: () => _handleBookmark(bookmarkProvider, isBookmarked),
+            padding: EdgeInsets.zero,
           ),
         );
       },
@@ -411,9 +419,12 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                ColorClass.primaryColor,
-                ColorClass.primaryColor.withOpacity(0.2),
+                ColorClass.grad1,
+                ColorClass.grad2,
+                ColorClass.grad3,
               ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
@@ -433,9 +444,9 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
                 onPressed: () => navigateBack(context),
                 child: Text(
                   'Great job! You finished the story!',
-                  style: TextStyleClass.poppinsSemiBold(
+                  style: TextStyleClass.fredoka(
                     fontSize: 14,
-                    color: Colors.white,
+                    color: ColorClass.white,
                   ),
                 ),
               ),

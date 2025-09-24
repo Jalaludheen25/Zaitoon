@@ -8,12 +8,46 @@ class StoriesProvider extends ChangeNotifier {
   bool _isLoading = false;
   String _error = '';
   bool _isBookmarkLoading = false;
+  String _selectedCategory = "Kids"; // Default selected category
 
   // Getters
   SingleStoryModel? get singleStoryModel => _singleStoryModel;
   bool get isLoading => _isLoading;
   String get error => _error;
   bool get isBookmarkLoading => _isBookmarkLoading;
+  String get selectedCategory => _selectedCategory;
+
+  // Get filtered stories based on selected category
+  List<Datum> get filteredStories {
+    if (_singleStoryModel?.data == null) return [];
+
+    return _singleStoryModel!.data.where((story) {
+      final storyTag = story.tag?.toLowerCase() ?? '';
+      final categoryToMatch = _selectedCategory.toLowerCase();
+
+      // Handle different category matching
+      switch (categoryToMatch) {
+        case 'kids':
+          return storyTag.contains('kids') || storyTag.contains('kid');
+        case 'fun':
+          return storyTag.contains('fun');
+        case 'bed time stories':
+          return storyTag.contains('bedtime') ||
+              storyTag.contains('bed time') ||
+              storyTag.contains('sleep');
+        case 'children':
+          return storyTag.contains('children') || storyTag.contains('child');
+        default:
+          return true; // Show all if no specific category
+      }
+    }).toList();
+  }
+
+  // Set selected category
+  void setSelectedCategory(String category) {
+    _selectedCategory = category;
+    notifyListeners();
+  }
 
   Future<void> fetchStories() async {
     _isLoading = true;
@@ -21,7 +55,8 @@ class StoriesProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      debugPrint('🔄 Fetching stories from: ${ApiUrls.baseUrl}/items/zaitoon_single_story');
+      debugPrint(
+          '🔄 Fetching stories from: ${ApiUrls.baseUrl}/items/zaitoon_single_story');
       final response = await http
           .get(Uri.parse('${ApiUrls.baseUrl}/items/zaitoon_single_story'));
 
@@ -31,8 +66,9 @@ class StoriesProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         debugPrint('✅ Starting to parse stories...');
         _singleStoryModel = singleStoryModelFromJson(response.body);
-        debugPrint('✅ Successfully parsed ${_singleStoryModel?.data.length ?? 0} stories');
-        
+        debugPrint(
+            '✅ Successfully parsed ${_singleStoryModel?.data.length ?? 0} stories');
+
         // Log each story's fields to identify null values
         if (_singleStoryModel?.data != null) {
           for (int i = 0; i < _singleStoryModel!.data.length; i++) {
