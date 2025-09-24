@@ -64,4 +64,18 @@ class TextStyleClass {
         fontSize: fontSize,
         fontWeight: FontWeight.w600,
       );
+  static TextStyle fredoka(
+          {required double fontSize, required Color color}) =>
+      GoogleFonts.fredoka(
+        color: color,
+        fontSize: fontSize,
+        fontWeight: FontWeight.w600,
+      );
+  static TextStyle openSans(
+          {required double fontSize, required Color color}) =>
+      GoogleFonts.openSans(
+        color: color,
+        fontSize: fontSize,
+        fontWeight: FontWeight.w400,
+      );
 }
