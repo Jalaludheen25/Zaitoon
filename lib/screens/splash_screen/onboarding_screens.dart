@@ -206,12 +206,14 @@ class OnboardContent extends StatelessWidget {
 
                   const SizedBox(height: 32),
 
-                  // Page indicators and Next button
+                  // Page indicators and button (Next or Get Started)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       _buildPageIndicator(),
-                      _buildNextButton(),
+                      currentPage == totalPages - 1
+                          ? _buildGetStartedButton()
+                          : _buildNextButton(),
                     ],
                   ),
                 ],
@@ -304,7 +306,7 @@ class OnboardContent extends StatelessWidget {
               onTap: onNext,
               child: Center(
                 child: Text(
-                  currentPage == totalPages - 1 ? "Get Started" : "Next",
+                  "Next",
                   style: GoogleFonts.inter(
                     fontWeight: FontWeight.w400,
                     fontSize: 16.0,
@@ -313,6 +315,74 @@ class OnboardContent extends StatelessWidget {
                   ),
                 ),
               ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGetStartedButton() {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+      child: GestureDetector(
+        onTap: onNext,
+        child: Container(
+          width: 153,
+          height: 45,
+          clipBehavior: Clip.hardEdge,
+          decoration: const BoxDecoration(
+            color: Colors.white,
+          ),
+          child: SizedBox(
+            width: double.infinity,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Positioned(
+                  left: 0,
+                  top: 0,
+                  child: Container(
+                    width: 153,
+                    height: 45,
+                    clipBehavior: Clip.hardEdge,
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.horizontal(
+                        left: Radius.circular(24),
+                      ),
+                      gradient: LinearGradient(
+                        colors: [
+                          Color(0xFFAC28DC),
+                          Color(0xFF7E1EB7),
+                          Color(0xFF501392)
+                        ],
+                        stops: [0, 0.50, 1],
+                      ),
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: const BorderRadius.horizontal(
+                          left: Radius.circular(24),
+                        ),
+                        onTap: onNext,
+                        child: Center(
+                          child: Text(
+                            "Get Started",
+                            style: GoogleFonts.inter(
+                              fontWeight: FontWeight.w400,
+                              fontSize: 16.0,
+                              color: Colors.white,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              ],
             ),
           ),
         ),

@@ -98,7 +98,7 @@ class HomeProvider extends ChangeNotifier {
   }
 
   // ---------------- Reading Progress (per user via SharedPreferences) ----------------
-  String _prefsKeyForReading(String userId) => 'reading_progress_' + userId;
+  String _prefsKeyForReading(String userId) => 'reading_progress_$userId';
 
   Future<void> loadReadingProgress(String userId) async {
     try {
