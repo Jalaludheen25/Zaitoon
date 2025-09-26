@@ -10,12 +10,21 @@ import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/helper/url_launcher.dart';
 import 'package:zaitoon/screens/language_selection/language_selection.dart';
 import 'package:zaitoon/screens/login_screen/provider/auth_provider.dart';
-
+import 'package:flutter/services.dart';
 class AuthScreen extends StatelessWidget {
   const AuthScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarIconBrightness: Brightness.dark,
+      ),
+    );
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -35,9 +44,9 @@ class AuthScreen extends StatelessWidget {
               child: Center(
                 child: Container(
                   width: 357,
-                  height: 370,
+                  height: 380,
                   decoration: BoxDecoration(
-                    color: ColorClass.containerBg.withOpacity(0.2),
+                    color: ColorClass.containerBg.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(24),
                     // boxShadow: [
                     //   BoxShadow(

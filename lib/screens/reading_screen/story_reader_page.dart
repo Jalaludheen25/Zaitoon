@@ -14,6 +14,8 @@ import 'package:zaitoon/screens/bookmark_screen/bookmark_screen.dart';
 import 'package:zaitoon/screens/bookmark_screen/provider/bookmark_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:http/http.dart' as http;
+import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
+import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
 
 class StoryReadingScreen extends StatefulWidget {
   final String pdfUrl;
@@ -141,6 +143,7 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
                     _currentPage = page + 1;
                   });
                   _checkIfAtBottom();
+                  _persistReadingProgress();
                 }
               },
               onError: (error) {
@@ -168,6 +171,22 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
           if (!_isLoading && !_isAtBottom) _buildReadingGuide(),
         ],
       ),
+    );
+  }
+
+  void _persistReadingProgress() {
+    final home = context.read<HomeProvider>();
+    final userId = context.read<UserDataProvider?>()?.uid ?? 'guest';
+    if (_totalPages <= 0) return;
+    home.upsertReadingProgress(
+      id: widget.id,
+      title: widget.title,
+      thumbnail: widget.thumbnail,
+      fileUrl: widget.pdfUrl,
+      tag: widget.tag,
+      currentPage: _currentPage,
+      totalPages: _totalPages,
+      userId: userId,
     );
   }
 

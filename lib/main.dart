@@ -25,6 +25,7 @@ import 'package:zaitoon/screens/quiz_screen/provider/quiz_login_provider.dart';
 import 'package:zaitoon/screens/quiz/provider/quiz_provider.dart';
 import 'package:zaitoon/screens/bright_box/provider/bright_box_provider.dart';
 import 'package:zaitoon/screens/registration/providers/registration_provider.dart';
+import 'package:zaitoon/screens/search/provider/search_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -83,6 +84,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => PdfProvider()),
         ChangeNotifierProvider(create: (context) => StoriesProvider()),
         ChangeNotifierProvider(create: (context) => UserDataProvider()),
+        ChangeNotifierProvider(create: (_) => SearchProvider()),
         ChangeNotifierProvider.value(value: bookmarkProvider),
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
         ChangeNotifierProvider(create: (_) => VersionCheckProvider()),

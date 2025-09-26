@@ -132,14 +132,6 @@ class _AvatarCustomizerScreenState extends State<AvatarCustomizerScreen> {
           color: highlight ? ColorClass.violet30 : Colors.transparent,
           width: highlight ? 3 : 0,
         ),
-        boxShadow: [
-          if (highlight)
-            BoxShadow(
-              color: ColorClass.violet30.withOpacity(0.25),
-              blurRadius: 18,
-              offset: const Offset(0, 6),
-            ),
-        ],
       ),
       child: ClipOval(
         child: ImageFiltered(

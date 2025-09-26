@@ -16,10 +16,12 @@ import 'package:zaitoon/screens/language_selection/language_selection.dart';
 import 'package:zaitoon/screens/reading_screen/provider/pdf_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:zaitoon/screens/search/view/search_screen.dart';
+import 'package:zaitoon/screens/search/provider/search_provider.dart';
 import 'package:zaitoon/screens/reading_screen/story_reader_page.dart';
 import 'package:zaitoon/screens/settings_screen/settings_screen.dart';
 import 'package:zaitoon/screens/standalone_stories/models/single_story_model.dart';
-import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
+// duplicate import removed
 import 'package:zaitoon/screens/version_check/force_udpate_dialog.dart';
 import 'package:zaitoon/screens/version_check/provider/version_check_provider.dart';
 import 'package:zaitoon/screens/home_screen/components/highlighted_cards.dart';
@@ -30,6 +32,8 @@ import 'package:zaitoon/constants/image_class.dart';
 import 'package:zaitoon/screens/standalone_stories/standalone_story_list_screen.dart'
     show StoriesScreen;
 import 'package:flutter/services.dart' as services;
+import 'package:zaitoon/screens/home_screen/models/reading_progress_model.dart';
+import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -52,10 +56,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     Future.microtask(() {
       HomeProvider homeProvider =
           Provider.of<HomeProvider>(context, listen: false);
+      final userProvider =
+          Provider.of<UserDataProvider>(context, listen: false);
 
       homeProvider.fetchStories().then((value) {
         homeProvider.fetchHighlightedContent();
         checkForUpdates();
+        homeProvider.loadReadingProgress(userProvider.uid ?? 'guest');
       });
     });
   }
@@ -271,12 +278,20 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   },
                 ),
                 const SizedBox(height: 20),
-                if (bookmarkProvider.bookmarks.isNotEmpty) ...[
-                  _buildSectionTitle('Continue Reading'),
-                  const SizedBox(height: 12),
-                  _buildContinueReadingList(context, bookmarkProvider),
-                  const SizedBox(height: 24),
-                ],
+                Consumer<HomeProvider>(
+                  builder: (context, homeProvider, _) {
+                    final items = homeProvider.readingProgress;
+                    if (items.isEmpty) return const SizedBox.shrink();
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSectionTitle('Continue Reading'),
+                        const SizedBox(height: 12),
+                        _buildContinueReadingList(context, items),
+                      ],
+                    );
+                  },
+                ),
                 Consumer<StoriesProvider>(
                   builder: (context, provider, child) {
                     final singleStories =
@@ -346,24 +361,24 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ),
               ),
             ),
-            Text(' 👋', style: TextStyle(fontSize: 20)),
-            const SizedBox(width: 120),
+            Text(' 👋', style: TextStyle(fontSize: 24)),
+            const SizedBox(width: 45),
             IconButton(
               onPressed: () => navigatePR(
                 context: context,
-                screen: const LanguageSelection(),
+                screen: const SearchScreen(),
               ),
               icon: const Icon(LucideIcons.search, color: Colors.black),
             ),
             ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: Image.asset(
-            avatarAsset,
-            width: 40,
-            height: 40,
-            fit: BoxFit.cover,
-          ),
-        ),
+              borderRadius: BorderRadius.circular(20),
+              child: Image.asset(
+                avatarAsset,
+                width: 40,
+                height: 40,
+                fit: BoxFit.cover,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 4),
@@ -435,8 +450,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildContinueReadingList(
-      BuildContext context, BookmarkProvider provider) {
-    final items = provider.bookmarks.reversed.toList();
+      BuildContext context, List<ReadingProgressModel> items) {
     return SizedBox(
       height: 170,
       child: ListView.separated(
@@ -447,6 +461,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           return _buildSmallPoster(
             imageUrl: item.thumbnail,
             title: item.title,
+            progress: (item.progressPercentage.clamp(0, 100)) / 100.0,
             onTap: () {
               navigatePR(
                 context: context,
@@ -471,7 +486,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       BuildContext context, List<Datum> singleStories) {
     final home = Provider.of<HomeProvider>(context, listen: false);
     return SizedBox(
-      height: 260,
+      height: 230,
       child: ListView.separated(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         scrollDirection: Axis.horizontal,
@@ -517,7 +532,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ..sort((a, b) => (int.tryParse(b.id.toString()) ?? 0)
               .compareTo(int.tryParse(a.id.toString()) ?? 0));
         return SizedBox(
-          height: 140,
+          height: 130,
           child: ListView.separated(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             scrollDirection: Axis.horizontal,
@@ -554,7 +569,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         if (list.isEmpty) return _buildEmptyState();
         final sorted = _getSortedStories(list);
         return SizedBox(
-          height: 250,
+          height: 230,
           child: ListView.separated(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             scrollDirection: Axis.horizontal,
@@ -595,24 +610,67 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget _buildSmallPoster(
       {required String imageUrl,
       required String title,
+      double? progress,
       required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
+      child: SizedBox(
+        width: 116,
+        height: 159,
         child: Stack(
           children: [
-            Image.network(
-              imageUrl,
-              width: 116,
-              height: 159,
-              fit: BoxFit.cover,
-            ),
+            // Background image with rounded corners
             Container(
               width: 116,
               height: 159,
-              color: const Color(0x33000000),
+              clipBehavior: Clip.hardEdge,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: NetworkImage(imageUrl),
+                  fit: BoxFit.cover,
+                ),
+                borderRadius: BorderRadius.circular(16),
+              ),
             ),
+            // Dark overlay
+            Container(
+              width: 116,
+              height: 159,
+              clipBehavior: Clip.hardEdge,
+              decoration: BoxDecoration(
+                color: const Color(0x33000000),
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+            // Progress bar 12px above bottom, 10px horizontal padding
+            if (progress != null)
+              Positioned(
+                left: 10,
+                right: 10,
+                bottom: 15,
+                child: Container(
+                  width: 96,
+                  height: 6,
+                  clipBehavior: Clip.hardEdge,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFD9D9D9),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: FractionallySizedBox(
+                      widthFactor: progress.clamp(0.0, 1.0),
+                      child: Container(
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: ColorClass.primaryColor,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -623,27 +681,51 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       {required String imageUrl, required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Image.network(
-              imageUrl,
-              width: 182,
-              height: 126,
-              fit: BoxFit.cover,
-            ),
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
+      child: Container(
+        width: 182,
+        height: 126,
+        clipBehavior: Clip.hardEdge,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+        ),
+        child: SizedBox(
+          width: double.infinity,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Positioned(
+                left: 0,
+                top: 0,
+                child: Container(
+                  width: 182,
+                  height: 126,
+                  clipBehavior: Clip.hardEdge,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: NetworkImage(imageUrl),
+                      fit: BoxFit.cover,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Container(
+                    color: const Color(0x33000000),
+                  ),
+                ),
               ),
-              child: const Icon(Icons.play_arrow, color: Colors.black),
-            ),
-          ],
+              Align(
+                alignment: Alignment.center,
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.play_arrow, color: Colors.black),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -659,8 +741,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }) {
     return GestureDetector(
       onTap: onTap,
-      child: SizedBox(
+      child: Container(
         width: 169,
+        decoration: BoxDecoration(
+          color: Color(0xFFF9F9F9),
+          borderRadius: BorderRadius.circular(24),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -671,7 +757,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   Image.network(
                     imageUrl,
                     width: 169,
-                    height: 200,
+                    height: 156,
                     fit: BoxFit.cover,
                   ),
                   Positioned(
@@ -695,36 +781,44 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ),
             ),
             const SizedBox(height: 8),
-            Text(
-              title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.openSans(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Colors.black,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Row(
-              children: [
-                if (cardType == 'single')
-                  Icon(
-                    LucideIcons.clock,
-                    size: 14,
-                    color: Colors.black54,
-                  ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    subtitle,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal:12.0, vertical:10),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style:
-                        GoogleFonts.openSans(fontSize: 12, color: Colors.black),
+                    style: GoogleFonts.openSans(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black,
+                    ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 7),
+                  Row(
+                    children: [
+                      if (cardType == 'single')
+                        Icon(
+                          LucideIcons.clock,
+                          size: 14,
+                          color: Colors.black54,
+                        ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          subtitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style:
+                              GoogleFonts.openSans(fontSize: 12, color: Colors.black),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ],
         ),

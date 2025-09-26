@@ -10,6 +10,7 @@ import 'package:zaitoon/screens/user_data_collection_screen/components/gender_ca
 import 'package:zaitoon/screens/user_data_collection_screen/components/custom_text_field.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/components/submit_button.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/components/avatar_customise_screen.dart';
+import 'package:zaitoon/screens/language_selection/language_selection.dart';
 
 import '../../../constants/color_class.dart';
 import '../../../constants/image_class.dart';
@@ -132,6 +133,39 @@ class _UserDataCollectionState extends State<UserDataCollection> {
     return Scaffold(
       backgroundColor: Colors.white,
       resizeToAvoidBottomInset: true,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
+          onPressed: () {
+            navigateAndRemove(
+              context: context,
+              screen: const LanguageSelection(),
+            );
+          },
+        ),
+        title: ShaderMask(
+          shaderCallback: (bounds) => const LinearGradient(
+            colors: [
+              ColorClass.grad1,
+              ColorClass.grad2,
+              ColorClass.grad3,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ).createShader(bounds),
+          child: Text(
+            'My Profile',
+            style: GoogleFonts.fredoka(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ),
       body: Consumer<UserDataProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading &&
@@ -147,23 +181,23 @@ class _UserDataCollectionState extends State<UserDataCollection> {
             children: [
               // Background with blur effects
               Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFFF8F9FF),
-                      Colors.white,
-                      Color(0xFFF8F9FF),
-                    ],
+                  // decoration: const BoxDecoration(
+                  //   gradient: LinearGradient(
+                  //     begin: Alignment.topLeft,
+                  //     end: Alignment.bottomRight,
+                  //     colors: [
+                  //       Color(0xFFF8F9FF),
+                  //       Colors.white,
+                  //       Color(0xFFF8F9FF),
+                  //     ],
+                  //   ),
+                  // ),
                   ),
-                ),
-              ),
 
               // Top left blur effect
               Positioned(
-                top: 300,
-                left: -40,
+                top: 150,
+                left: -30,
                 child: Container(
                   width: 200,
                   height: 200,
@@ -171,7 +205,7 @@ class _UserDataCollectionState extends State<UserDataCollection> {
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
                       colors: [
-                        ColorClass.violet30.withOpacity(0.1),
+                        ColorClass.violet30.withOpacity(0.15),
                         Colors.transparent,
                       ],
                     ),
@@ -181,7 +215,7 @@ class _UserDataCollectionState extends State<UserDataCollection> {
 
               // Top right blur effect
               Positioned(
-                top: -30,
+                top: 20,
                 right: -50,
                 child: Container(
                   width: 200,
@@ -190,7 +224,7 @@ class _UserDataCollectionState extends State<UserDataCollection> {
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
                       colors: [
-                        ColorClass.grad1.withOpacity(0.1),
+                        ColorClass.grad1.withOpacity(0.15),
                         Colors.transparent,
                       ],
                     ),
@@ -204,61 +238,37 @@ class _UserDataCollectionState extends State<UserDataCollection> {
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: Column(
                     children: [
-                      const SizedBox(height: 10),
-
-                      // My Profile Title with Gradient
-                      ShaderMask(
-                        shaderCallback: (bounds) => const LinearGradient(
-                          colors: [
-                            ColorClass.grad1,
-                            ColorClass.grad2,
-                            ColorClass.grad3,
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ).createShader(bounds),
-                        child: Text(
-                          "My Profile",
-                          style: GoogleFonts.fredoka(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-
-                      const SizedBox(height: 15),
+                      const SizedBox(height: 20),
 
                       // Avatar Selection Row (carousel)
                       AvatarCustomizerScreen(),
 
                       const SizedBox(height: 15),
 
-                        Container(
-                          width: 184,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [
-                                ColorClass.grad1,
-                                ColorClass.grad2,
-                                ColorClass.grad3,
-                              ],
-                            ),
-                            borderRadius: BorderRadius.circular(20),
+                      Container(
+                        width: 184,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [
+                              ColorClass.grad1,
+                              ColorClass.grad2,
+                              ColorClass.grad3,
+                            ],
                           ),
-                          child: Center(
-                            child: Text(
-                              "Choose Avatar",
-                              style: GoogleFonts.fredoka(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 16,
-                                color: Colors.white,
-                              ),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Center(
+                          child: Text(
+                            "Choose Avatar",
+                            style: GoogleFonts.fredoka(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 16,
+                              color: Colors.white,
                             ),
                           ),
                         ),
+                      ),
 
                       const SizedBox(height: 25),
 

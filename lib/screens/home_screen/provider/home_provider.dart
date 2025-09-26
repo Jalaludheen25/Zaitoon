@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:zaitoon/constants/app_urls.dart';
 import 'package:zaitoon/screens/home_screen/models/episode_model.dart';
 import 'package:zaitoon/screens/home_screen/models/story_model.dart';
+import 'package:zaitoon/screens/home_screen/models/reading_progress_model.dart';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,6 +21,9 @@ class HomeProvider extends ChangeNotifier {
   // Cache of episode counts per story to avoid fetching on every render
   final Map<int, int> _episodeCountByStoryId = {};
   final Map<int, bool> _isEpisodeCountLoading = {};
+  // Reading progress per user (persisted in SharedPreferences)
+  final List<ReadingProgressModel> _readingProgress = [];
+  String _readingProgressUserId = 'guest';
 
   StoryModel? get storyModel => _storyModel;
   bool get isStoryLoading => _isLoading;
@@ -28,6 +33,8 @@ class HomeProvider extends ChangeNotifier {
   String? get error => _error;
   EpisodeModel? get highlightedEpisodes => _highlightedEpisodes;
   bool get isHighlightedLoading => _isHighlightedLoading;
+  List<ReadingProgressModel> get readingProgress =>
+      List.unmodifiable(_readingProgress);
 
   // Returns cached episode count if known; otherwise null
   int? getEpisodeCountCached(int storyId) => _episodeCountByStoryId[storyId];
@@ -88,6 +95,96 @@ class HomeProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  // ---------------- Reading Progress (per user via SharedPreferences) ----------------
+  String _prefsKeyForReading(String userId) => 'reading_progress_' + userId;
+
+  Future<void> loadReadingProgress(String userId) async {
+    try {
+      _readingProgressUserId = userId.isEmpty ? 'guest' : userId;
+      final prefs = await SharedPreferences.getInstance();
+      final raw = prefs.getString(_prefsKeyForReading(_readingProgressUserId));
+      _readingProgress.clear();
+      if (raw != null && raw.isNotEmpty) {
+        final List<dynamic> decoded = jsonDecode(raw) as List<dynamic>;
+        for (final dynamic item in decoded) {
+          if (item is Map<String, dynamic>) {
+            _readingProgress.add(ReadingProgressModel.fromJson(item));
+          }
+        }
+      }
+      // Sort by lastReadAt desc
+      _readingProgress.sort((a, b) => b.lastReadAt.compareTo(a.lastReadAt));
+      notifyListeners();
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  Future<void> _persistReadingProgress() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final List<Map<String, dynamic>> jsonList =
+          _readingProgress.map((e) => e.toJson()).toList();
+      await prefs.setString(
+          _prefsKeyForReading(_readingProgressUserId), jsonEncode(jsonList));
+    } catch (_) {}
+  }
+
+  Future<void> upsertReadingProgress({
+    required String id,
+    required String title,
+    required String thumbnail,
+    required String fileUrl,
+    required String tag,
+    required int currentPage,
+    required int totalPages,
+    required String userId,
+  }) async {
+    final double progress = totalPages > 0
+        ? (currentPage.clamp(0, totalPages) / totalPages) * 100.0
+        : 0.0;
+    final DateTime now = DateTime.now();
+
+    // Replace existing entry for same id+user
+    final int existingIndex = _readingProgress.indexWhere(
+        (p) => p.id == id && p.userId == (userId.isEmpty ? 'guest' : userId));
+
+    final ReadingProgressModel model = ReadingProgressModel(
+      id: id,
+      title: title,
+      thumbnail: thumbnail,
+      fileUrl: fileUrl,
+      tag: tag,
+      currentPage: currentPage,
+      totalPages: totalPages,
+      progressPercentage: progress,
+      lastReadAt: now,
+      userId: userId.isEmpty ? 'guest' : userId,
+    );
+
+    if (existingIndex >= 0) {
+      _readingProgress[existingIndex] = model;
+    } else {
+      _readingProgress.add(model);
+    }
+
+    // Keep only recent 20 items
+    _readingProgress.sort((a, b) => b.lastReadAt.compareTo(a.lastReadAt));
+    if (_readingProgress.length > 20) {
+      _readingProgress.removeRange(20, _readingProgress.length);
+    }
+
+    await _persistReadingProgress();
+    notifyListeners();
+  }
+
+  Future<void> removeReadingProgress(String id, String userId) async {
+    _readingProgress.removeWhere(
+        (p) => p.id == id && p.userId == (userId.isEmpty ? 'guest' : userId));
+    await _persistReadingProgress();
+    notifyListeners();
   }
 
   // save selected language locally and shared preference

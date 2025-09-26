@@ -158,7 +158,7 @@ class _HighlightedCardsState extends State<HighlightedCards> {
               showIndicator: false,
               enableInfiniteScroll: true,
               autoPlayInterval: const Duration(seconds: 2),
-              height: 130,
+              height: 140,
               onPageChanged: (index, reason) {
                 setState(() {
                   _currentIndex = index;

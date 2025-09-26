@@ -7,7 +7,6 @@ import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/user_data_collection_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:zaitoon/constants/textstyle_class.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
@@ -155,7 +154,7 @@ class LanguageSelection extends StatelessWidget {
                         'Select your language for stories\nyou can change it anytime later',
                         style: GoogleFonts.openSans(
                           fontSize: 16,
-                          color: ColorClass.black87.withOpacity(0.8),
+                          color: ColorClass.black87.withOpacity(0.4),
                           height: 1.5,
                         ),
                         textAlign: TextAlign.center,
