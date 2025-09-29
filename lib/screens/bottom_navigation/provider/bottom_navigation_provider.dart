@@ -23,14 +23,7 @@ class NavigationProvider extends ChangeNotifier {
   }
 
   Future<void> setIndex(int index, BuildContext context) async {
-    // Always 5 tabs: Episodes(0), Stories(1), Bookmarks(2), BrightBox(3), Quiz/Settings(4)
-    // When quiz is enabled: 5th tab is Quiz (but navigates to separate screen)
-    // When quiz is disabled: 5th tab is Settings (normal tab behavior)
-
-    // Check if trying to access quiz section (index 4 when quiz is enabled)
     if (_showQuiz && index == 4) {
-      // Don't change the current index, just navigate to quiz
-      // Check if student exists in database
       try {
         final dbHelper = DatabaseHelper();
         final students = await dbHelper.getAllStudents();
