@@ -36,6 +36,12 @@ class HomeProvider extends ChangeNotifier {
   List<ReadingProgressModel> get readingProgress =>
       List.unmodifiable(_readingProgress);
 
+  // Get reading progress excluding completed stories (100% progress)
+  List<ReadingProgressModel> get activeReadingProgress =>
+      List.unmodifiable(_readingProgress
+          .where((progress) => progress.progressPercentage < 100.0)
+          .toList());
+
   // Returns cached episode count if known; otherwise null
   int? getEpisodeCountCached(int storyId) => _episodeCountByStoryId[storyId];
 
@@ -114,8 +120,16 @@ class HomeProvider extends ChangeNotifier {
           }
         }
       }
+
+      // Remove any completed stories (100% progress) that might exist
+      _readingProgress
+          .removeWhere((progress) => progress.progressPercentage >= 100.0);
+
       // Sort by lastReadAt desc
       _readingProgress.sort((a, b) => b.lastReadAt.compareTo(a.lastReadAt));
+
+      // Persist the cleaned up list
+      await _persistReadingProgress();
       notifyListeners();
     } catch (e) {
       // ignore
@@ -146,6 +160,15 @@ class HomeProvider extends ChangeNotifier {
         ? (currentPage.clamp(0, totalPages) / totalPages) * 100.0
         : 0.0;
     final DateTime now = DateTime.now();
+
+    // If progress is 100% (completed), remove the story from continue reading
+    if (progress >= 100.0) {
+      _readingProgress.removeWhere(
+          (p) => p.id == id && p.userId == (userId.isEmpty ? 'guest' : userId));
+      await _persistReadingProgress();
+      notifyListeners();
+      return;
+    }
 
     // Replace existing entry for same id+user
     final int existingIndex = _readingProgress.indexWhere(

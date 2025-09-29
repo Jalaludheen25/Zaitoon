@@ -4,7 +4,7 @@ class ColorClass {
   static const Color primaryColor = Colors.deepPurpleAccent;
 
   static const Color secondaryColor = Colors.redAccent;
-
+  static const Color coquelicot = Color(0xffFF3D00); //used for bookmarking
   static const Color white = Color(0xffFFFFFF);
   static const Color white70 = Color(0xA4FFFFFF);
   static const Color white38 = Color(0x62FFFFFF);

@@ -181,7 +181,7 @@ class _StoriesScreenState extends State<StoriesScreen> {
 
                 // Category Buttons
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: categories.map((category) {

@@ -4,16 +4,18 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/textstyle_class.dart';
+import 'package:zaitoon/constants/icon_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/bookmark_screen/bookmark_screen.dart';
 import 'package:zaitoon/screens/bookmark_screen/provider/bookmark_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
 
@@ -103,8 +105,22 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.edgeToEdge,
+      overlays: [
+        SystemUiOverlay.top
+      ], // Empty array hides all overlays (both top and bottom)
+    );
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        systemNavigationBarColor: Colors.transparent,
+        // systemNavigationBarIconBrightness: Brightness.dark,
+      ),
+    );
+
     return Scaffold(
-      backgroundColor: Colors.black,
       body: Stack(
         children: [
           // Progress Indicator
@@ -192,62 +208,61 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
 
   Widget _buildTopBar() {
     return Positioned(
-      top: 0,
-      left: 0,
-      right: 0,
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(20, 40, 20, 10),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.black.withOpacity(0.9),
-              Colors.black.withOpacity(0),
+      top: 40,
+      left: 10,
+      right: 10,
+      // padding: const EdgeInsets.fromLTRB(20, 40, 20, 10),
+      // decoration: BoxDecoration(
+      //   gradient: LinearGradient(
+      //     begin: Alignment.topCenter,
+      //     end: Alignment.bottomCenter,
+      //     colors: [
+      //       Colors.black.withOpacity(0.9),
+      //       Colors.black.withOpacity(0),
+      //     ],
+      //   ),
+      // ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildActionButton(
+                icon: Icons.arrow_back_ios_new,
+                onPressed: () => navigateBack(context),
+              ),
+              // Expanded(
+              //   child: Padding(
+              //     padding: const EdgeInsets.symmetric(horizontal: 16),
+              //     child: Text(
+              //       widget.title,
+              //       style: TextStyleClass.fredoka(
+              //         fontSize: 16,
+              //         color: ColorClass.white,
+              //       ),
+              //       textAlign: TextAlign.center,
+              //       maxLines: 1,
+              //       overflow: TextOverflow.ellipsis,
+              //     ),
+              //   ),
+              // ),
+              const SizedBox(width: 180),
+              _buildActionButton(
+                icon: Icons.share_outlined,
+                onPressed: _shareStory,
+              ),
+              const SizedBox(width: 15),
+              _buildBookmarkButton(),
             ],
           ),
-        ),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildActionButton(
-                  icon: Icons.arrow_back_ios_new,
-                  onPressed: () => navigateBack(context),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      widget.title,
-                      style: TextStyleClass.fredoka(
-                        fontSize: 16,
-                        color: ColorClass.white,
-                      ),
-                      textAlign: TextAlign.center,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ),
-                _buildActionButton(
-                  icon: Icons.share_outlined,
-                  onPressed: _shareStory,
-                ),
-                const SizedBox(width: 8),
-                _buildBookmarkButton(),
-              ],
-            ),
-          ],
-        ),
+        ],
       ),
     );
   }
 
   Widget _buildReadingGuide() {
     return Positioned(
-      bottom: 20,
+      bottom: 60,
       right: 20,
       child: AnimatedBuilder(
         animation: _bounceAnimation,
@@ -278,12 +293,16 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text('📖', style: TextStyle(fontSize: 20)),
+                  SvgPicture.asset(
+                    IconClass.frame,
+                    width: 24,
+                    height: 24,
+                    ),
                   const SizedBox(width: 8),
                   Text(
-                    'Keep Reading!',
+                    'Keep Reading',
                     style: TextStyleClass.fredoka(
-                      fontSize: 14,
+                      fontSize: 16,
                       color: ColorClass.white,
                     ),
                   ),
@@ -298,7 +317,7 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
 
   Widget _buildLoadingOverlay() {
     return Container(
-      color: Colors.black,
+      color: Colors.white,
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -339,7 +358,7 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: ColorClass.primaryColor.withOpacity(0.3),
+                              color: ColorClass.primaryColor,
                               width: 2,
                             ),
                           ),
@@ -354,7 +373,7 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
             const DefaultTextStyle(
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.white,
+                color: ColorClass.violet20,
                 fontWeight: FontWeight.w500,
               ),
               child: LoadingText(),
@@ -367,8 +386,8 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
                 color: Colors.white.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(2),
               ),
-              child: const LinearProgressIndicator(
-                backgroundColor: Colors.transparent,
+              child: LinearProgressIndicator(
+                backgroundColor: ColorClass.primaryColor.withOpacity(0.1),
                 color: ColorClass.primaryColor,
               ),
             ),
@@ -390,7 +409,7 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
         shape: BoxShape.circle,
       ),
       child: IconButton(
-        icon: Icon(icon, color: ColorClass.white, size: 20),
+        icon: Icon(icon, color: ColorClass.primaryColor, size: 20),
         onPressed: onPressed,
         padding: EdgeInsets.zero,
       ),
@@ -412,10 +431,11 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
             icon: AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
               child: Icon(
-                isBookmarked ? LucideIcons.bookMarked : LucideIcons.bookmark,
+                isBookmarked ? Icons.bookmark : Icons.bookmark_border,
                 key: ValueKey(isBookmarked),
-                color:
-                    isBookmarked ? ColorClass.primaryColor : ColorClass.white,
+                color: isBookmarked
+                    ? ColorClass.coquelicot
+                    : ColorClass.primaryColor,
                 size: 20,
               ),
             ),
@@ -429,7 +449,7 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
 
   Widget _buildReadingCompleteBadge() {
     return Positioned(
-      bottom: 20,
+      bottom: 60,
       left: 0,
       right: 0,
       child: Center(
@@ -459,14 +479,12 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
             children: [
               const Text('🎉', style: TextStyle(fontSize: 20)),
               const SizedBox(width: 8),
-              TextButton(
-                onPressed: () => navigateBack(context),
-                child: Text(
-                  'Great job! You finished the story!',
-                  style: TextStyleClass.fredoka(
-                    fontSize: 14,
-                    color: ColorClass.white,
-                  ),
+              // onPressed: () => navigateBack(context),
+              Text(
+                'Great job! You finished the story!',
+                style: TextStyleClass.fredoka(
+                  fontSize: 14,
+                  color: ColorClass.white,
                 ),
               ),
             ],
@@ -517,7 +535,7 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
                 navigatePR(context: context, screen: const BookmarkScreen());
               },
             ),
-            backgroundColor: Colors.greenAccent.withOpacity(0.8),
+            backgroundColor: ColorClass.coquelicot,
             behavior: SnackBarBehavior.floating,
           ),
         );

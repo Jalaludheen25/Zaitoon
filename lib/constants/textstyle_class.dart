@@ -71,11 +71,25 @@ class TextStyleClass {
         fontSize: fontSize,
         fontWeight: FontWeight.w600,
       );
+  static TextStyle fredokaRegular(
+          {required double fontSize, required Color color}) =>
+      GoogleFonts.fredoka(
+        color: color,
+        fontSize: fontSize,
+        fontWeight: FontWeight.w400,
+      );
   static TextStyle openSans(
           {required double fontSize, required Color color}) =>
       GoogleFonts.openSans(
         color: color,
         fontSize: fontSize,
         fontWeight: FontWeight.w400,
+      );
+  static TextStyle openSansSemiBold(
+          {required double fontSize, required Color color}) =>
+      GoogleFonts.openSans(
+        color: color,
+        fontSize: fontSize,
+        fontWeight: FontWeight.w600,
       );
 }

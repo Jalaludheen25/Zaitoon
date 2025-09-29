@@ -4,72 +4,78 @@
 
 import 'dart:convert';
 
-EpisodeModel episodeModelFromJson(String str) => EpisodeModel.fromJson(json.decode(str));
+EpisodeModel episodeModelFromJson(String str) =>
+    EpisodeModel.fromJson(json.decode(str));
 
 String episodeModelToJson(EpisodeModel data) => json.encode(data.toJson());
 
 class EpisodeModel {
-    List<EpisodeData>? data;
+  List<EpisodeData>? data;
 
-    EpisodeModel({
-        this.data,
-    });
+  EpisodeModel({
+    this.data,
+  });
 
-    factory EpisodeModel.fromJson(Map<String, dynamic> json) => EpisodeModel(
-        data: json["data"] == null ? [] : List<EpisodeData>.from(json["data"]!.map((x) => EpisodeData.fromJson(x))),
-    );
+  factory EpisodeModel.fromJson(Map<String, dynamic> json) => EpisodeModel(
+        data: json["data"] == null
+            ? []
+            : List<EpisodeData>.from(
+                json["data"]!.map((x) => EpisodeData.fromJson(x))),
+      );
 
-    Map<String, dynamic> toJson() => {
-        "data": data == null ? [] : List<dynamic>.from(data!.map((x) => x.toJson())),
-    };
+  Map<String, dynamic> toJson() => {
+        "data": data == null
+            ? []
+            : List<dynamic>.from(data!.map((x) => x.toJson())),
+      };
 }
 
 class EpisodeData {
-    String? adBanner;
-    String? coverImage;
-    String? hinBanner;
-    String? hinStoryFile;
-    String? hinTitle;
-    int? id;
-    bool? isHighlighted;
-    String? mlBanner;
-    String? mlStoryFile;
-    String? mlTitle;
-    String? readMinutes;
-    int? season;
-    int? story;
-    String? storyFile;
-    String? storyTile;
-    String? uploadDate;
-    String? urBanner;
-    String? urStoryFile;
-    String? urTitle;
-    bool? visibilityStatus;
+  String? adBanner;
+  String? coverImage;
+  String? hinBanner;
+  String? hinStoryFile;
+  String? hinTitle;
+  int? id;
+  bool? isHighlighted;
+  String? mlBanner;
+  String? mlStoryFile;
+  String? mlTitle;
+  String? readMinutes;
+  int? season;
+  int? story;
+  String? storyFile;
+  String? storyTile;
+  String? uploadDate;
+  String? urBanner;
+  String? urStoryFile;
+  String? urTitle;
+  bool? visibilityStatus;
 
-    EpisodeData({
-        this.adBanner,
-        this.coverImage,
-        this.hinBanner,
-        this.hinStoryFile,
-        this.hinTitle,
-        this.id,
-        this.isHighlighted,
-        this.mlBanner,
-        this.mlStoryFile,
-        this.mlTitle,
-        this.readMinutes,
-        this.season,
-        this.story,
-        this.storyFile,
-        this.storyTile,
-        this.uploadDate,
-        this.urBanner,
-        this.urStoryFile,
-        this.urTitle,
-        this.visibilityStatus,
-    });
+  EpisodeData({
+    this.adBanner,
+    this.coverImage,
+    this.hinBanner,
+    this.hinStoryFile,
+    this.hinTitle,
+    this.id,
+    this.isHighlighted,
+    this.mlBanner,
+    this.mlStoryFile,
+    this.mlTitle,
+    this.readMinutes,
+    this.season,
+    this.story,
+    this.storyFile,
+    this.storyTile,
+    this.uploadDate,
+    this.urBanner,
+    this.urStoryFile,
+    this.urTitle,
+    this.visibilityStatus,
+  });
 
-    factory EpisodeData.fromJson(Map<String, dynamic> json) => EpisodeData(
+  factory EpisodeData.fromJson(Map<String, dynamic> json) => EpisodeData(
         adBanner: json["ad_banner"],
         coverImage: json["cover_image"],
         hinBanner: json["hin_banner"],
@@ -90,9 +96,9 @@ class EpisodeData {
         urStoryFile: json["ur_story_file"],
         urTitle: json["ur_title"],
         visibilityStatus: json["visibility_status"],
-    );
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "ad_banner": adBanner,
         "cover_image": coverImage,
         "hin_banner": hinBanner,
@@ -113,5 +119,5 @@ class EpisodeData {
         "ur_story_file": urStoryFile,
         "ur_title": urTitle,
         "visibility_status": visibilityStatus,
-    };
+      };
 }

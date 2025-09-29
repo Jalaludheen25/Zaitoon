@@ -16,6 +16,7 @@ import 'package:zaitoon/screens/language_selection/language_selection.dart';
 import 'package:zaitoon/screens/reading_screen/provider/pdf_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/services.dart';
 import 'package:zaitoon/screens/search/view/search_screen.dart';
 import 'package:zaitoon/screens/search/provider/search_provider.dart';
 import 'package:zaitoon/screens/reading_screen/story_reader_page.dart';
@@ -34,6 +35,7 @@ import 'package:zaitoon/screens/standalone_stories/standalone_story_list_screen.
 import 'package:flutter/services.dart' as services;
 import 'package:zaitoon/screens/home_screen/models/reading_progress_model.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
+import 'package:zaitoon/screens/student_form/view/student_form.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -198,6 +200,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.edgeToEdge,
+      overlays: [SystemUiOverlay.top], // Empty array hides all overlays (both top and bottom)
+    );
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -280,7 +286,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 const SizedBox(height: 20),
                 Consumer<HomeProvider>(
                   builder: (context, homeProvider, _) {
-                    final items = homeProvider.readingProgress;
+                    final items = homeProvider.activeReadingProgress;
                     if (items.isEmpty) return const SizedBox.shrink();
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -359,6 +365,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   fontWeight: FontWeight.w700,
                   color: Colors.white,
                 ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
               ),
             ),
             Text(' 👋', style: TextStyle(fontSize: 24)),
@@ -370,13 +378,19 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ),
               icon: const Icon(LucideIcons.search, color: Colors.black),
             ),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Image.asset(
-                avatarAsset,
-                width: 40,
-                height: 40,
-                fit: BoxFit.cover,
+            GestureDetector(
+              onTap: () => navigatePR(
+                context: context,
+                screen: const StudentFormScreen(),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Image.asset(
+                  avatarAsset,
+                  width: 40,
+                  height: 40,
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
           ],
@@ -751,7 +765,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
-              borderRadius: BorderRadius.circular(24),
+              // borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
               child: Stack(
                 children: [
                   Image.network(
@@ -782,9 +797,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
             const SizedBox(height: 8),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal:12.0, vertical:10),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
               child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
@@ -811,8 +827,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           subtitle,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style:
-                              GoogleFonts.openSans(fontSize: 12, color: Colors.black),
+                          style: GoogleFonts.openSans(
+                              fontSize: 12, color: Colors.black),
                         ),
                       ),
                     ],
