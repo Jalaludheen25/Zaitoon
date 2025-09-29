@@ -6,6 +6,14 @@ class IconClass {
   static const String frame = '${iconRoot}Frame.svg';
   static const String boy = '${iconRoot}boy.svg';
   static const String girl = '${iconRoot}girl.svg';
+  //bottomnav
+  static const String home ='${iconRoot}home.svg';
+  static const String tv = '${iconRoot}tv.svg';
+  static const String kidsCorner = '${iconRoot}kidsCorner.svg';
+  static const String bookmark = '${iconRoot}bookmark.svg';
+  static const String profile = '${iconRoot}user.svg';
+  static const String note = '${iconRoot}note.svg';
+
   static const String launcherImage = '${iconRoot}launcherImage.svg';
   static const String menuIcon = '${iconRoot}Menu_Icon.svg';
   static const String settingsIcon = '${iconRoot}Setting_Icon.svg';
