@@ -30,25 +30,36 @@ class LanguageSelection extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: ColorClass.black,
+          backgroundColor: ColorClass.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
-            side: BorderSide(color: ColorClass.primaryColor.withOpacity(0.3)),
+            side: BorderSide(color: ColorClass.grad1),
           ),
           title: Row(
             children: [
               Icon(
                 Icons.info_outline,
-                color: ColorClass.primaryColor,
+                color: ColorClass.grad2,
                 size: 24,
               ),
               const SizedBox(width: 8),
-              Text(
-                'Coming Soon!',
-                style: GoogleFonts.poppins(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: ColorClass.white,
+              ShaderMask(
+                shaderCallback: (bounds) => const LinearGradient(
+                  colors: [
+                    ColorClass.grad1,
+                    ColorClass.grad2,
+                    ColorClass.grad3,
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ).createShader(bounds),
+                child: Text(
+                  'Coming Soon!',
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: ColorClass.violet30,
+                  ),
                 ),
               ),
             ],
@@ -61,7 +72,7 @@ class LanguageSelection extends StatelessWidget {
                 '$languageName content is not available yet.',
                 style: GoogleFonts.poppins(
                   fontSize: 14,
-                  color: ColorClass.white.withOpacity(0.8),
+                  color: ColorClass.black87,
                 ),
               ),
               const SizedBox(height: 12),
@@ -69,7 +80,7 @@ class LanguageSelection extends StatelessWidget {
                 'Please select English or Malayalam to enjoy our stories.',
                 style: GoogleFonts.poppins(
                   fontSize: 14,
-                  color: ColorClass.primaryColor,
+                  color: ColorClass.grad3,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -82,7 +93,7 @@ class LanguageSelection extends StatelessWidget {
                 'OK',
                 style: GoogleFonts.poppins(
                   fontSize: 14,
-                  color: ColorClass.primaryColor,
+                  color: ColorClass.grad2,
                   fontWeight: FontWeight.w600,
                 ),
               ),
