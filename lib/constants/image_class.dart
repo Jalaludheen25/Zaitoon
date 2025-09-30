@@ -13,9 +13,12 @@ class ImageClass {
   static const String onboard4 = '${imageRoot}onboard4.png';
 
   //Avatar eLlipses
-  static const String avatar1 = '${imageRoot}Ellipse 7.png';
-  static const String avatar2 = '${imageRoot}Ellipse 8.png';
-  static const String avatar3 = '${imageRoot}Ellipse 9.png';
+  static const String avatar1 = '${imageRoot}avatar1.jpeg';
+  static const String avatar2 = '${imageRoot}avatar2.jpeg';
+  static const String avatar3 = '${imageRoot}avatar3.jpeg';
+
+  //quiz
+  static const String quizBg = '${imageRoot}quizLanding.png';
   
   // static const String onboarding1 = '${imageRoot}onboarding1.png';
   // static const String onboarding2 = '${imageRoot}onboarding2.png';
