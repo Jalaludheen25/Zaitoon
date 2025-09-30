@@ -7,6 +7,8 @@ class AppRoutes {
   static const String userDataCollection = '/user-data-collection';
   static const String home = '/home';
   static const String bottomNavigation = '/bottom-navigation';
+  static const String quiz = '/quiz';
+  static const String quizLanding = '/quiz-landing';
 
   // Route paths
   static const Map<String, String> routes = {
@@ -17,5 +19,7 @@ class AppRoutes {
     'userDataCollection': userDataCollection,
     'home': home,
     'bottomNavigation': bottomNavigation,
+    'quiz': quiz,
+    'quizLanding': quizLanding,
   };
 }

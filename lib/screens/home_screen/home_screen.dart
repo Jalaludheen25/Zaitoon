@@ -202,7 +202,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     SystemChrome.setEnabledSystemUIMode(
       SystemUiMode.edgeToEdge,
-      overlays: [SystemUiOverlay.top], // Empty array hides all overlays (both top and bottom)
+      overlays: [
+        SystemUiOverlay.top
+      ], // Empty array hides all overlays (both top and bottom)
     );
     return Scaffold(
       backgroundColor: Colors.white,
@@ -222,12 +224,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               children: [
                 Padding(
                   padding: const EdgeInsets.only(left: 10),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      _buildGreetingSection(user.name ?? '', user),
-                    ],
-                  ),
+                  child: _buildGreetingSection(user.name ?? '', user),
                 ),
                 Consumer<HomeProvider>(
                   builder: (context, provider, _) {
@@ -344,53 +341,67 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       children: [
         Row(
           children: [
-            Text(
-              'Hello ',
-              style: GoogleFonts.fredoka(
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
-                color: Colors.black,
+            Expanded(
+              child: Row(
+                children: [
+                  Text(
+                    'Hello ',
+                    style: GoogleFonts.fredoka(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black,
+                    ),
+                  ),
+                  ShaderMask(
+                    shaderCallback: (bounds) => const LinearGradient(
+                      colors: [
+                        ColorClass.grad1,
+                        ColorClass.grad2,
+                        ColorClass.grad3
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ).createShader(bounds),
+                    child: Text(
+                      name.isEmpty ? 'Friend' : name,
+                      style: GoogleFonts.fredoka(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      softWrap: false,
+                    ),
+                  ),
+                // ),
+                Text(' 👋', style: TextStyle(fontSize: 24)),
+                ],
               ),
             ),
-            ShaderMask(
-              shaderCallback: (bounds) => const LinearGradient(
-                colors: [ColorClass.grad1, ColorClass.grad2, ColorClass.grad3],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ).createShader(bounds),
-              child: Text(
-                name.isEmpty ? 'Friend' : name,
-                style: GoogleFonts.fredoka(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                ),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-            ),
-            Text(' 👋', style: TextStyle(fontSize: 24)),
-            const SizedBox(width: 45),
-            IconButton(
-              onPressed: () => navigatePR(
-                context: context,
-                screen: const SearchScreen(),
-              ),
-              icon: const Icon(LucideIcons.search, color: Colors.black),
-            ),
-            GestureDetector(
-              onTap: () => navigatePR(
-                context: context,
-                screen: const StudentFormScreen(),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Image.asset(
-                  avatarAsset,
-                  width: 40,
-                  height: 40,
-                  fit: BoxFit.cover,
-                ),
+            Padding(
+              padding: const EdgeInsets.only(right: 10),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: () => navigatePR(
+                      context: context,
+                      screen: const SearchScreen(),
+                    ),
+                    icon: const Icon(LucideIcons.search, color: Colors.black),
+                  ),
+                  const SizedBox(width: 6),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Image.asset(
+                      avatarAsset,
+                      width: 40,
+                      height: 40,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

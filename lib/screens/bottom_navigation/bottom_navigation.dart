@@ -17,6 +17,7 @@ import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_p
 import 'package:zaitoon/screens/student_form/view/student_form.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:zaitoon/screens/kids_corner_screen/kids_corner_screen.dart';
+import 'package:zaitoon/screens/quiz/screens/quiz_landing.dart';
 
 class BottomNavigationScreen extends StatefulWidget {
   final int currentIndex;
@@ -62,7 +63,7 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
             const BookmarkScreen(),
             // 5th tab: either Quiz placeholder or Settings
             if (navigationProvider.showQuiz)
-              const StudentFormScreen() // Quiz tab (but navigation is handled in provider)
+              const QuizLanding() // Quiz tab (but navigation is handled in provider)
             else
               const SettingsScreen(), // Settings tab
           ],
