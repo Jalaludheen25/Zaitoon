@@ -8,6 +8,9 @@ import 'package:zaitoon/constants/app_urls.dart';
 import 'package:zaitoon/screens/bright_box/provider/bright_box_provider.dart';
 import 'package:zaitoon/screens/bright_box/screens/bright_box_subcategories_screen.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
+import 'package:zaitoon/screens/bottom_navigation/bottom_navigation.dart';
+import 'package:zaitoon/screens/bottom_navigation/provider/bottom_navigation_provider.dart';
+import 'package:zaitoon/screens/bookmark_screen/bookmark_screen.dart';
 
 class BrightBoxHomeScreen extends StatefulWidget {
   const BrightBoxHomeScreen({super.key});
@@ -38,12 +41,50 @@ class _BrightBoxHomeScreenState extends State<BrightBoxHomeScreen> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header
+                // Header with back button
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Row(
                     children: [
+                      // Back Button with gradient
+                      GestureDetector(
+                        onTap: () {
+                          // Set the return category to "Stories" before navigating back
+                          BookmarkScreen.setReturnCategory("Stories");
+                          // Navigate back to bottom navigation with bookmark tab selected (index 3)
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const BottomNavigationScreen(currentIndex: 3),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          child: ShaderMask(
+                            shaderCallback: (bounds) => LinearGradient(
+                              colors: [
+                                ColorClass.grad1,
+                                ColorClass.grad2,
+                                ColorClass.grad3
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ).createShader(bounds),
+                            child: Icon(
+                              Icons.arrow_back_ios,
+                              color: ColorClass.white,
+                              size: 24,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(width: 4), // Closer gap
+
+                      // Bright Box Title with gradient
                       ShaderMask(
                         shaderCallback: (bounds) => LinearGradient(
                           colors: [
@@ -57,20 +98,25 @@ class _BrightBoxHomeScreenState extends State<BrightBoxHomeScreen> {
                         child: Text(
                           'Bright Box',
                           style: TextStyleClass.fredoka(
-                            fontSize: 28,
+                            fontSize: 30,
                             color: ColorClass.white,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'Step Into the Past, Learn for the Future',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: ColorClass.grey,
-                        ),
-                      ),
                     ],
+                  ),
+                ),
+
+                // Subtitle
+                Padding(
+                  padding:
+                      const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+                  child: const Text(
+                    'Step Into the Past, Learn for the Future',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: ColorClass.grey,
+                    ),
                   ),
                 ),
 

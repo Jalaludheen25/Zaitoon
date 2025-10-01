@@ -18,7 +18,17 @@ import 'package:zaitoon/screens/reading_screen/story_reader_page.dart';
 import 'package:zaitoon/utils/cache_manager.dart';
 
 class BookmarkScreen extends StatefulWidget {
-  const BookmarkScreen({super.key});
+  final String? initialCategory;
+
+  const BookmarkScreen({super.key, this.initialCategory});
+
+  // Static variable to remember the desired category when returning from Bright Box
+  static String? _returnToCategory;
+
+  // Static method to set the return category
+  static void setReturnCategory(String category) {
+    _returnToCategory = category;
+  }
 
   @override
   State<BookmarkScreen> createState() => _BookmarkScreenState();
@@ -26,10 +36,16 @@ class BookmarkScreen extends StatefulWidget {
 
 class _BookmarkScreenState extends State<BookmarkScreen> {
   final List<String> categories = ["Stories", "Episode", "Bright Box"];
-  String selectedCategory = "Stories";
+  late String selectedCategory;
 
   @override
   void initState() {
+    // Check if we should return to a specific category (from Bright Box)
+    selectedCategory =
+        BookmarkScreen._returnToCategory ?? widget.initialCategory ?? "Stories";
+    // Clear the return category after using it
+    BookmarkScreen._returnToCategory = null;
+
     Future.microtask(() {
       final bookmarkProvider =
           Provider.of<BookmarkProvider>(context, listen: false);

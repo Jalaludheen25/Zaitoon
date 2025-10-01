@@ -40,28 +40,107 @@ class _BrightBoxSubcategoriesScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ColorClass.black,
+      backgroundColor: ColorClass.white,
       body: SafeArea(
         child: Consumer2<BrightBoxProvider, HomeProvider>(
           builder: (context, brightBoxProvider, homeProvider, child) {
             final categoryTitle = _getCategoryTitle(
                 widget.category, homeProvider.selectedLanguage);
 
-            return CustomScrollView(
-              slivers: [
-                _buildAppBar(categoryTitle),
-                if (brightBoxProvider.isLoading)
-                  const SliverFillRemaining(
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        color: ColorClass.primaryColor,
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header with back button
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Row(
+                    children: [
+                      // Back Button with gradient
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          child: ShaderMask(
+                            shaderCallback: (bounds) => LinearGradient(
+                              colors: [
+                                ColorClass.grad1,
+                                ColorClass.grad2,
+                                ColorClass.grad3
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ).createShader(bounds),
+                            child: Icon(
+                              Icons.arrow_back_ios,
+                              color: ColorClass.white,
+                              size: 24,
+                            ),
+                          ),
+                        ),
                       ),
+
+                      const SizedBox(width: 4), // Closer gap
+
+                      // Category Title with gradient
+                      Expanded(
+                        child: ShaderMask(
+                          shaderCallback: (bounds) => LinearGradient(
+                            colors: [
+                              ColorClass.grad1,
+                              ColorClass.grad2,
+                              ColorClass.grad3,
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ).createShader(bounds),
+                          child: Text(
+                            categoryTitle,
+                            style: TextStyleClass.fredoka(
+                              fontSize: 28,
+                              color: ColorClass.white,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Subtitle
+                Padding(
+                  padding:
+                      const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+                  child: const Text(
+                    'Did you know ?',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: ColorClass.grey,
                     ),
-                  )
-                else if (brightBoxProvider.error != null)
-                  _buildErrorState(brightBoxProvider.error!, brightBoxProvider)
-                else
-                  _buildSubcategoriesList(brightBoxProvider, homeProvider),
+                  ),
+                ),
+
+                // Content
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: brightBoxProvider.isLoading
+                        ? const Center(
+                            child: CircularProgressIndicator(
+                              color: ColorClass.primaryColor,
+                            ),
+                          )
+                        : brightBoxProvider.error != null
+                            ? _buildErrorState(
+                                brightBoxProvider.error!, brightBoxProvider)
+                            : _buildSubcategoriesGrid(
+                                brightBoxProvider, homeProvider),
+                  ),
+                ),
               ],
             );
           },
@@ -70,91 +149,67 @@ class _BrightBoxSubcategoriesScreenState
     );
   }
 
-  Widget _buildAppBar(String categoryTitle) {
-    return SliverAppBar(
-      leading: IconButton(
-        icon: const Icon(
-          LucideIcons.arrowLeft,
-          color: ColorClass.white,
-        ),
-        onPressed: () => Navigator.pop(context),
-      ),
-      title: Text(
-        categoryTitle,
-        style: TextStyleClass.poppinsSemiBold(
-          fontSize: 20,
-          color: ColorClass.white,
-        ),
-      ),
-      backgroundColor: ColorClass.black,
-      floating: true,
-      pinned: false,
-      elevation: 0,
-    );
-  }
-
   Widget _buildErrorState(String error, BrightBoxProvider provider) {
-    return SliverFillRemaining(
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                LucideIcons.alertCircle,
-                size: 64,
-                color: Colors.red,
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              LucideIcons.alertCircle,
+              size: 64,
+              color: Colors.red,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Oops! Something went wrong',
+              style: TextStyleClass.fredoka(
+                fontSize: 18,
+                color: Colors.black,
               ),
-              const SizedBox(height: 16),
-              Text(
-                'Oops! Something went wrong',
-                style: TextStyleClass.poppinsSemiBold(
-                  fontSize: 18,
-                  color: ColorClass.white,
-                ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              error,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
               ),
-              const SizedBox(height: 8),
-              Text(
-                error,
-                style: TextStyleClass.poppinsRegular(
-                  fontSize: 14,
-                  color: ColorClass.white.withOpacity(0.7),
-                ),
-                textAlign: TextAlign.center,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () => provider.loadSubcategories(widget.category.id),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: ColorClass.primaryColor,
               ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () => provider.loadSubcategories(widget.category.id),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: ColorClass.primaryColor,
-                ),
-                child: const Text('Try Again'),
-              ),
-            ],
-          ),
+              child: const Text('Try Again'),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildSubcategoriesList(
+  Widget _buildSubcategoriesGrid(
       BrightBoxProvider brightBoxProvider, HomeProvider homeProvider) {
     if (brightBoxProvider.subcategories.isEmpty) {
       return _buildEmptyState();
     }
 
-    return SliverPadding(
-      padding: const EdgeInsets.all(16),
-      sliver: SliverList(
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            final subcategory = brightBoxProvider.subcategories[index];
-            return _buildSubcategoryCard(subcategory, homeProvider);
-          },
-          childCount: brightBoxProvider.subcategories.length,
-        ),
+    return GridView.builder(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        mainAxisSpacing: 16,
+        crossAxisSpacing: 16,
+        childAspectRatio: 0.8,
       ),
+      itemCount: brightBoxProvider.subcategories.length,
+      itemBuilder: (context, index) {
+        final subcategory = brightBoxProvider.subcategories[index];
+        return _buildSubcategoryCard(subcategory, homeProvider);
+      },
     );
   }
 
@@ -164,138 +219,224 @@ class _BrightBoxSubcategoriesScreenState
         _getSubcategoryTitle(subcategory, homeProvider.selectedLanguage);
     debugPrint('Subcategory: $title, Cover Image: ${subcategory.coverImage}');
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      child: GestureDetector(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => BrightBoxStoriesScreen(
-                subcategory: subcategory,
-              ),
-            ),
-          );
-        },
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: ColorClass.white.withOpacity(0.05),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: ColorClass.primaryColor.withOpacity(0.2),
-              width: 1,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => BrightBoxStoriesScreen(
+              subcategory: subcategory,
             ),
           ),
-          child: Row(
-            children: [
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: ColorClass.primaryColor.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              spreadRadius: 1,
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image Section
+            Expanded(
+              flex: 3,
+              child: Container(
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
                 ),
-                child: subcategory.coverImage.isNotEmpty
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: CachedNetworkImage(
-                          imageUrl:
-                              ApiUrls.assetBaseUrl + subcategory.coverImage,
-                          width: 60,
-                          height: 60,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) {
-                            debugPrint(
-                                'Loading subcategory image: ${ApiUrls.assetBaseUrl}${subcategory.coverImage}');
-                            return const Icon(
-                              LucideIcons.folderOpen,
-                              color: ColorClass.primaryColor,
-                              size: 24,
-                            );
-                          },
-                          errorWidget: (context, url, error) {
-                            debugPrint(
-                                'Subcategory image error for ${subcategory.coverImage}: $error');
-                            return const Icon(
-                              LucideIcons.folderOpen,
-                              color: ColorClass.primaryColor,
-                              size: 24,
-                            );
-                          },
-                        ),
-                      )
-                    : const Icon(
-                        LucideIcons.folderOpen,
-                        color: ColorClass.primaryColor,
-                        size: 24,
-                      ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Stack(
                   children: [
-                    Text(
-                      title,
-                      style: TextStyleClass.poppinsSemiBold(
-                        fontSize: 16,
-                        color: ColorClass.white,
-                      ),
+                    // Background Image
+                    ClipRRect(
+                      borderRadius:
+                          const BorderRadius.vertical(top: Radius.circular(16)),
+                      child: subcategory.coverImage.isNotEmpty
+                          ? CachedNetworkImage(
+                              imageUrl:
+                                  ApiUrls.assetBaseUrl + subcategory.coverImage,
+                              width: double.infinity,
+                              height: double.infinity,
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) => Container(
+                                width: double.infinity,
+                                height: double.infinity,
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      Colors.orange.withOpacity(0.7),
+                                      Colors.white.withOpacity(0.4),
+                                      Colors.green.withOpacity(0.7),
+                                    ],
+                                  ),
+                                  borderRadius: const BorderRadius.vertical(
+                                      top: Radius.circular(16)),
+                                ),
+                                child: const Center(
+                                  child: Icon(
+                                    LucideIcons.flag,
+                                    color: Colors.white,
+                                    size: 32,
+                                  ),
+                                ),
+                              ),
+                              errorWidget: (context, url, error) => Container(
+                                width: double.infinity,
+                                height: double.infinity,
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      Colors.orange.withOpacity(0.7),
+                                      Colors.white.withOpacity(0.4),
+                                      Colors.green.withOpacity(0.7),
+                                    ],
+                                  ),
+                                  borderRadius: const BorderRadius.vertical(
+                                      top: Radius.circular(16)),
+                                ),
+                                child: const Center(
+                                  child: Icon(
+                                    LucideIcons.flag,
+                                    color: Colors.white,
+                                    size: 32,
+                                  ),
+                                ),
+                              ),
+                            )
+                          : Container(
+                              width: double.infinity,
+                              height: double.infinity,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    Colors.orange.withOpacity(0.7),
+                                    Colors.white.withOpacity(0.4),
+                                    Colors.green.withOpacity(0.7),
+                                  ],
+                                ),
+                                borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(16)),
+                              ),
+                              child: const Center(
+                                child: Icon(
+                                  LucideIcons.flag,
+                                  color: Colors.white,
+                                  size: 32,
+                                ),
+                              ),
+                            ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Tap to explore stories',
-                      style: TextStyleClass.poppinsRegular(
-                        fontSize: 12,
-                        color: ColorClass.white.withOpacity(0.7),
+
+                    // Bookmark Button (Top Right)
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Container(
+                        width: 30,
+                        height: 30,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.9),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          LucideIcons.bookmark,
+                          color: Colors.black,
+                          size: 18,
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-              Icon(
-                LucideIcons.chevronRight,
-                color: ColorClass.white.withOpacity(0.5),
-                size: 20,
+            ),
+            // Content Section
+            Expanded(
+              flex: 2,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius:
+                      BorderRadius.vertical(bottom: Radius.circular(16)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: TextStyleClass.fredoka(
+                            fontSize: 16,
+                            color: Colors.black,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        const Text(
+                          '8 Episode',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 
   Widget _buildEmptyState() {
-    return SliverFillRemaining(
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              LucideIcons.clock,
-              size: 64,
-              color: ColorClass.primaryColor.withOpacity(0.6),
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            LucideIcons.clock,
+            size: 64,
+            color: ColorClass.primaryColor.withOpacity(0.6),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            'Coming Soon',
+            style: TextStyleClass.fredoka(
+              fontSize: 24,
+              color: Colors.black,
             ),
-            const SizedBox(height: 24),
-            Text(
-              'Coming Soon',
-              style: TextStyleClass.poppinsSemiBold(
-                fontSize: 24,
-                color: ColorClass.white,
-              ),
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'Exciting new content is on the way!\nStay tuned for amazing stories.',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey,
             ),
-            const SizedBox(height: 12),
-            Text(
-              'Exciting new content is on the way!\nStay tuned for amazing stories.',
-              style: TextStyleClass.poppinsRegular(
-                fontSize: 16,
-                color: ColorClass.white.withOpacity(0.7),
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }

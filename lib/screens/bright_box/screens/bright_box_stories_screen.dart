@@ -38,31 +38,50 @@ class _BrightBoxStoriesScreenState extends State<BrightBoxStoriesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ColorClass.black,
-      body: SafeArea(
-        child: Consumer2<BrightBoxProvider, HomeProvider>(
-          builder: (context, brightBoxProvider, homeProvider, child) {
-            final subcategoryTitle = _getSubcategoryTitle(widget.subcategory, homeProvider.selectedLanguage);
+      backgroundColor: ColorClass.white,
+      body: Consumer2<BrightBoxProvider, HomeProvider>(
+        builder: (context, brightBoxProvider, homeProvider, child) {
+          final subcategoryTitle = _getSubcategoryTitle(
+              widget.subcategory, homeProvider.selectedLanguage);
 
-            return CustomScrollView(
-              slivers: [
-                _buildAppBar(subcategoryTitle),
-                if (brightBoxProvider.isLoading)
-                  const SliverFillRemaining(
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        color: ColorClass.primaryColor,
-                      ),
-                    ),
-                  )
-                else if (brightBoxProvider.error != null)
-                  _buildErrorState(brightBoxProvider.error!, brightBoxProvider)
-                else
-                  _buildStoriesList(brightBoxProvider, homeProvider),
-              ],
+          if (brightBoxProvider.isLoading) {
+            return const Center(
+              child: CircularProgressIndicator(
+                color: ColorClass.primaryColor,
+              ),
             );
-          },
-        ),
+          }
+
+          if (brightBoxProvider.error != null) {
+            return _buildErrorState(
+                brightBoxProvider.error!, brightBoxProvider);
+          }
+
+          return Column(
+            children: [
+              // Hero Image Section
+              _buildHeroSection(subcategoryTitle),
+
+              // Content Section
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Description Section
+                      _buildDescriptionSection(),
+                      const SizedBox(height: 24),
+
+                      // Episodes Section
+                      _buildEpisodesSection(brightBoxProvider, homeProvider),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -90,71 +109,247 @@ class _BrightBoxStoriesScreenState extends State<BrightBoxStoriesScreen> {
     );
   }
 
-  Widget _buildErrorState(String error, BrightBoxProvider provider) {
-    return SliverFillRemaining(
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                LucideIcons.alertCircle,
-                size: 64,
-                color: Colors.red,
+  Widget _buildHeroSection(String subcategoryTitle) {
+    return Container(
+      height: 350, // Increased height to account for status bar
+      decoration: const BoxDecoration(
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
+      ),
+      child: Stack(
+        children: [
+          // Background Image
+          ClipRRect(
+            borderRadius:
+                const BorderRadius.vertical(bottom: Radius.circular(24)),
+            child: widget.subcategory.coverImage.isNotEmpty
+                ? CachedNetworkImage(
+                    imageUrl:
+                        ApiUrls.assetBaseUrl + widget.subcategory.coverImage,
+                    width: double.infinity,
+                    height: double.infinity,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Container(
+                      width: double.infinity,
+                      height: double.infinity,
+                      decoration: const BoxDecoration(
+                        color: Colors.grey,
+                        borderRadius:
+                            BorderRadius.vertical(bottom: Radius.circular(24)),
+                      ),
+                      child: const Center(
+                        child: Icon(
+                          LucideIcons.flag,
+                          color: Colors.white,
+                          size: 32,
+                        ),
+                      ),
+                    ),
+                    errorWidget: (context, url, error) => Container(
+                      width: double.infinity,
+                      height: double.infinity,
+                      decoration: const BoxDecoration(
+                        color: Colors.grey,
+                        borderRadius:
+                            BorderRadius.vertical(bottom: Radius.circular(24)),
+                      ),
+                      child: const Center(
+                        child: Icon(
+                          LucideIcons.flag,
+                          color: Colors.white,
+                          size: 32,
+                        ),
+                      ),
+                    ),
+                  )
+                : Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    decoration: const BoxDecoration(
+                      color: Colors.grey,
+                      borderRadius:
+                          BorderRadius.vertical(bottom: Radius.circular(24)),
+                    ),
+                    child: const Center(
+                      child: Icon(
+                        LucideIcons.flag,
+                        color: Colors.white,
+                        size: 32,
+                      ),
+                    ),
+                  ),
+          ),
+
+          // Gradient Overlay
+          Container(
+            decoration: BoxDecoration(
+              borderRadius:
+                  const BorderRadius.vertical(bottom: Radius.circular(24)),
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.transparent,
+                  Colors.black.withOpacity(0.3),
+                ],
               ),
-              const SizedBox(height: 16),
-              Text(
-                'Oops! Something went wrong',
-                style: TextStyleClass.poppinsSemiBold(
-                  fontSize: 18,
-                  color: ColorClass.white,
+            ),
+          ),
+
+          // Back Button - positioned below status bar
+          Positioned(
+            top: MediaQuery.of(context).padding.top +
+                16, // Account for status bar
+            left: 16,
+            child: GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.arrow_back_ios_new,
+                  color: Colors.white,
+                  size: 20,
                 ),
               ),
-              const SizedBox(height: 8),
-              Text(
-                error,
-                style: TextStyleClass.poppinsRegular(
-                  fontSize: 14,
-                  color: ColorClass.white.withOpacity(0.7),
+            ),
+          ),
+
+          // Title and Episode Count
+          Positioned(
+            bottom: 20,
+            left: 20,
+            right: 20,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  subcategoryTitle,
+                  style: TextStyleClass.fredoka(
+                    fontSize: 24,
+                    color: Colors.white,
+                  ),
                 ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () => provider.loadStories(widget.subcategory.id),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: ColorClass.primaryColor,
+                const SizedBox(height: 4),
+                const Text(
+                  '8 Episode',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.white,
+                  ),
                 ),
-                child: const Text('Try Again'),
-              ),
-            ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDescriptionSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Description:',
+          style: TextStyleClass.fredoka(
+            fontSize: 18,
+            color: Colors.black,
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildStoriesList(BrightBoxProvider brightBoxProvider, HomeProvider homeProvider) {
-    if (brightBoxProvider.stories.isEmpty) {
-      return _buildEmptyState();
-    }
-
-    return SliverPadding(
-      padding: const EdgeInsets.all(16),
-      sliver: SliverList(
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            final story = brightBoxProvider.stories[index];
-            return _buildStoryCard(story, homeProvider, index);
-          },
-          childCount: brightBoxProvider.stories.length,
+        const SizedBox(height: 8),
+        const Text(
+          'Gandhi is considered to be the Father of the Nation in post-colonial India. During India\'s nationalist movement and in several decades immediately after, he was ...',
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey,
+            height: 1.5,
+          ),
         ),
-      ),
+      ],
     );
   }
 
-  Widget _buildStoryCard(BrightBoxStory story, HomeProvider homeProvider, int index) {
+  Widget _buildEpisodesSection(
+      BrightBoxProvider brightBoxProvider, HomeProvider homeProvider) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Episodes:',
+          style: TextStyleClass.fredoka(
+            fontSize: 18,
+            color: Colors.black,
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        if (brightBoxProvider.stories.isEmpty)
+          _buildEmptyState()
+        else
+          ...brightBoxProvider.stories.asMap().entries.map((entry) {
+            final index = entry.key;
+            final story = entry.value;
+            return _buildEpisodeCard(story, homeProvider, index);
+          }).toList(),
+
+        const SizedBox(height: 20),
+
+        // Read First Episode Button
+        if (brightBoxProvider.stories.isNotEmpty)
+          Container(
+            width: double.infinity,
+            height: 50,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  ColorClass.grad1,
+                  ColorClass.grad2,
+                  ColorClass.grad3,
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(25),
+            ),
+            child: ElevatedButton(
+              onPressed: () {
+                if (brightBoxProvider.stories.isNotEmpty) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BrightBoxStoryReaderScreen(
+                        story: brightBoxProvider.stories.first,
+                      ),
+                    ),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(25),
+                ),
+              ),
+              child: Text(
+                'Read first episode',
+                style: TextStyleClass.fredoka(
+                  fontSize: 16,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildEpisodeCard(
+      BrightBoxStory story, HomeProvider homeProvider, int index) {
     final title = _getStoryTitle(story, homeProvider.selectedLanguage);
 
     return Container(
@@ -170,147 +365,175 @@ class _BrightBoxStoriesScreenState extends State<BrightBoxStoriesScreen> {
             ),
           );
         },
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                ColorClass.primaryColor.withOpacity(0.1),
-                ColorClass.primaryColor.withOpacity(0.05),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: ColorClass.primaryColor.withOpacity(0.2),
-              width: 1,
-            ),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: ColorClass.primaryColor.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: story.coverImage.isNotEmpty
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: CachedNetworkImage(
-                          imageUrl: ApiUrls.assetBaseUrl + story.coverImage,
-                          width: 60,
-                          height: 60,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) => Center(
-                            child: Text(
-                              '${index + 1}',
-                              style: TextStyleClass.poppinsBold(
-                                fontSize: 18,
-                                color: ColorClass.primaryColor,
-                              ),
-                            ),
-                          ),
-                          errorWidget: (context, url, error) => Center(
-                            child: Text(
-                              '${index + 1}',
-                              style: TextStyleClass.poppinsBold(
-                                fontSize: 18,
-                                color: ColorClass.primaryColor,
-                              ),
-                            ),
-                          ),
-                        ),
-                      )
-                    : Center(
-                        child: Text(
-                          '${index + 1}',
-                          style: TextStyleClass.poppinsBold(
-                            fontSize: 18,
-                            color: ColorClass.primaryColor,
-                          ),
-                        ),
-                      ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyleClass.poppinsSemiBold(
-                        fontSize: 16,
-                        color: ColorClass.white,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Icon(
-                          LucideIcons.calendar,
-                          color: ColorClass.white.withOpacity(0.6),
-                          size: 14,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          _formatDate(story.dateCreated),
-                          style: TextStyleClass.poppinsRegular(
-                            fontSize: 12,
-                            color: ColorClass.white.withOpacity(0.6),
-                          ),
-                        ),
-                      ],
-                    ),
+        child: Row(
+          children: [
+            // Episode Thumbnail
+            Container(
+              width: 60,
+              height: 60,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.orange.withOpacity(0.7),
+                    Colors.white.withOpacity(0.4),
+                    Colors.green.withOpacity(0.7),
                   ],
                 ),
               ),
-              Icon(
-                LucideIcons.chevronRight,
-                color: ColorClass.white.withOpacity(0.5),
-                size: 20,
+              child: story.coverImage.isNotEmpty
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: CachedNetworkImage(
+                        imageUrl: ApiUrls.assetBaseUrl + story.coverImage,
+                        width: 60,
+                        height: 60,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => const Center(
+                          child: Icon(
+                            LucideIcons.flag,
+                            color: Colors.white,
+                            size: 24,
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => const Center(
+                          child: Icon(
+                            LucideIcons.flag,
+                            color: Colors.white,
+                            size: 24,
+                          ),
+                        ),
+                      ),
+                    )
+                  : const Center(
+                      child: Icon(
+                        LucideIcons.flag,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+            ),
+            const SizedBox(width: 16),
+
+            // Episode Info
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyleClass.fredoka(
+                      fontSize: 16,
+                      color: Colors.black,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Episode:${index + 1}',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+
+            // Bookmark Button
+            Container(
+              width: 30,
+              height: 30,
+              decoration: BoxDecoration(
+                color: Colors.grey.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                LucideIcons.bookmark,
+                color: Colors.grey,
+                size: 18,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorState(String error, BrightBoxProvider provider) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              LucideIcons.alertCircle,
+              size: 64,
+              color: Colors.red,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Oops! Something went wrong',
+              style: TextStyleClass.fredoka(
+                fontSize: 18,
+                color: Colors.black,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              error,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () => provider.loadStories(widget.subcategory.id),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: ColorClass.primaryColor,
+              ),
+              child: const Text('Try Again'),
+            ),
+          ],
         ),
       ),
     );
   }
 
   Widget _buildEmptyState() {
-    return SliverFillRemaining(
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              LucideIcons.clock,
-              size: 64,
-              color: ColorClass.primaryColor.withOpacity(0.6),
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            LucideIcons.clock,
+            size: 64,
+            color: ColorClass.primaryColor.withOpacity(0.6),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            'Coming Soon',
+            style: TextStyleClass.fredoka(
+              fontSize: 24,
+              color: Colors.black,
             ),
-            const SizedBox(height: 24),
-            Text(
-              'Coming Soon',
-              style: TextStyleClass.poppinsSemiBold(
-                fontSize: 24,
-                color: ColorClass.white,
-              ),
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'Exciting new content is on the way!\nStay tuned for amazing stories.',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey,
             ),
-            const SizedBox(height: 12),
-            Text(
-              'Exciting new content is on the way!\nStay tuned for amazing stories.',
-              style: TextStyleClass.poppinsRegular(
-                fontSize: 16,
-                color: ColorClass.white.withOpacity(0.7),
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }
