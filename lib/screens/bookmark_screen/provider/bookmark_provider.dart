@@ -121,12 +121,12 @@ class BookmarkProvider extends ChangeNotifier {
     try {
       await _bookmarkBox!.delete(id);
       await loadBookmarks();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Bookmark removed successfully'),
-          duration: Duration(seconds: 2),
-        ),
-      );
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   const SnackBar(
+      //     content: Text('Bookmark removed successfully'),
+      //     duration: Duration(seconds: 2),
+      //   ),
+      // );
       return true;
     } catch (e) {
       debugPrint('Error removing bookmark: $e');

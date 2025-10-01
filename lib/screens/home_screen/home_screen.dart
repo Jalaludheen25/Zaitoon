@@ -36,6 +36,10 @@ import 'package:flutter/services.dart' as services;
 import 'package:zaitoon/screens/home_screen/models/reading_progress_model.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
 import 'package:zaitoon/screens/student_form/view/student_form.dart';
+import 'package:zaitoon/screens/bright_box/provider/bright_box_provider.dart';
+import 'package:zaitoon/screens/bright_box/models/bright_box_models.dart';
+import 'package:zaitoon/screens/bright_box/screens/bright_box_subcategories_screen.dart';
+import 'package:zaitoon/screens/bright_box/screens/bright_box_home_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -60,12 +64,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           Provider.of<HomeProvider>(context, listen: false);
       final userProvider =
           Provider.of<UserDataProvider>(context, listen: false);
+      final brightBoxProvider =
+          Provider.of<BrightBoxProvider>(context, listen: false);
 
       homeProvider.fetchStories().then((value) {
         homeProvider.fetchHighlightedContent();
         checkForUpdates();
         homeProvider.loadReadingProgress(userProvider.uid ?? 'guest');
       });
+
+      brightBoxProvider.loadCategories();
     });
   }
 
@@ -324,6 +332,24 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 const SizedBox(height: 12),
                 _buildAllStoriesHorizontal(context),
                 const SizedBox(height: 24),
+                Consumer2<BrightBoxProvider, HomeProvider>(
+                  builder: (context, brightBoxProvider, homeProvider, child) {
+                    if (brightBoxProvider.categories.isEmpty) {
+                      return const SizedBox.shrink();
+                    }
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSectionTitle('Bright Box',
+                            trailing: _buildBrightBoxSeeAll(context)),
+                        const SizedBox(height: 12),
+                        _buildBrightBoxCategoriesList(context,
+                            brightBoxProvider.categories, homeProvider),
+                        const SizedBox(height: 24),
+                      ],
+                    );
+                  },
+                ),
               ],
             );
           },
@@ -374,8 +400,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       softWrap: false,
                     ),
                   ),
-                // ),
-                Text(' 👋', style: TextStyle(fontSize: 24)),
+                  // ),
+                  Text(' 👋', style: TextStyle(fontSize: 24)),
                 ],
               ),
             ),
@@ -466,6 +492,19 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       onPressed: () => navigatePR(
         context: context,
         screen: const StoriesScreen(),
+      ),
+      child: Text(
+        'See all',
+        style: GoogleFonts.openSans(color: Colors.black, fontSize: 14),
+      ),
+    );
+  }
+
+  Widget _buildBrightBoxSeeAll(BuildContext context) {
+    return TextButton(
+      onPressed: () => navigatePR(
+        context: context,
+        screen: const BrightBoxHomeScreen(),
       ),
       child: Text(
         'See all',
@@ -832,6 +871,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           size: 14,
                           color: Colors.black54,
                         ),
+                      if (cardType == 'brightbox')
+                        Icon(
+                          LucideIcons.box,
+                          size: 14,
+                          color: Colors.black54,
+                        ),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
@@ -1131,6 +1176,55 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       _getStoryModelTitle(storyData, snapshot.selectedLanguage),
       ApiUrls.assetBaseUrl + storyData.coverimage!,
     );
+  }
+
+  Widget _buildBrightBoxCategoriesList(BuildContext context,
+      List<BrightBoxCategory> categories, HomeProvider homeProvider) {
+    return SizedBox(
+      height: 230,
+      child: ListView.separated(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        scrollDirection: Axis.horizontal,
+        itemBuilder: (context, index) {
+          final category = categories[index];
+          return _buildTallCard(
+            imageUrl: ApiUrls.assetBaseUrl + (category.coverImage),
+            title: _getBrightBoxCategoryTitle(
+                category, homeProvider.selectedLanguage),
+            subtitle: 'Categories',
+            cardType: 'brightbox',
+            onTap: () {
+              navigatePR(
+                context: context,
+                screen: BrightBoxSubcategoriesScreen(category: category),
+              );
+            },
+          );
+        },
+        separatorBuilder: (_, __) => const SizedBox(width: 14),
+        itemCount: categories.length,
+      ),
+    );
+  }
+
+  String _getBrightBoxCategoryTitle(
+      BrightBoxCategory category, String language) {
+    switch (language) {
+      case 'ml':
+        return category.catTitleMl.isNotEmpty
+            ? category.catTitleMl
+            : category.catTitleEn;
+      case 'hi':
+        return category.catTitleHi.isNotEmpty
+            ? category.catTitleHi
+            : category.catTitleEn;
+      case 'ur':
+        return category.catTitleUr.isNotEmpty
+            ? category.catTitleUr
+            : category.catTitleEn;
+      default:
+        return category.catTitleEn;
+    }
   }
 
   @override

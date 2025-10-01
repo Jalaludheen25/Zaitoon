@@ -72,7 +72,7 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                     Icon(
                       Icons.bookmark_border_rounded,
                       size: 64,
-                      color: ColorClass.grey.withOpacity(0.5),
+                      color: ColorClass.black,
                     ),
                     const SizedBox(height: 16),
                     Text(
