@@ -3,13 +3,16 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/textstyle_class.dart';
 import 'package:zaitoon/constants/app_urls.dart';
+import 'package:zaitoon/constants/icon_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/bookmark_screen/bookmark_screen.dart';
 import 'package:zaitoon/screens/bookmark_screen/provider/bookmark_provider.dart';
@@ -27,7 +30,8 @@ class BrightBoxStoryReaderScreen extends StatefulWidget {
   });
 
   @override
-  State<BrightBoxStoryReaderScreen> createState() => _BrightBoxStoryReaderScreenState();
+  State<BrightBoxStoryReaderScreen> createState() =>
+      _BrightBoxStoryReaderScreenState();
 }
 
 class _BrightBoxStoryReaderScreenState extends State<BrightBoxStoryReaderScreen>
@@ -52,29 +56,30 @@ class _BrightBoxStoryReaderScreenState extends State<BrightBoxStoryReaderScreen>
       // Get the current language from HomeProvider
       final homeProvider = context.read<HomeProvider>();
       final currentLanguage = homeProvider.selectedLanguage;
-      
+
       // Get the appropriate PDF file ID based on language
       final pdfFileId = _getStoryFile(widget.story, currentLanguage);
-      
+
       if (pdfFileId.isEmpty) {
         throw Exception('PDF file not available for selected language');
       }
-      
+
       // Construct the PDF URL using the asset base URL
       final pdfUrl = '${ApiUrls.assetBaseUrl}$pdfFileId';
-      
+
       debugPrint('Loading PDF from: $pdfUrl');
-      
+
       final response = await http.get(Uri.parse(pdfUrl));
-      
+
       if (response.statusCode != 200) {
         throw Exception('Failed to download PDF: ${response.statusCode}');
       }
-      
+
       final dir = await getTemporaryDirectory();
-      final file = File('${dir.path}/bright_box_story_${widget.story.id}_$currentLanguage.pdf');
+      final file = File(
+          '${dir.path}/bright_box_story_${widget.story.id}_$currentLanguage.pdf');
       await file.writeAsBytes(response.bodyBytes);
-      
+
       setState(() {
         _localPdfPath = file.path;
         _isLoading = false;
@@ -128,8 +133,19 @@ class _BrightBoxStoryReaderScreenState extends State<BrightBoxStoryReaderScreen>
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.edgeToEdge,
+      overlays: [SystemUiOverlay.top],
+    );
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        systemNavigationBarColor: Colors.transparent,
+      ),
+    );
+
     return Scaffold(
-      backgroundColor: Colors.black,
       body: Stack(
         children: [
           // Progress Indicator
@@ -183,8 +199,7 @@ class _BrightBoxStoryReaderScreenState extends State<BrightBoxStoryReaderScreen>
             ),
 
           // Error state when PDF fails to load
-          if (!_isLoading && _localPdfPath == null)
-            _buildErrorState(),
+          if (!_isLoading && _localPdfPath == null) _buildErrorState(),
 
           // Loading Overlay
           if (_isLoading) _buildLoadingOverlay(),
@@ -196,7 +211,8 @@ class _BrightBoxStoryReaderScreenState extends State<BrightBoxStoryReaderScreen>
           if (_isAtBottom) _buildReadingCompleteBadge(),
 
           // Reading Guide Mascot
-          if (!_isLoading && !_isAtBottom && _localPdfPath != null) _buildReadingGuide(),
+          if (!_isLoading && !_isAtBottom && _localPdfPath != null)
+            _buildReadingGuide(),
         ],
       ),
     );
@@ -262,72 +278,35 @@ class _BrightBoxStoryReaderScreenState extends State<BrightBoxStoryReaderScreen>
 
   Widget _buildTopBar() {
     return Positioned(
-      top: 0,
-      left: 0,
-      right: 0,
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(20, 40, 20, 10),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.black.withOpacity(0.9),
-              Colors.black.withOpacity(0),
+      top: 40,
+      left: 10,
+      right: 10,
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildActionButton(
+                icon: Icons.arrow_back_ios_new,
+                onPressed: () => navigateBack(context),
+              ),
+              const SizedBox(width: 180),
+              _buildActionButton(
+                icon: Icons.share_outlined,
+                onPressed: _shareStory,
+              ),
+              const SizedBox(width: 15),
+              _buildBookmarkButton(),
             ],
           ),
-        ),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildActionButton(
-                  icon: Icons.arrow_back_ios_new,
-                  onPressed: () => navigateBack(context),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      _currentTitle,
-                      style: TextStyleClass.poppinsSemiBold(
-                        fontSize: 16,
-                        color: ColorClass.white,
-                      ),
-                      textAlign: TextAlign.center,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ),
-                _buildActionButton(
-                  icon: Icons.share_outlined,
-                  onPressed: _shareStory,
-                ),
-                const SizedBox(width: 8),
-                _buildBookmarkButton(),
-              ],
-            ),
-            if (_totalPages > 0) ...[
-              const SizedBox(height: 8),
-              Text(
-                'Page $_currentPage of $_totalPages',
-                style: TextStyleClass.poppinsRegular(
-                  fontSize: 12,
-                  color: ColorClass.white.withOpacity(0.7),
-                ),
-              ),
-            ],
-          ],
-        ),
+        ],
       ),
     );
   }
 
   Widget _buildReadingGuide() {
     return Positioned(
-      bottom: 20,
+      bottom: 60,
       right: 20,
       child: AnimatedBuilder(
         animation: _bounceAnimation,
@@ -337,7 +316,15 @@ class _BrightBoxStoryReaderScreenState extends State<BrightBoxStoryReaderScreen>
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: ColorClass.primaryColor.withOpacity(0.3),
+                gradient: LinearGradient(
+                  colors: [
+                    ColorClass.grad1,
+                    ColorClass.grad2,
+                    ColorClass.grad3,
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
@@ -347,16 +334,20 @@ class _BrightBoxStoryReaderScreenState extends State<BrightBoxStoryReaderScreen>
                   ),
                 ],
               ),
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('📖', style: TextStyle(fontSize: 20)),
-                  SizedBox(width: 8),
+                  SvgPicture.asset(
+                    IconClass.frame,
+                    width: 24,
+                    height: 24,
+                  ),
+                  const SizedBox(width: 8),
                   Text(
-                    'Keep Reading!',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                    'Keep Reading',
+                    style: TextStyleClass.fredoka(
+                      fontSize: 16,
+                      color: ColorClass.white,
                     ),
                   ),
                 ],
@@ -370,7 +361,7 @@ class _BrightBoxStoryReaderScreenState extends State<BrightBoxStoryReaderScreen>
 
   Widget _buildLoadingOverlay() {
     return Container(
-      color: Colors.black,
+      color: Colors.white,
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -411,7 +402,7 @@ class _BrightBoxStoryReaderScreenState extends State<BrightBoxStoryReaderScreen>
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: ColorClass.primaryColor.withOpacity(0.3),
+                              color: ColorClass.primaryColor,
                               width: 2,
                             ),
                           ),
@@ -426,7 +417,7 @@ class _BrightBoxStoryReaderScreenState extends State<BrightBoxStoryReaderScreen>
             const DefaultTextStyle(
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.white,
+                color: ColorClass.violet20,
                 fontWeight: FontWeight.w500,
               ),
               child: LoadingText(),
@@ -439,8 +430,8 @@ class _BrightBoxStoryReaderScreenState extends State<BrightBoxStoryReaderScreen>
                 color: Colors.white.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(2),
               ),
-              child: const LinearProgressIndicator(
-                backgroundColor: Colors.transparent,
+              child: LinearProgressIndicator(
+                backgroundColor: ColorClass.primaryColor.withOpacity(0.1),
                 color: ColorClass.primaryColor,
               ),
             ),
@@ -455,16 +446,16 @@ class _BrightBoxStoryReaderScreenState extends State<BrightBoxStoryReaderScreen>
     required VoidCallback onPressed,
   }) {
     return Container(
+      width: 40,
+      height: 40,
       decoration: BoxDecoration(
-        color: ColorClass.primaryColor.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: ColorClass.primaryColor.withOpacity(0.3),
-        ),
+        color: ColorClass.white.withOpacity(0.2),
+        shape: BoxShape.circle,
       ),
       child: IconButton(
-        icon: Icon(icon, color: ColorClass.white, size: 20),
+        icon: Icon(icon, color: ColorClass.primaryColor, size: 20),
         onPressed: onPressed,
+        padding: EdgeInsets.zero,
       ),
     );
   }
@@ -475,25 +466,26 @@ class _BrightBoxStoryReaderScreenState extends State<BrightBoxStoryReaderScreen>
         final bookmarkId = 'bright_box_${widget.story.id}';
         final isBookmarked = bookmarkProvider.isBookmarked(bookmarkId);
         return Container(
+          width: 40,
+          height: 40,
           decoration: BoxDecoration(
-            color: ColorClass.primaryColor.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: ColorClass.primaryColor.withOpacity(0.3),
-            ),
+            color: ColorClass.white.withOpacity(0.2),
+            shape: BoxShape.circle,
           ),
           child: IconButton(
             icon: AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
               child: Icon(
-                isBookmarked ? LucideIcons.bookMarked : LucideIcons.bookmark,
+                isBookmarked ? Icons.bookmark : Icons.bookmark_border,
                 key: ValueKey(isBookmarked),
-                color:
-                    isBookmarked ? ColorClass.primaryColor : ColorClass.white,
+                color: isBookmarked
+                    ? ColorClass.coquelicot
+                    : ColorClass.primaryColor,
                 size: 20,
               ),
             ),
             onPressed: () => _handleBookmark(bookmarkProvider, isBookmarked),
+            padding: EdgeInsets.zero,
           ),
         );
       },
@@ -502,7 +494,7 @@ class _BrightBoxStoryReaderScreenState extends State<BrightBoxStoryReaderScreen>
 
   Widget _buildReadingCompleteBadge() {
     return Positioned(
-      bottom: 20,
+      bottom: 60,
       left: 0,
       right: 0,
       child: Center(
@@ -511,9 +503,12 @@ class _BrightBoxStoryReaderScreenState extends State<BrightBoxStoryReaderScreen>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                ColorClass.primaryColor,
-                ColorClass.primaryColor.withOpacity(0.2),
+                ColorClass.grad1,
+                ColorClass.grad2,
+                ColorClass.grad3,
               ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
@@ -529,14 +524,11 @@ class _BrightBoxStoryReaderScreenState extends State<BrightBoxStoryReaderScreen>
             children: [
               const Text('🎉', style: TextStyle(fontSize: 20)),
               const SizedBox(width: 8),
-              TextButton(
-                onPressed: () => navigateBack(context),
-                child: Text(
-                  'Great job! You finished the story!',
-                  style: TextStyleClass.poppinsSemiBold(
-                    fontSize: 14,
-                    color: Colors.white,
-                  ),
+              Text(
+                'Great job! You finished the story!',
+                style: TextStyleClass.fredoka(
+                  fontSize: 14,
+                  color: ColorClass.white,
                 ),
               ),
             ],
@@ -548,7 +540,7 @@ class _BrightBoxStoryReaderScreenState extends State<BrightBoxStoryReaderScreen>
 
   void _handleBookmark(BookmarkProvider provider, bool isBookmarked) async {
     final bookmarkId = 'bright_box_${widget.story.id}';
-    
+
     if (isBookmarked) {
       await provider.removeBookmark(context, bookmarkId);
       if (context.mounted) {
@@ -590,7 +582,7 @@ class _BrightBoxStoryReaderScreenState extends State<BrightBoxStoryReaderScreen>
                 navigatePR(context: context, screen: const BookmarkScreen());
               },
             ),
-            backgroundColor: Colors.greenAccent.withOpacity(0.8),
+            backgroundColor: ColorClass.coquelicot,
             behavior: SnackBarBehavior.floating,
           ),
         );

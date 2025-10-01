@@ -11,6 +11,7 @@ import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/textstyle_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/bookmark_screen/provider/bookmark_provider.dart';
+import 'package:zaitoon/screens/bright_box/screens/bright_box_home_screen.dart';
 import 'package:zaitoon/screens/login_screen/login_screen.dart';
 import 'package:zaitoon/screens/login_screen/provider/auth_provider.dart';
 import 'package:zaitoon/screens/reading_screen/story_reader_page.dart';
@@ -163,6 +164,13 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                               setState(() {
                                 selectedCategory = category;
                               });
+                              // Navigate to Bright Box screen when selected
+                              if (category == "Bright Box") {
+                                navigatePR(
+                                  context: context,
+                                  screen: const BrightBoxHomeScreen(),
+                                );
+                              }
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(

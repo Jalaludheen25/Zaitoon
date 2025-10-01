@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:zaitoon/constants/color_class.dart';
+import 'package:zaitoon/constants/textstyle_class.dart';
 
 class ParentalGate extends StatefulWidget {
   final Function onSuccess;
@@ -55,82 +56,138 @@ class _ParentalGateState extends State<ParentalGate> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: ColorClass.black,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: const BorderSide(color: ColorClass.white, width: 2),
-      ),
-      content: SizedBox(
-        width: double.minPositive,
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: ColorClass.white,
+          borderRadius: BorderRadius.circular(24),
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // Title
             Text(
-              widget.title,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: ColorClass.white,
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'This section requires parent permission.\nPlease solve this math problem:',
+              'Parental Access\nRequired',
               textAlign: TextAlign.center,
-              style: TextStyle(color: ColorClass.white),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              '$num1 + $num2 = ?',
-              style: const TextStyle(
+              style: TextStyleClass.fredoka(
                 fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: ColorClass.white,
+                color: Colors.black,
               ),
             ),
-            const SizedBox(height: 20),
-            TextField(
-              controller: _answerController,
-              keyboardType: TextInputType.number,
-              style: const TextStyle(color: ColorClass.white),
-              decoration: InputDecoration(
-                hintText: 'Enter your answer',
-                hintStyle: const TextStyle(color: ColorClass.grey),
-                errorText: errorText.isNotEmpty ? errorText : null,
-                border: const OutlineInputBorder(),
-                enabledBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(color: ColorClass.white),
+            const SizedBox(height: 24),
+
+            // Description
+            const Text(
+              'This section is for parents only.\nTo continue, please solve this simple\nmath problem:',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey,
+              ),
+            ),
+            const SizedBox(height: 32),
+
+            // Math Problem
+            Text(
+              '$num1 + $num2 =',
+              style: TextStyleClass.fredoka(
+                fontSize: 48,
+                color: Colors.black,
+              ),
+            ),
+            const SizedBox(height: 32),
+
+            // Answer Input
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(50),
+              ),
+              child: TextField(
+                controller: _answerController,
+                keyboardType: TextInputType.number,
+                textAlign: TextAlign.center,
+                style: TextStyleClass.fredoka(
+                  fontSize: 18,
+                  color: Colors.black,
                 ),
-                focusedBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(color: ColorClass.white),
+                decoration: InputDecoration(
+                  hintText: 'Type your answer here...',
+                  hintStyle: const TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey,
+                  ),
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 16,
+                  ),
+                  errorText: errorText.isNotEmpty ? errorText : null,
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 32),
+
+            // Buttons
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                SizedBox(
-                  width: 100,
-                  child: TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text(
-                      'Cancel',
-                      style: TextStyle(color: ColorClass.white),
+                // Cancel Button
+                Expanded(
+                  child: Container(
+                    height: 50,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                    child: TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Text(
+                        'Cancel',
+                        style: TextStyleClass.fredoka(
+                          fontSize: 16,
+                          color: Colors.black,
+                        ),
+                      ),
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
-                SizedBox(
-                  width: 100,
-                  child: ElevatedButton(
-                    onPressed: _checkAnswer,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: ColorClass.white,
-                      foregroundColor: ColorClass.black,
+                const SizedBox(width: 16),
+
+                // Confirm Button
+                Expanded(
+                  child: Container(
+                    height: 50,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          ColorClass.grad1,
+                          ColorClass.grad2,
+                          ColorClass.grad3,
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(25),
                     ),
-                    child: const Text('Submit'),
+                    child: ElevatedButton(
+                      onPressed: _checkAnswer,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                      ),
+                      child: Text(
+                        'Confirm',
+                        style: TextStyleClass.fredoka(
+                          fontSize: 16,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ],

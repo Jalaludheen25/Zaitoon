@@ -19,10 +19,12 @@ class BrightBoxSubcategoriesScreen extends StatefulWidget {
   });
 
   @override
-  State<BrightBoxSubcategoriesScreen> createState() => _BrightBoxSubcategoriesScreenState();
+  State<BrightBoxSubcategoriesScreen> createState() =>
+      _BrightBoxSubcategoriesScreenState();
 }
 
-class _BrightBoxSubcategoriesScreenState extends State<BrightBoxSubcategoriesScreen> {
+class _BrightBoxSubcategoriesScreenState
+    extends State<BrightBoxSubcategoriesScreen> {
   @override
   void initState() {
     super.initState();
@@ -42,7 +44,8 @@ class _BrightBoxSubcategoriesScreenState extends State<BrightBoxSubcategoriesScr
       body: SafeArea(
         child: Consumer2<BrightBoxProvider, HomeProvider>(
           builder: (context, brightBoxProvider, homeProvider, child) {
-            final categoryTitle = _getCategoryTitle(widget.category, homeProvider.selectedLanguage);
+            final categoryTitle = _getCategoryTitle(
+                widget.category, homeProvider.selectedLanguage);
 
             return CustomScrollView(
               slivers: [
@@ -135,7 +138,8 @@ class _BrightBoxSubcategoriesScreenState extends State<BrightBoxSubcategoriesScr
     );
   }
 
-  Widget _buildSubcategoriesList(BrightBoxProvider brightBoxProvider, HomeProvider homeProvider) {
+  Widget _buildSubcategoriesList(
+      BrightBoxProvider brightBoxProvider, HomeProvider homeProvider) {
     if (brightBoxProvider.subcategories.isEmpty) {
       return _buildEmptyState();
     }
@@ -154,8 +158,10 @@ class _BrightBoxSubcategoriesScreenState extends State<BrightBoxSubcategoriesScr
     );
   }
 
-  Widget _buildSubcategoryCard(BrightBoxSubcategory subcategory, HomeProvider homeProvider) {
-    final title = _getSubcategoryTitle(subcategory, homeProvider.selectedLanguage);
+  Widget _buildSubcategoryCard(
+      BrightBoxSubcategory subcategory, HomeProvider homeProvider) {
+    final title =
+        _getSubcategoryTitle(subcategory, homeProvider.selectedLanguage);
     debugPrint('Subcategory: $title, Cover Image: ${subcategory.coverImage}');
 
     return Container(
@@ -194,12 +200,14 @@ class _BrightBoxSubcategoriesScreenState extends State<BrightBoxSubcategoriesScr
                     ? ClipRRect(
                         borderRadius: BorderRadius.circular(12),
                         child: CachedNetworkImage(
-                          imageUrl: ApiUrls.assetBaseUrl + subcategory.coverImage,
+                          imageUrl:
+                              ApiUrls.assetBaseUrl + subcategory.coverImage,
                           width: 60,
                           height: 60,
                           fit: BoxFit.cover,
                           placeholder: (context, url) {
-                            debugPrint('Loading subcategory image: ${ApiUrls.assetBaseUrl}${subcategory.coverImage}');
+                            debugPrint(
+                                'Loading subcategory image: ${ApiUrls.assetBaseUrl}${subcategory.coverImage}');
                             return const Icon(
                               LucideIcons.folderOpen,
                               color: ColorClass.primaryColor,
@@ -207,7 +215,8 @@ class _BrightBoxSubcategoriesScreenState extends State<BrightBoxSubcategoriesScr
                             );
                           },
                           errorWidget: (context, url, error) {
-                            debugPrint('Subcategory image error for ${subcategory.coverImage}: $error');
+                            debugPrint(
+                                'Subcategory image error for ${subcategory.coverImage}: $error');
                             return const Icon(
                               LucideIcons.folderOpen,
                               color: ColorClass.primaryColor,
@@ -305,7 +314,8 @@ class _BrightBoxSubcategoriesScreenState extends State<BrightBoxSubcategoriesScr
     }
   }
 
-  String _getSubcategoryTitle(BrightBoxSubcategory subcategory, String language) {
+  String _getSubcategoryTitle(
+      BrightBoxSubcategory subcategory, String language) {
     switch (language) {
       case 'ml':
         return subcategory.subcatTitleMl ?? subcategory.subcatTitleEn ?? '';

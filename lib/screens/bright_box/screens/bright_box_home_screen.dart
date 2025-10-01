@@ -31,25 +31,66 @@ class _BrightBoxHomeScreenState extends State<BrightBoxHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ColorClass.black,
+      backgroundColor: ColorClass.white,
       body: SafeArea(
         child: Consumer2<BrightBoxProvider, HomeProvider>(
           builder: (context, brightBoxProvider, homeProvider, child) {
-            return CustomScrollView(
-              slivers: [
-                _buildAppBar(),
-                if (brightBoxProvider.isLoading)
-                  const SliverFillRemaining(
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        color: ColorClass.primaryColor,
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ShaderMask(
+                        shaderCallback: (bounds) => LinearGradient(
+                          colors: [
+                            ColorClass.grad1,
+                            ColorClass.grad2,
+                            ColorClass.grad3,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ).createShader(bounds),
+                        child: Text(
+                          'Bright Box',
+                          style: TextStyleClass.fredoka(
+                            fontSize: 28,
+                            color: ColorClass.white,
+                          ),
+                        ),
                       ),
-                    ),
-                  )
-                else if (brightBoxProvider.error != null)
-                  _buildErrorState(brightBoxProvider.error!, brightBoxProvider)
-                else
-                  _buildContent(brightBoxProvider, homeProvider),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Step Into the Past, Learn for the Future',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: ColorClass.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Content
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: brightBoxProvider.isLoading
+                        ? const Center(
+                            child: CircularProgressIndicator(
+                              color: ColorClass.primaryColor,
+                            ),
+                          )
+                        : brightBoxProvider.error != null
+                            ? _buildErrorState(
+                                brightBoxProvider.error!, brightBoxProvider)
+                            : _buildCategoriesList(
+                                brightBoxProvider, homeProvider),
+                  ),
+                ),
               ],
             );
           },
@@ -58,95 +99,47 @@ class _BrightBoxHomeScreenState extends State<BrightBoxHomeScreen> {
     );
   }
 
-  Widget _buildAppBar() {
-    return SliverAppBar(
-      automaticallyImplyLeading: false,
-      title: Row(
-        children: [
-          Text(
-            'Bright Box',
-            style: TextStyleClass.poppinsSemiBold(
-              fontSize: 24,
-              color: ColorClass.white,
-            ),
-          ),
-        ],
-      ),
-      backgroundColor: ColorClass.black,
-      floating: true,
-      pinned: false,
-      elevation: 0,
-    );
-  }
-
   Widget _buildErrorState(String error, BrightBoxProvider provider) {
-    return SliverFillRemaining(
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                LucideIcons.alertCircle,
-                size: 64,
-                color: Colors.red,
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              LucideIcons.alertCircle,
+              size: 64,
+              color: Colors.red,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Oops! Something went wrong',
+              style: TextStyleClass.fredoka(
+                fontSize: 18,
+                color: Colors.black,
               ),
-              const SizedBox(height: 16),
-              Text(
-                'Oops! Something went wrong',
-                style: TextStyleClass.poppinsSemiBold(
-                  fontSize: 18,
-                  color: ColorClass.white,
-                ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              error,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
               ),
-              const SizedBox(height: 8),
-              Text(
-                error,
-                style: TextStyleClass.poppinsRegular(
-                  fontSize: 14,
-                  color: ColorClass.white.withOpacity(0.7),
-                ),
-                textAlign: TextAlign.center,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () {
+                provider.loadCategories();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: ColorClass.primaryColor,
               ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () {
-                  provider.loadCategories();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: ColorClass.primaryColor,
-                ),
-                child: const Text('Try Again'),
-              ),
-            ],
-          ),
+              child: const Text('Try Again'),
+            ),
+          ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildContent(
-      BrightBoxProvider brightBoxProvider, HomeProvider homeProvider) {
-    return SliverPadding(
-      padding: const EdgeInsets.all(16),
-      sliver: SliverList(
-        delegate: SliverChildListDelegate([
-          // Categories Section
-          _buildSectionHeader('Categories', homeProvider),
-          const SizedBox(height: 16),
-          _buildCategoriesList(brightBoxProvider, homeProvider),
-        ]),
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader(String title, HomeProvider homeProvider) {
-    return Text(
-      title,
-      style: TextStyleClass.poppinsSemiBold(
-        fontSize: 20,
-        color: ColorClass.white,
       ),
     );
   }
@@ -157,13 +150,15 @@ class _BrightBoxHomeScreenState extends State<BrightBoxHomeScreen> {
       return _buildEmptyState();
     }
 
-    return Column(
-      children: brightBoxProvider.categories.map((category) {
+    return ListView.builder(
+      itemCount: brightBoxProvider.categories.length,
+      itemBuilder: (context, index) {
+        final category = brightBoxProvider.categories[index];
         return Padding(
           padding: const EdgeInsets.only(bottom: 16),
           child: _buildCategoryCard(category, homeProvider),
         );
-      }).toList(),
+      },
     );
   }
 
@@ -181,14 +176,15 @@ class _BrightBoxHomeScreenState extends State<BrightBoxHomeScreen> {
         );
       },
       child: Container(
-        height: 200, // Fixed height for larger cards like in the image
+        height: 200,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.3),
+              color: Colors.grey.withOpacity(0.2),
+              spreadRadius: 1,
               blurRadius: 8,
-              offset: const Offset(0, 4),
+              offset: const Offset(0, 2),
             ),
           ],
         ),
@@ -281,7 +277,7 @@ class _BrightBoxHomeScreenState extends State<BrightBoxHomeScreen> {
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.transparent,
-                    Colors.black.withOpacity(0.7),
+                    Colors.black.withOpacity(0.6),
                   ],
                 ),
               ),
@@ -292,27 +288,32 @@ class _BrightBoxHomeScreenState extends State<BrightBoxHomeScreen> {
               bottom: 0,
               left: 0,
               right: 0,
-              child: Padding(
+              child: Container(
                 padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  borderRadius:
+                      const BorderRadius.vertical(bottom: Radius.circular(16)),
+                  color: Colors.white.withOpacity(0.9),
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       title,
-                      style: TextStyleClass.poppinsSemiBold(
+                      style: TextStyleClass.fredoka(
                         fontSize: 20,
-                        color: Colors.white,
+                        color: Colors.black,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
-                    Text(
+                    const Text(
                       'Explore stories',
-                      style: TextStyleClass.poppinsRegular(
+                      style: TextStyle(
                         fontSize: 14,
-                        color: Colors.white.withOpacity(0.8),
+                        color: Colors.grey,
                       ),
                     ),
                   ],
@@ -338,17 +339,17 @@ class _BrightBoxHomeScreenState extends State<BrightBoxHomeScreen> {
           const SizedBox(height: 24),
           Text(
             'Coming Soon',
-            style: TextStyleClass.poppinsSemiBold(
+            style: TextStyleClass.fredoka(
               fontSize: 24,
-              color: ColorClass.white,
+              color: Colors.black,
             ),
           ),
           const SizedBox(height: 12),
-          Text(
+          const Text(
             'Exciting new content is on the way!\nStay tuned for amazing stories.',
-            style: TextStyleClass.poppinsRegular(
+            style: TextStyle(
               fontSize: 16,
-              color: ColorClass.white.withOpacity(0.7),
+              color: Colors.grey,
             ),
             textAlign: TextAlign.center,
           ),
