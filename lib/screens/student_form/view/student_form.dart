@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'package:provider/provider.dart';
 import '../model/student_model.dart';
 import '../database/db_helper.dart';
 import '../../../constants/color_class.dart';
+import '../../../constants/icon_class.dart';
 import '../../../screens/quiz/quiz_screen.dart';
-import '../../../screens/quiz/provider/quiz_provider.dart';
+import '../../../screens/user_data_collection_screen/components/gender_card.dart';
+import '../../../constants/textstyle_class.dart';
+import 'dart:ui';
 
 class StudentFormScreen extends StatefulWidget {
   const StudentFormScreen({super.key});
@@ -20,13 +22,12 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
   final _nameController = TextEditingController();
   final _mobileController = TextEditingController();
 
-  String _selectedGender = 'Boy';
+  String _selectedGender = 'boy';
   String _selectedDistrict = 'Kozhikode';
   String _selectedClass = 'LKG';
   bool _isLoading = false;
 
   final DatabaseHelper _databaseHelper = DatabaseHelper();
-  final List<String> _genderOptions = ['Boy', 'Girl'];
   final List<String> _districtOptions = [
     'Thiruvananthapuram',
     'Kollam',
@@ -80,7 +81,8 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
       final student = Student(
         name: _nameController.text.trim(),
         mobile: _mobileController.text.trim(),
-        gender: _selectedGender,
+        gender: _selectedGender.substring(0, 1).toUpperCase() +
+            _selectedGender.substring(1),
         className: _selectedClass,
         district: _selectedDistrict,
       );
@@ -136,71 +138,193 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: ColorClass.black),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(
-          'Enter your details',
-          style: GoogleFonts.poppins(
-            color: ColorClass.black,
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        centerTitle: true,
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          child: Form(
-            key: _formKey,
-            child: ListView(
-              children: [
-                const SizedBox(height: 20),
-                _buildTextField(
-                  'Student Name',
-                  _nameController,
-                  icon: LucideIcons.user2,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Please enter student name';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 20),
-                _buildTextField(
-                  'Mobile Number',
-                  _mobileController,
-                  icon: LucideIcons.phone,
-                  keyboardType: TextInputType.phone,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Please enter mobile number';
-                    }
-                    if (value.length < 10) {
-                      return 'Please enter a valid mobile number';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 20),
-                _buildGenderDropdown(),
-                const SizedBox(height: 20),
-                _buildDistrictDropdown(),
-                const SizedBox(height: 20),
-                _buildClassDropdown(),
-                const SizedBox(height: 40),
-                _buildSubmitButton(),
-                const SizedBox(height: 20),
-              ],
+        title: ShaderMask(
+          shaderCallback: (bounds) => const LinearGradient(
+            colors: [
+              ColorClass.grad1,
+              ColorClass.grad2,
+              ColorClass.grad3,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ).createShader(bounds),
+          child: Text(
+            'Enter your Details',
+            style: TextStyleClass.fredoka(
+              fontSize: 24,
+              color: Colors.white,
             ),
           ),
         ),
+      ),
+      body: Stack(
+        children: [
+          // Background with blur effects
+          Container(),
+
+          // Top left blur effect
+          Positioned(
+            top: 200,
+            left: -30,
+            child: Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                //shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors:  [
+                    Color(0xFFAC28DC).withOpacity(0.25),
+                    Color(0xFF4E1BCF).withOpacity(0.25),
+                    Color(0xFF7E1EB7).withOpacity(0.25),
+                    Color(0xFF501392).withOpacity(0.25),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(150), // ellipse shape
+              ),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(
+                  sigmaX: 50,
+                  sigmaY: 50,
+                ),
+                child: Container(
+                  color: Colors.white.withOpacity(0.0), // keeps blur visible
+                ),
+              ),
+            ),
+          ),
+
+          // Top right blur effect
+          Positioned(
+            top: 42,
+            // right: -50,
+            left:304,
+            child: Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                //shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors:  [
+                    Color(0xFFAC28DC).withOpacity(0.25),
+                    Color(0xFF4E1BCF).withOpacity(0.25),
+                    Color(0xFF7E1EB7).withOpacity(0.25),
+                    Color(0xFF501392).withOpacity(0.25),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(150), // ellipse shape
+              ),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(
+                  sigmaX: 50,
+                  sigmaY: 50,
+                ),
+                child: Container(
+                  color: Colors.white.withOpacity(0.0), // keeps blur visible
+                ),
+              ),
+            ),
+          ),
+
+          // Main content
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Column(
+                children: [
+                  //         const SizedBox(height: 20),
+
+                  //         // Welcome message
+                  //         Text(
+                  //           'Join the Quiz!',
+                  //           style: GoogleFonts.fredoka(
+                  //             fontSize: 24,
+                  //             fontWeight: FontWeight.w700,
+                  //             color: ColorClass.black,
+                  //           ),
+                  //         ),
+                  //         const SizedBox(height: 8),
+                  //         Text(
+                  //           'Please fill in your details to continue',
+                  //           style: GoogleFonts.openSans(
+                  //             fontSize: 14,
+                  //             color: Colors.black.withOpacity(0.6),
+                  //           ),
+                  //         ),
+
+                  //         const SizedBox(height: 25),
+
+                  // Form Fields
+                  Expanded(
+                    child: SingleChildScrollView(
+                      keyboardDismissBehavior:
+                          ScrollViewKeyboardDismissBehavior.onDrag,
+                      padding: EdgeInsets.only(
+                        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+                      ),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+                            SizedBox(height: 5),
+                            _buildTextField(
+                              'Student Name',
+                              _nameController,
+                              icon: LucideIcons.user2,
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Please enter student name';
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 19),
+                            _buildTextField(
+                              'Mobile Number',
+                              _mobileController,
+                              icon: LucideIcons.phone,
+                              keyboardType: TextInputType.phone,
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Please enter mobile number';
+                                }
+                                if (value.length < 10) {
+                                  return 'Please enter a valid mobile number';
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 19),
+                            _buildGenderSelection(),
+                            const SizedBox(height: 19),
+                            _buildDistrictDropdown(),
+                            const SizedBox(height: 19),
+                            _buildClassDropdown(),
+                            const SizedBox(height: 25),
+                            _buildSubmitButton(),
+                            const SizedBox(height: 10),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -217,50 +341,50 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
       children: [
         Text(
           label,
-          style: GoogleFonts.poppins(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
+          style: TextStyleClass.fredokaRegular(
+            fontSize: 16,
             color: ColorClass.black,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
         TextFormField(
           controller: controller,
           keyboardType: keyboardType,
-          style: GoogleFonts.poppins(color: ColorClass.black),
+          style: GoogleFonts.openSans(color: ColorClass.black),
           decoration: InputDecoration(
             hintText: 'Enter $label',
-            hintStyle: GoogleFonts.poppins(
+            hintStyle: GoogleFonts.openSans(
               color: Colors.grey[500],
+              fontSize: 14,
             ),
             prefixIcon: Icon(
               icon,
-              color: ColorClass.primaryColor,
+              // color: ColorClass.primaryColor,
               size: 20,
             ),
             contentPadding: const EdgeInsets.symmetric(
-              vertical: 16,
+              vertical: 14,
               horizontal: 16,
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey[300]!),
+              borderRadius: BorderRadius.circular(24),
+              borderSide: BorderSide(color: Colors.grey[300]!, width: 0.5),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: ColorClass.primaryColor, width: 2),
+              borderRadius: BorderRadius.circular(24),
+              borderSide: BorderSide(color: ColorClass.violet30, width: 1),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(24),
               borderSide: BorderSide(color: Colors.red[300]!),
             ),
             focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.red[300]!, width: 2),
+              borderRadius: BorderRadius.circular(24),
+              borderSide: BorderSide(color: Colors.red[400]!, width: 2),
             ),
             filled: true,
             fillColor: Colors.grey[50],
-            errorStyle: GoogleFonts.poppins(
+            errorStyle: GoogleFonts.openSans(
               color: Colors.red[600],
               fontSize: 12,
             ),
@@ -271,62 +395,46 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
     );
   }
 
-  Widget _buildGenderDropdown() {
+  Widget _buildGenderSelection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Gender',
-          style: GoogleFonts.poppins(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
+          "Gender",
+          style: TextStyleClass.fredokaRegular(
+            fontSize: 16,
             color: ColorClass.black,
           ),
         ),
-        const SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.grey[50],
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey[300]!),
-          ),
-          child: DropdownButtonFormField<String>(
-            value: _selectedGender,
-            style: GoogleFonts.poppins(color: ColorClass.black),
-            decoration: InputDecoration(
-              contentPadding: const EdgeInsets.symmetric(
-                vertical: 16,
-                horizontal: 16,
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: GenderCard(
+                icon: IconClass.boy,
+                label: "I'm a Boy",
+                isSelected: _selectedGender == 'boy',
+                onTap: () {
+                  setState(() {
+                    _selectedGender = 'boy';
+                  });
+                },
               ),
-              prefixIcon: Icon(
-                LucideIcons.users,
-                color: ColorClass.primaryColor,
-                size: 20,
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: GenderCard(
+                icon: IconClass.girl,
+                label: "I'm a Girl",
+                isSelected: _selectedGender == 'girl',
+                onTap: () {
+                  setState(() {
+                    _selectedGender = 'girl';
+                  });
+                },
               ),
-              border: InputBorder.none,
-              enabledBorder: InputBorder.none,
-              focusedBorder: InputBorder.none,
             ),
-            dropdownColor: Colors.white,
-            icon: Icon(
-              Icons.arrow_drop_down,
-              color: ColorClass.primaryColor,
-            ),
-            items: _genderOptions.map((String gender) {
-              return DropdownMenuItem<String>(
-                value: gender,
-                child: Text(
-                  gender,
-                  style: GoogleFonts.poppins(color: ColorClass.black),
-                ),
-              );
-            }).toList(),
-            onChanged: (String? newValue) {
-              setState(() {
-                _selectedGender = newValue!;
-              });
-            },
-          ),
+          ],
         ),
       ],
     );
@@ -338,30 +446,29 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
       children: [
         Text(
           'District',
-          style: GoogleFonts.poppins(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
+          style: TextStyleClass.fredoka(
+            fontSize: 16,
             color: ColorClass.black,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
         Container(
           decoration: BoxDecoration(
             color: Colors.grey[50],
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey[300]!),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: Colors.grey[300]!, width: 0.5),
           ),
           child: DropdownButtonFormField<String>(
             value: _selectedDistrict,
-            style: GoogleFonts.poppins(color: ColorClass.black),
+            style: GoogleFonts.openSans(color: ColorClass.black),
             decoration: InputDecoration(
               contentPadding: const EdgeInsets.symmetric(
-                vertical: 16,
+                vertical: 14,
                 horizontal: 16,
               ),
               prefixIcon: Icon(
                 LucideIcons.mapPin,
-                color: ColorClass.primaryColor,
+                //color: ColorClass.primaryColor,
                 size: 20,
               ),
               border: InputBorder.none,
@@ -370,7 +477,7 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
             ),
             dropdownColor: Colors.white,
             icon: Icon(
-              Icons.arrow_drop_down,
+              LucideIcons.chevronDown,
               color: ColorClass.primaryColor,
             ),
             items: _districtOptions.map((String district) {
@@ -378,7 +485,7 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
                 value: district,
                 child: Text(
                   district,
-                  style: GoogleFonts.poppins(color: ColorClass.black),
+                  style: GoogleFonts.openSans(color: ColorClass.black),
                 ),
               );
             }).toList(),
@@ -399,30 +506,29 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
       children: [
         Text(
           'Class',
-          style: GoogleFonts.poppins(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
+          style: TextStyleClass.fredoka(
+            fontSize: 16,
             color: ColorClass.black,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
         Container(
           decoration: BoxDecoration(
             color: Colors.grey[50],
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey[300]!),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: Colors.grey[300]!, width: 0.5),
           ),
           child: DropdownButtonFormField<String>(
             value: _selectedClass,
-            style: GoogleFonts.poppins(color: ColorClass.black),
+            style: GoogleFonts.openSans(color: ColorClass.black),
             decoration: InputDecoration(
               contentPadding: const EdgeInsets.symmetric(
-                vertical: 16,
+                vertical: 14,
                 horizontal: 16,
               ),
               prefixIcon: Icon(
                 LucideIcons.graduationCap,
-                color: ColorClass.primaryColor,
+                //color: ColorClass.primaryColor,
                 size: 20,
               ),
               border: InputBorder.none,
@@ -431,7 +537,7 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
             ),
             dropdownColor: Colors.white,
             icon: Icon(
-              Icons.arrow_drop_down,
+              LucideIcons.chevronDown,
               color: ColorClass.primaryColor,
             ),
             items: _classOptions.map((String classLevel) {
@@ -439,7 +545,7 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
                 value: classLevel,
                 child: Text(
                   classLevel,
-                  style: GoogleFonts.poppins(color: ColorClass.black),
+                  style: GoogleFonts.openSans(color: ColorClass.black),
                 ),
               );
             }).toList(),
@@ -455,33 +561,50 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
   }
 
   Widget _buildSubmitButton() {
-    return SizedBox(
-      width: double.infinity,
-      height: 50,
+    return Container(
+      width: 275,
+      height: 45,
+      decoration: BoxDecoration(
+        gradient: _isLoading
+            ? null
+            : const LinearGradient(
+                colors: [
+                  ColorClass.grad1,
+                  ColorClass.grad2,
+                  ColorClass.grad3,
+                ],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ),
+        borderRadius: BorderRadius.circular(24),
+        color: _isLoading ? Colors.grey[300] : null,
+      ),
       child: ElevatedButton(
         onPressed: _isLoading ? null : _saveStudent,
         style: ElevatedButton.styleFrom(
-          backgroundColor: ColorClass.primaryColor,
+          backgroundColor: Colors.transparent,
           foregroundColor: Colors.white,
+          shadowColor: Colors.transparent,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
           ),
           elevation: 0,
         ),
         child: _isLoading
-            ? SizedBox(
-                height: 20,
-                width: 20,
+            ? const SizedBox(
+                height: 24,
+                width: 24,
                 child: CircularProgressIndicator(
-                  strokeWidth: 2,
+                  strokeWidth: 2.5,
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                 ),
               )
             : Text(
-                'Save Student',
-                style: GoogleFonts.poppins(
+                'Start Quiz',
+                style: GoogleFonts.fredoka(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
+                  color: Colors.white,
                 ),
               ),
       ),

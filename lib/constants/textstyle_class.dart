@@ -69,14 +69,14 @@ class TextStyleClass {
       GoogleFonts.fredoka(
         color: color,
         fontSize: fontSize,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w700,
       );
   static TextStyle fredokaRegular(
           {required double fontSize, required Color color}) =>
       GoogleFonts.fredoka(
         color: color,
         fontSize: fontSize,
-        fontWeight: FontWeight.w400,
+        fontWeight: FontWeight.w600,
       );
   static TextStyle openSans(
           {required double fontSize, required Color color}) =>

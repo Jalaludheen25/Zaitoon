@@ -31,17 +31,9 @@ class GenderCard extends StatelessWidget {
             color: isSelected
                 ? ColorClass.violet30
                 : ColorClass.black87.withOpacity(0.1),
-            width: isSelected ? 2 : 1,
+            width: isSelected ? 1 : 0.5,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: isSelected
-                  ? ColorClass.violet30.withOpacity(0.2)
-                  : Colors.black.withOpacity(0.05),
-              blurRadius: isSelected ? 15 : 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
+         
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
