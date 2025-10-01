@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:cached_network_image/cached_network_image.dart';
+
 import 'package:flutter/material.dart';
 // ignore: unused_import
 import 'package:google_fonts/google_fonts.dart';
@@ -11,6 +12,7 @@ import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/textstyle_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/bookmark_screen/provider/bookmark_provider.dart';
+import 'package:zaitoon/screens/bookmark_screen/hive/bookmark_hive_model.dart';
 import 'package:zaitoon/screens/bright_box/screens/bright_box_home_screen.dart';
 import 'package:zaitoon/screens/login_screen/login_screen.dart';
 import 'package:zaitoon/screens/login_screen/provider/auth_provider.dart';
@@ -184,7 +186,8 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                               if (category == "Bright Box") {
                                 navigatePR(
                                   context: context,
-                                  screen: const BrightBoxHomeScreen(),
+                                  screen: const BrightBoxHomeScreen(
+                                      sourceScreen: 'bookmark'),
                                 );
                               }
                             },
@@ -235,6 +238,66 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                 Expanded(
                   child: Consumer<BookmarkProvider>(
                     builder: (context, provider, child) {
+                      // Filter bookmarks based on selected category
+                      List<BookmarkModel> filteredBookmarks = [];
+
+                      if (selectedCategory == "Stories") {
+                        // Show single stories (exclude episodes)
+                        filteredBookmarks =
+                            provider.bookmarks.where((bookmark) {
+                          final tag = bookmark.tag.toLowerCase();
+                          final title = bookmark.title.toLowerCase();
+
+                          // Exclude items that are clearly episodes
+                          bool isEpisode = tag.contains('episode') ||
+                              tag.contains('ep') ||
+                              title.contains('episode') ||
+                              title.contains('ep') ||
+                              title.contains('part') ||
+                              title.contains('chapter') ||
+                              // Check for episode numbering patterns
+                              RegExp(r'episode\s*\d+', caseSensitive: false)
+                                  .hasMatch(title) ||
+                              RegExp(r'ep\s*\d+', caseSensitive: false)
+                                  .hasMatch(title) ||
+                              RegExp(r'part\s*\d+', caseSensitive: false)
+                                  .hasMatch(title) ||
+                              RegExp(r'chapter\s*\d+', caseSensitive: false)
+                                  .hasMatch(title);
+
+                          return !isEpisode;
+                        }).toList();
+                      } else if (selectedCategory == "Episode") {
+                        // Show only episodes
+                        filteredBookmarks =
+                            provider.bookmarks.where((bookmark) {
+                          final tag = bookmark.tag.toLowerCase();
+                          final title = bookmark.title.toLowerCase();
+
+                          // Include items that are clearly episodes
+                          bool isEpisode = tag.contains('episode') ||
+                              tag.contains('ep') ||
+                              title.contains('episode') ||
+                              title.contains('ep') ||
+                              title.contains('part') ||
+                              title.contains('chapter') ||
+                              // Check for episode numbering patterns
+                              RegExp(r'episode\s*\d+', caseSensitive: false)
+                                  .hasMatch(title) ||
+                              RegExp(r'ep\s*\d+', caseSensitive: false)
+                                  .hasMatch(title) ||
+                              RegExp(r'part\s*\d+', caseSensitive: false)
+                                  .hasMatch(title) ||
+                              RegExp(r'chapter\s*\d+', caseSensitive: false)
+                                  .hasMatch(title);
+
+                          return isEpisode;
+                        }).toList();
+                      } else {
+                        // For "Bright Box" or any other category, show all bookmarks
+                        filteredBookmarks = provider.bookmarks;
+                      }
+
                       if (provider.bookmarks.isEmpty) {
                         return Center(
                           child: Column(
@@ -266,6 +329,46 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                         );
                       }
 
+                      if (filteredBookmarks.isEmpty &&
+                          selectedCategory != "Bright Box") {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.bookmark_border_rounded,
+                                size: 64,
+                                color: ColorClass.grey.withOpacity(0.5),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'No ${selectedCategory.toLowerCase()} bookmarks',
+                                style: TextStyleClass.fredoka(
+                                  fontSize: 18,
+                                  color: ColorClass.black,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Found ${filteredBookmarks.length} of ${provider.bookmarks.length} total bookmarks',
+                                style: TextStyleClass.fredoka(
+                                  fontSize: 12,
+                                  color: ColorClass.grey,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Your bookmarked ${selectedCategory.toLowerCase()} will appear here',
+                                style: TextStyleClass.fredoka(
+                                  fontSize: 14,
+                                  color: ColorClass.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: GridView.builder(
@@ -276,9 +379,9 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                             crossAxisSpacing: 16,
                             childAspectRatio: 0.65,
                           ),
-                          itemCount: provider.bookmarks.length,
+                          itemCount: filteredBookmarks.length,
                           itemBuilder: (context, index) {
-                            final story = provider.bookmarks[index];
+                            final story = filteredBookmarks[index];
                             return GestureDetector(
                               onTap: () {
                                 navigatePR(
@@ -286,8 +389,10 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                                   screen: StoryReadingScreen(
                                     id: story.id.toString(),
                                     title: story.title,
-                                    thumbnail:
-                                        '${ApiUrls.assetBaseUrl}${story.thumbnail}',
+                                    thumbnail: story.thumbnail
+                                            .startsWith('http')
+                                        ? story.thumbnail
+                                        : '${ApiUrls.assetBaseUrl}${story.thumbnail}',
                                     tag: story.tag,
                                     pdfUrl: story.fileUrl,
                                   ),
@@ -297,8 +402,9 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                                 id: story.id.toString(),
                                 title: story.title,
                                 category: story.tag,
-                                imageUrl:
-                                    '${ApiUrls.assetBaseUrl}${story.thumbnail}',
+                                imageUrl: story.thumbnail.startsWith('http')
+                                    ? story.thumbnail
+                                    : '${ApiUrls.assetBaseUrl}${story.thumbnail}',
                                 fileUrl: story.fileUrl,
                                 onReadStory: () {
                                   navigatePR(
@@ -306,8 +412,10 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                                     screen: StoryReadingScreen(
                                       id: story.id.toString(),
                                       title: story.title,
-                                      thumbnail:
-                                          '${ApiUrls.assetBaseUrl}${story.thumbnail}',
+                                      thumbnail: story.thumbnail
+                                              .startsWith('http')
+                                          ? story.thumbnail
+                                          : '${ApiUrls.assetBaseUrl}${story.thumbnail}',
                                       tag: story.tag,
                                       pdfUrl: story.fileUrl,
                                     ),

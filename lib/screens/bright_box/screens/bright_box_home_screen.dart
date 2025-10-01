@@ -9,11 +9,13 @@ import 'package:zaitoon/screens/bright_box/provider/bright_box_provider.dart';
 import 'package:zaitoon/screens/bright_box/screens/bright_box_subcategories_screen.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
 import 'package:zaitoon/screens/bottom_navigation/bottom_navigation.dart';
-import 'package:zaitoon/screens/bottom_navigation/provider/bottom_navigation_provider.dart';
+
 import 'package:zaitoon/screens/bookmark_screen/bookmark_screen.dart';
 
 class BrightBoxHomeScreen extends StatefulWidget {
-  const BrightBoxHomeScreen({super.key});
+  final String? sourceScreen; // 'home' or 'bookmark'
+
+  const BrightBoxHomeScreen({super.key, this.sourceScreen});
 
   @override
   State<BrightBoxHomeScreen> createState() => _BrightBoxHomeScreenState();
@@ -50,16 +52,29 @@ class _BrightBoxHomeScreenState extends State<BrightBoxHomeScreen> {
                       // Back Button with gradient
                       GestureDetector(
                         onTap: () {
-                          // Set the return category to "Stories" before navigating back
-                          BookmarkScreen.setReturnCategory("Stories");
-                          // Navigate back to bottom navigation with bookmark tab selected (index 3)
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  const BottomNavigationScreen(currentIndex: 3),
-                            ),
-                          );
+                          if (widget.sourceScreen == 'bookmark') {
+                            // Set the return category to "Stories" before navigating back
+                            BookmarkScreen.setReturnCategory("Stories");
+                            // Navigate back to bottom navigation with bookmark tab selected (index 3)
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const BottomNavigationScreen(
+                                        currentIndex: 3),
+                              ),
+                            );
+                          } else {
+                            // Navigate back to home screen (index 0)
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const BottomNavigationScreen(
+                                        currentIndex: 0),
+                              ),
+                            );
+                          }
                         },
                         child: Container(
                           padding: const EdgeInsets.all(8),
@@ -133,8 +148,14 @@ class _BrightBoxHomeScreenState extends State<BrightBoxHomeScreen> {
                         : brightBoxProvider.error != null
                             ? _buildErrorState(
                                 brightBoxProvider.error!, brightBoxProvider)
-                            : _buildCategoriesList(
-                                brightBoxProvider, homeProvider),
+                            : RefreshIndicator(
+                                onRefresh: () async {
+                                  await brightBoxProvider.loadCategories();
+                                },
+                                color: ColorClass.primaryColor,
+                                child: _buildCategoriesList(
+                                    brightBoxProvider, homeProvider),
+                              ),
                   ),
                 ),
               ],

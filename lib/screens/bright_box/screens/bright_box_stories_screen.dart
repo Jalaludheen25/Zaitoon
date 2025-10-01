@@ -64,18 +64,25 @@ class _BrightBoxStoriesScreenState extends State<BrightBoxStoriesScreen> {
 
               // Content Section
               Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Description Section
-                      _buildDescriptionSection(),
-                      const SizedBox(height: 24),
+                child: RefreshIndicator(
+                  onRefresh: () async {
+                    await brightBoxProvider.loadStories(widget.subcategory.id);
+                  },
+                  color: ColorClass.primaryColor,
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Description Section
+                        _buildDescriptionSection(),
+                        const SizedBox(height: 24),
 
-                      // Episodes Section
-                      _buildEpisodesSection(brightBoxProvider, homeProvider),
-                    ],
+                        // Episodes Section
+                        _buildEpisodesSection(brightBoxProvider, homeProvider),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -83,29 +90,6 @@ class _BrightBoxStoriesScreenState extends State<BrightBoxStoriesScreen> {
           );
         },
       ),
-    );
-  }
-
-  Widget _buildAppBar(String subcategoryTitle) {
-    return SliverAppBar(
-      leading: IconButton(
-        icon: const Icon(
-          LucideIcons.arrowLeft,
-          color: ColorClass.white,
-        ),
-        onPressed: () => Navigator.pop(context),
-      ),
-      title: Text(
-        subcategoryTitle,
-        style: TextStyleClass.poppinsSemiBold(
-          fontSize: 20,
-          color: ColorClass.white,
-        ),
-      ),
-      backgroundColor: ColorClass.black,
-      floating: true,
-      pinned: false,
-      elevation: 0,
     );
   }
 
@@ -234,12 +218,17 @@ class _BrightBoxStoriesScreenState extends State<BrightBoxStoriesScreen> {
                   ),
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  '8 Episode',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white,
-                  ),
+                Consumer<BrightBoxProvider>(
+                  builder: (context, provider, child) {
+                    final episodeCount = provider.stories.length;
+                    return Text(
+                      '$episodeCount Episodes',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.white,
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
@@ -261,13 +250,21 @@ class _BrightBoxStoriesScreenState extends State<BrightBoxStoriesScreen> {
           ),
         ),
         const SizedBox(height: 8),
-        const Text(
-          'Gandhi is considered to be the Father of the Nation in post-colonial India. During India\'s nationalist movement and in several decades immediately after, he was ...',
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey,
-            height: 1.5,
-          ),
+        Consumer<HomeProvider>(
+          builder: (context, homeProvider, child) {
+            final description = _getSubcategoryDescription(
+                widget.subcategory, homeProvider.selectedLanguage);
+            return Text(
+              description.isNotEmpty
+                  ? description
+                  : 'Discover amazing stories and learn about history through engaging episodes.',
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
+                height: 1.5,
+              ),
+            );
+          },
         ),
       ],
     );
@@ -294,7 +291,7 @@ class _BrightBoxStoriesScreenState extends State<BrightBoxStoriesScreen> {
             final index = entry.key;
             final story = entry.value;
             return _buildEpisodeCard(story, homeProvider, index);
-          }).toList(),
+          }),
 
         const SizedBox(height: 20),
 
@@ -433,7 +430,7 @@ class _BrightBoxStoriesScreenState extends State<BrightBoxStoriesScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Episode:${index + 1}',
+                    'Episode ${index + 1}',
                     style: const TextStyle(
                       fontSize: 12,
                       color: Colors.grey,
@@ -538,39 +535,47 @@ class _BrightBoxStoriesScreenState extends State<BrightBoxStoriesScreen> {
     );
   }
 
-  String _formatDate(String dateString) {
-    try {
-      final date = DateTime.parse(dateString);
-      return '${date.day}/${date.month}/${date.year}';
-    } catch (e) {
-      return 'Unknown date';
-    }
-  }
-
   // Helper methods for multi-language support
   String _getSubcategoryTitle(subcategory, String language) {
     switch (language) {
       case 'ml':
-        return subcategory.subcatTitleMl ?? subcategory.subcatTitleEn ?? '';
+        return subcategory.subcatTitleMl.isNotEmpty
+            ? subcategory.subcatTitleMl
+            : subcategory.subcatTitleEn;
       case 'hi':
-        return subcategory.subcatTitleHi ?? subcategory.subcatTitleEn ?? '';
+        return subcategory.subcatTitleHi.isNotEmpty
+            ? subcategory.subcatTitleHi
+            : subcategory.subcatTitleEn;
       case 'ur':
-        return subcategory.subcatTitleUr ?? subcategory.subcatTitleEn ?? '';
+        return subcategory.subcatTitleUr.isNotEmpty
+            ? subcategory.subcatTitleUr
+            : subcategory.subcatTitleEn;
       default: // 'en' or any other language
-        return subcategory.subcatTitleEn ?? '';
+        return subcategory.subcatTitleEn;
     }
   }
 
   String _getStoryTitle(BrightBoxStory story, String language) {
     switch (language) {
       case 'ml':
-        return story.storyTitleMl ?? story.storyTitleEn ?? '';
+        return story.storyTitleMl.isNotEmpty
+            ? story.storyTitleMl
+            : story.storyTitleEn;
       case 'hi':
-        return story.storyTitleHi ?? story.storyTitleEn ?? '';
+        return story.storyTitleHi.isNotEmpty
+            ? story.storyTitleHi
+            : story.storyTitleEn;
       case 'ur':
-        return story.storyTitleUr ?? story.storyTitleEn ?? '';
+        return story.storyTitleUr.isNotEmpty
+            ? story.storyTitleUr
+            : story.storyTitleEn;
       default: // 'en' or any other language
-        return story.storyTitleEn ?? '';
+        return story.storyTitleEn;
     }
+  }
+
+  String _getSubcategoryDescription(subcategory, String language) {
+    // Since description fields don't exist in the model, return a default message
+    return 'Discover amazing stories and learn about history through engaging episodes.';
   }
 }

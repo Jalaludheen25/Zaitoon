@@ -137,8 +137,15 @@ class _BrightBoxSubcategoriesScreenState
                         : brightBoxProvider.error != null
                             ? _buildErrorState(
                                 brightBoxProvider.error!, brightBoxProvider)
-                            : _buildSubcategoriesGrid(
-                                brightBoxProvider, homeProvider),
+                            : RefreshIndicator(
+                                onRefresh: () async {
+                                  await brightBoxProvider
+                                      .loadSubcategories(widget.category.id);
+                                },
+                                color: ColorClass.primaryColor,
+                                child: _buildSubcategoriesGrid(
+                                    brightBoxProvider, homeProvider),
+                              ),
                   ),
                 ),
               ],
@@ -391,7 +398,7 @@ class _BrightBoxSubcategoriesScreenState
                         ),
                         const SizedBox(height: 4),
                         const Text(
-                          '8 Episode',
+                          'Episodes',
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey,
@@ -445,13 +452,19 @@ class _BrightBoxSubcategoriesScreenState
   String _getCategoryTitle(category, String language) {
     switch (language) {
       case 'ml':
-        return category.catTitleMl ?? category.catTitleEn ?? '';
+        return category.catTitleMl.isNotEmpty
+            ? category.catTitleMl
+            : category.catTitleEn;
       case 'hi':
-        return category.catTitleHi ?? category.catTitleEn ?? '';
+        return category.catTitleHi.isNotEmpty
+            ? category.catTitleHi
+            : category.catTitleEn;
       case 'ur':
-        return category.catTitleUr ?? category.catTitleEn ?? '';
+        return category.catTitleUr.isNotEmpty
+            ? category.catTitleUr
+            : category.catTitleEn;
       default: // 'en' or any other language
-        return category.catTitleEn ?? '';
+        return category.catTitleEn;
     }
   }
 
@@ -459,13 +472,19 @@ class _BrightBoxSubcategoriesScreenState
       BrightBoxSubcategory subcategory, String language) {
     switch (language) {
       case 'ml':
-        return subcategory.subcatTitleMl ?? subcategory.subcatTitleEn ?? '';
+        return subcategory.subcatTitleMl.isNotEmpty
+            ? subcategory.subcatTitleMl
+            : subcategory.subcatTitleEn;
       case 'hi':
-        return subcategory.subcatTitleHi ?? subcategory.subcatTitleEn ?? '';
+        return subcategory.subcatTitleHi.isNotEmpty
+            ? subcategory.subcatTitleHi
+            : subcategory.subcatTitleEn;
       case 'ur':
-        return subcategory.subcatTitleUr ?? subcategory.subcatTitleEn ?? '';
+        return subcategory.subcatTitleUr.isNotEmpty
+            ? subcategory.subcatTitleUr
+            : subcategory.subcatTitleEn;
       default: // 'en' or any other language
-        return subcategory.subcatTitleEn ?? '';
+        return subcategory.subcatTitleEn;
     }
   }
 }

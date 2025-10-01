@@ -504,7 +504,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return TextButton(
       onPressed: () => navigatePR(
         context: context,
-        screen: const BrightBoxHomeScreen(),
+        screen: const BrightBoxHomeScreen(sourceScreen: 'home'),
       ),
       child: Text(
         'See all',

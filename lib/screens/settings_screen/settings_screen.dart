@@ -1,9 +1,9 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:fluttermoji/fluttermoji.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:zaitoon/constants/app_constants.dart';
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/image_class.dart';
 import 'package:zaitoon/constants/textstyle_class.dart';
@@ -27,10 +27,6 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   final Uri d4dxUrl = Uri.parse('https://d4dx.co/');
-  final Uri playStoreUrl = Uri.parse(
-      'https://play.google.com/store/apps/details?id=co.d4dx.zaitoon');
-  final Uri appStoreUrl =
-      Uri.parse('https://apps.apple.com/in/app/zai-toon-kids/id6737912105');
 
   @override
   void initState() {
@@ -54,18 +50,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _websiteD4dx() async {
     if (!await launchUrl(d4dxUrl, mode: LaunchMode.externalApplication)) {
       throw 'Could not open ${d4dxUrl.toString()}';
-    }
-  }
-
-  Future<void> _playStore() async {
-    if (!await launchUrl(playStoreUrl, mode: LaunchMode.externalApplication)) {
-      throw 'Could not open ${playStoreUrl.toString()}';
-    }
-  }
-
-  Future<void> _appStore() async {
-    if (!await launchUrl(appStoreUrl, mode: LaunchMode.externalApplication)) {
-      throw 'Could not open ${appStoreUrl.toString()}';
     }
   }
 
@@ -146,7 +130,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     child: ListView(
                       children: [
                         _buildSettingItem(
-                          icon: Icons.person_outline,
+                          icon: LucideIcons.user,
                           title: 'My Profile',
                           subtitle: 'Manage your personal information',
                           onTap: () {
@@ -194,7 +178,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         //   },
                         // ),
                         _buildSettingItem(
-                          icon: Icons.language,
+                          icon: LucideIcons.globe,
                           title: 'Language',
                           subtitle: 'Change your preferred language',
                           onTap: () {
@@ -205,7 +189,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           },
                         ),
                         _buildSettingItem(
-                          icon: Icons.ios_share,
+                          icon: LucideIcons.share2,
                           title: 'Share App',
                           subtitle: 'Share Zai Toon with your friends',
                           onTap: () async {
@@ -215,7 +199,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           },
                         ),
                         _buildSettingItem(
-                          icon: Icons.info_outline,
+                          icon: LucideIcons.alertCircle,
                           title: 'About Us',
                           subtitle: 'Learn more about zaitoon',
                           onTap: () {
@@ -223,7 +207,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           },
                         ),
                         _buildSettingItem(
-                          icon: Icons.feedback_outlined,
+                          icon: LucideIcons.messageCircle,
                           title: 'Raise bug / Feedback',
                           subtitle: 'Help us improve your experience',
                           onTap: () {
@@ -235,8 +219,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         Consumer<AuthProvider>(
                           builder: (context, value, child) => _buildSettingItem(
                             icon: !authProvider.isSignedIn
-                                ? Icons.login
-                                : Icons.delete_forever,
+                                ? LucideIcons.user
+                                : LucideIcons.userMinus,
                             title: !authProvider.isSignedIn
                                 ? 'Create Account'
                                 : 'Delete Account',
@@ -297,8 +281,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         Consumer<AuthProvider>(
                           builder: (context, value, child) => _buildSettingItem(
                             icon: !authProvider.isSignedIn
-                                ? Icons.login
-                                : Icons.logout,
+                                ? LucideIcons.user
+                                : LucideIcons.logOut,
                             title: !authProvider.isSignedIn
                                 ? 'Sign In'
                                 : 'Sign Out',
@@ -318,7 +302,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         ),
                         _buildSettingItem(
-                          icon: Icons.phone_outlined,
+                          icon: LucideIcons.phone,
                           title: 'Contact Us',
                           subtitle: 'Contact us for any support',
                           onTap: () {
@@ -358,7 +342,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   ImageClass.d4Logo,
                                   height: 60,
                                   fit: BoxFit.contain,
-                                  color: Colors.grey,
                                 ),
                               ],
                             ),
