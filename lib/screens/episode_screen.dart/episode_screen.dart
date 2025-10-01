@@ -3,12 +3,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:zaitoon/constants/app_urls.dart';
-import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/textstyle_class.dart';
+import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/bookmark_screen/bookmark_screen.dart';
 import 'package:zaitoon/screens/bookmark_screen/provider/bookmark_provider.dart';
@@ -17,6 +16,7 @@ import 'package:zaitoon/screens/home_screen/models/episode_model.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
 import 'package:zaitoon/screens/reading_screen/story_reader_page.dart';
 import 'package:zaitoon/utils/cache_manager.dart';
+import 'package:flutter/services.dart';
 
 class EpisodeScreen extends StatefulWidget {
   const EpisodeScreen({
@@ -48,8 +48,22 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Hide system UI at bottom, keep top (status bar)
+    SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.edgeToEdge,
+      overlays: [SystemUiOverlay.top], // Only show top overlay (status bar)
+    );
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarIconBrightness: Brightness.dark,
+      ),
+    );
+
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Consumer<HomeProvider>(
           builder: (context, snapshot, _) => snapshot.episodeModel == null
@@ -58,7 +72,7 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const CupertinoActivityIndicator(
-                        color: Colors.white,
+                        color: Colors.black,
                         radius: 16,
                       ),
                       const SizedBox(height: 16),
@@ -66,107 +80,181 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
                         'Loading episodes...',
                         style: TextStyleClass.poppinsRegular(
                           fontSize: 14,
-                          color: Colors.white54,
+                          color: Colors.black,
                         ),
                       ),
                     ],
                   ),
                 )
-              : CustomScrollView(
-                  slivers: [
-                    // Custom App Bar (unchanged)
-                    SliverAppBar(
-                      backgroundColor: Colors.transparent,
-                      expandedHeight: 300,
-                      pinned: true,
-                      flexibleSpace: FlexibleSpaceBar(
-                        background: Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            snapshot.episodeModel!.data!.isNotEmpty
-                                ? CachedNetworkImage(
-                                    cacheManager: CustomCacheManager.instance,
-                                    imageUrl: widget.imageUrl,
+              : SingleChildScrollView(
+                  child: Container(
+                    width: double.infinity,
+                    color: Colors.white,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Header Section with Stack for overlay elements
+                        Container(
+                          margin: const EdgeInsets.all(18),
+                          child: Stack(
+                            children: [
+                              // Header Image
+                              Container(
+                                width: double.infinity,
+                                height: 244,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: CachedNetworkImageProvider(
+                                      widget.imageUrl,
+                                      cacheManager: CustomCacheManager.instance,
+                                    ),
                                     fit: BoxFit.cover,
-                                    placeholder: (context, url) =>
-                                        Container(color: ColorClass.grey),
-                                    errorWidget: (context, url, error) =>
-                                        Container(color: ColorClass.grey),
-                                  )
-                                : Container(color: Colors.grey[900]),
-                            Container(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [
-                                    Colors.transparent,
-                                    Colors.black.withOpacity(0.7),
-                                    Colors.black,
-                                  ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(24),
+                                ),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(24),
+                                    color: const Color(0x3F000000),
+                                  ),
                                 ),
                               ),
-                            ),
-                            Positioned(
-                              bottom: 16,
-                              left: 16,
-                              right: 16,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    widget.title,
-                                    style: _getLanguageTextStyle(
-                                        snapshot.selectedLanguage),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    '${snapshot.episodeModel!.data!.length} episodes • ${snapshot.episodeModel!.data!.fold(0, (sum, item) => sum + (int.tryParse(item.readMinutes ?? "0") ?? 0))} minutes read',
-                                    style: TextStyleClass.poppinsRegular(
-                                      fontSize: 14,
-                                      color: Colors.white54,
+
+                              // Back Button
+                              Positioned(
+                                left: 10,
+                                top: 10,
+                                child: GestureDetector(
+                                  onTap: () =>
+                                      Navigator.of(context).pushReplacement(
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const BottomNavigationScreen(),
                                     ),
                                   ),
-                                ],
+                                  child: Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      color: const Color(0x3FFFFFFF),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: const Icon(
+                                      Icons.arrow_back_ios_new,
+                                      color: Colors.white,
+                                      size: 16,
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      leading: IconButton(
-                        icon: const Icon(Icons.arrow_back_ios_new),
-                        style: ButtonStyle(
-                          backgroundColor: WidgetStateProperty.all(
-                              Colors.black.withOpacity(0.2)),
-                        ),
-                        color: Colors.white,
-                        onPressed: () => Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                const BottomNavigationScreen(),
+
+                              // Tag Badge
+                              Positioned(
+                                right: 10,
+                                top: 15,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0x3EFFFFFF),
+                                    borderRadius: BorderRadius.circular(22),
+                                  ),
+                                  child: Text(
+                                    widget.tag,
+                                    style: TextStyleClass.fredoka(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              // Series Title
+                              Positioned(
+                                left: 17,
+                                bottom: 30,
+                                right: 27,
+                                child: Text(
+                                  widget.title,
+                                  style: _getLanguageTextStyle(
+                                      snapshot.selectedLanguage),
+                                ),
+                              ),
+
+                              // Episode Count
+                              Positioned(
+                                left: 17,
+                                bottom: 8,
+                                child: Text(
+                                  '${snapshot.episodeModel!.data!.length} Episodes',
+                                  style: TextStyleClass.openSansSemiBold(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                    ),
 
-                    // Enhanced Episodes List
-                    SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      sliver: SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                            // Reverse the index to show latest episodes first
-                            final reversedIndex =
-                                snapshot.episodeModel!.data!.length - 1 - index;
-                            final episode =
-                                snapshot.episodeModel!.data![reversedIndex];
+                        // Description Section
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 17),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Description:',
+                                style: TextStyleClass.fredoka(
+                                  color: Colors.black,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                // snapshot.episodeModel!.data!.isNotEmpty &&
+                                //         snapshot.episodeModel!.data![0]
+                                //                 .adBanner !=
+                                //             null
+                                //     ? snapshot.episodeModel!.data![0].adBanner!
+                                //     :
+                                'Discover amazing stories filled with adventure, friendship, and fun! Each episode brings new characters and exciting journeys that will spark your imagination.',
+                                style: GoogleFonts.openSans(
+                                  color: Colors.black,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        // Episodes Section
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 17),
+                          child: Text(
+                            'Episodes:',
+                            style: TextStyleClass.fredoka(
+                              color: Colors.black,
+                              fontSize: 20,
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // Episodes List
+                        ...List.generate(
+                          snapshot.episodeModel!.data!.length,
+                          (index) {
+                            final episode = snapshot.episodeModel!.data![index];
                             return Padding(
-                              padding: const EdgeInsets.only(bottom: 16),
-                              child: _EpisodeTile(
-                                seriesTitle: widget.title,
-                                tag: widget.tag,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 18, vertical: 8),
+                              child: _buildEpisodeCard(
                                 episode: episode,
-                                index: reversedIndex,
+                                index: index + 1,
                                 selectedLanguage: snapshot.selectedLanguage,
                                 onTap: () => navigatePR(
                                   context: context,
@@ -185,14 +273,77 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
                               ),
                             );
                           },
-                          childCount: snapshot.episodeModel!.data!.length,
                         ),
-                      ),
+
+                        // Add bottom padding to account for floating button
+                        const SizedBox(height: 100),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
         ),
       ),
+      // Floating Action Button for "Read first episode"
+      floatingActionButton: Consumer<HomeProvider>(
+        builder: (context, snapshot, _) {
+          if (snapshot.episodeModel == null ||
+              snapshot.episodeModel!.data!.isEmpty) {
+            return const SizedBox.shrink();
+          }
+
+          return Container(
+            width: 200,
+            height: 50,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(28),
+              gradient: const LinearGradient(
+                colors: [
+                  Color(0xFFAC28DC),
+                  Color(0xFF7E1EB7),
+                  Color(0xFF501392)
+                ],
+                stops: [0, 0.50, 1],
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFFAC28DC).withOpacity(0.3),
+                  blurRadius: 6,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: FloatingActionButton.extended(
+              onPressed: () {
+                final firstEpisode = snapshot.episodeModel!.data![0];
+                navigatePR(
+                  context: context,
+                  screen: StoryReadingScreen(
+                    id: firstEpisode.id.toString(),
+                    title:
+                        "${widget.title}: ${_getEpisodeTitle(firstEpisode, snapshot.selectedLanguage)}",
+                    thumbnail:
+                        '${ApiUrls.assetBaseUrl}${firstEpisode.coverImage}',
+                    tag: widget.tag,
+                    pdfUrl: ApiUrls.assetBaseUrl +
+                        _getEpisodeFile(
+                            firstEpisode, snapshot.selectedLanguage),
+                  ),
+                );
+              },
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              label: Text(
+                'Read first episode',
+                style: TextStyleClass.fredoka(
+                  color: Colors.white,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
@@ -223,300 +374,125 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
     }
   }
 
-  TextStyle _getLanguageTextStyle(String language) {
-    switch (language) {
-      case 'ml':
-        return TextStyleClass.manjariSemiBold(
-          fontSize: 24,
-          color: ColorClass.white,
-        );
-      case 'hi':
-        return TextStyleClass.poppinsSemiBold(
-          fontSize: 24,
-          color: ColorClass.white,
-        );
-      case 'ur':
-        return TextStyleClass.poppinsSemiBold(
-          fontSize: 24,
-          color: ColorClass.white,
-        );
-      default: // 'en' or any other language
-        return TextStyleClass.poppinsSemiBold(
-          fontSize: 24,
-          color: ColorClass.white,
-        );
-    }
-  }
-}
-
-class _EpisodeTile extends StatelessWidget {
-  final String seriesTitle;
-  final EpisodeData episode;
-  final int index;
-  final String selectedLanguage;
-  final VoidCallback onTap;
-  final String tag;
-
-  const _EpisodeTile({
-    required this.episode,
-    required this.index,
-    required this.selectedLanguage,
-    required this.onTap,
-    required this.seriesTitle,
-    required this.tag,
-  });
-
-  Future<void> _shareEpisode(BuildContext context) async {
-    const String appStoreLink =
-        'https://apps.apple.com/in/app/zai-toon-kids/id6737912105';
-    const String playStoreLink =
-        'https://play.google.com/store/apps/details?id=co.d4dx.zaitoon';
-
-    String textToShare = '''📚 Check out this amazing story on Zai Toon Kids!
-
-"$seriesTitle"
-Episode: ${_getEpisodeTitle(episode, selectedLanguage)}
-
-🌟 Download Zai Toon Kids to start reading:
-📱 iOS: $appStoreLink\n
-📱 Android: $playStoreLink
-
-Join thousands of families making reading time special! 🎉
-#ZaiToonKids #ChildrenStories #InteractiveReading''';
-
-    try {
-      await Share.share(
-        textToShare,
-        subject: '📚 Check out this story on Zai Toon Kids!',
-      );
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to share story'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Hero(
-      tag: 'episode_${episode.id}',
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(16),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.grey[900]!,
-                  Colors.grey[850]!,
-                ],
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
+  Widget _buildEpisodeCard({
+    required EpisodeData episode,
+    required int index,
+    required String selectedLanguage,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      width: double.infinity,
+      height: 106,
+      decoration: BoxDecoration(
+        color: const Color(0xFFF9F9F9),
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Stack(
+        children: [
+          // Main content
+          GestureDetector(
+            onTap: onTap,
             child: Padding(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(10),
               child: Row(
                 children: [
-                  // Episode Number
-
                   // Episode Image
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     child: CachedNetworkImage(
                       imageUrl: ApiUrls.assetBaseUrl + episode.coverImage!,
-                      width: 72,
-                      height: 72,
+                      width: 86,
+                      height: 86,
                       fit: BoxFit.cover,
                       placeholder: (context, url) => Container(
-                        color: Colors.grey[800],
+                        color: Colors.grey[300],
                         child: const Center(
                           child: CupertinoActivityIndicator(),
                         ),
                       ),
                       errorWidget: (context, url, error) => Container(
-                        color: Colors.grey[800],
+                        color: Colors.grey[300],
                         child: const Icon(
                           Icons.error_outline,
-                          color: Colors.white54,
+                          color: Colors.grey,
                         ),
                       ),
                     ),
                   ),
+
                   const SizedBox(width: 16),
 
                   // Episode Details
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
                           _getEpisodeTitle(episode, selectedLanguage),
-                          style: _getEpisodeTileTextStyle(selectedLanguage),
+                          style: TextStyleClass.fredoka(
+                            color: Colors.black,
+                            fontSize: 16,
+                          ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 4),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                const Icon(
-                                  Icons.access_time,
-                                  color: Colors.white54,
-                                  size: 14,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '${episode.readMinutes} min',
-                                  style: TextStyleClass.poppinsRegular(
-                                    fontSize: 12,
-                                    color: Colors.white54,
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            const SizedBox(width: 12),
-                            // const Icon(
-                            //   Icons.calendar_today,
-                            //   color: Colors.white54,
-                            //   size: 12,
-                            // ),
-                            // const SizedBox(width: 4),
-                            // Text(
-                            //   episode.uploadDate ?? 'N/A',
-                            //   style: TextStyleClass.poppinsRegular(
-                            //     fontSize: 12,
-                            //     color: Colors.white54,
-                            //   ),
-                            // ),
-                            Row(
-                              children: [
-                                Container(
-                                  width: 30,
-                                  height: 30,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.1),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.chrome_reader_mode_outlined,
-                                    color: Colors.white,
-                                    size: 18,
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Container(
-                                  width: 30,
-                                  height: 30,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.1),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: IconButton(
-                                    padding: EdgeInsets.zero,
-                                    icon: const Icon(
-                                      Icons.share_outlined,
-                                      color: Colors.white,
-                                      size: 15,
-                                    ),
-                                    onPressed: () => _shareEpisode(context),
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                BookmarkButton(
-                                  id: episode.id.toString(),
-                                  thumbnail: ApiUrls.assetBaseUrl +
-                                      episode.coverImage!,
-                                  title:
-                                      "$seriesTitle: ${_getEpisodeTitle(episode, selectedLanguage)}",
-                                  fileUrl: _getEpisodeFile(
-                                      episode, selectedLanguage),
-                                  tag: tag,
-                                ),
-                              ],
-                            ),
-                          ],
+                        Text(
+                          'Episode: $index',
+                          style: GoogleFonts.openSans(
+                            color: const Color(0x7F000000),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ],
                     ),
                   ),
-
-                  // Play Button
                 ],
               ),
             ),
           ),
-        ),
+
+          // Bookmark Button
+          Positioned(
+            top: 10,
+            right: 10,
+            child: BookmarkButton(
+              id: episode.id.toString(),
+              thumbnail: ApiUrls.assetBaseUrl + episode.coverImage!,
+              title:
+                  "${widget.title}: ${_getEpisodeTitle(episode, selectedLanguage)}",
+              fileUrl: _getEpisodeFile(episode, selectedLanguage),
+              tag: widget.tag,
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  // Helper methods for multi-language support
-  String _getEpisodeTitle(EpisodeData episode, String language) {
+  TextStyle _getLanguageTextStyle(String language) {
     switch (language) {
       case 'ml':
-        return episode.mlTitle ?? episode.storyTile ?? '';
-      case 'hi':
-        return episode.hinTitle ?? episode.storyTile ?? '';
-      case 'ur':
-        return episode.urTitle ?? episode.storyTile ?? '';
-      default: // 'en' or any other language
-        return episode.storyTile ?? '';
-    }
-  }
-
-  String _getEpisodeFile(EpisodeData episode, String language) {
-    switch (language) {
-      case 'ml':
-        return episode.mlStoryFile ?? episode.storyFile ?? '';
-      case 'hi':
-        return episode.hinStoryFile ?? episode.storyFile ?? '';
-      case 'ur':
-        return episode.urStoryFile ?? episode.storyFile ?? '';
-      default: // 'en' or any other language
-        return episode.storyFile ?? '';
-    }
-  }
-
-  TextStyle _getEpisodeTileTextStyle(String language) {
-    switch (language) {
-      case 'ml':
-        return TextStyleClass.manjariSemiBold(
-          fontSize: 16,
-          color: ColorClass.white,
+        return TextStyleClass.fredoka(
+          fontSize: 24,
+          color: Colors.white,
         );
       case 'hi':
-        return TextStyleClass.poppinsSemiBold(
-          fontSize: 16,
-          color: ColorClass.white,
+        return TextStyleClass.fredoka(
+          fontSize: 24,
+          color: Colors.white,
         );
       case 'ur':
-        return TextStyleClass.poppinsSemiBold(
-          fontSize: 16,
-          color: ColorClass.white,
+        return TextStyleClass.fredoka(
+          fontSize: 24,
+          color: Colors.white,
         );
       default: // 'en' or any other language
-        return TextStyleClass.poppinsSemiBold(
-          fontSize: 16,
-          color: ColorClass.white,
+        return TextStyleClass.fredoka(
+          fontSize: 24,
+          color: Colors.white,
         );
     }
   }
@@ -650,7 +626,7 @@ class _BookmarkButtonState extends State<BookmarkButton>
                   width: 30,
                   height: 30,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withOpacity(0.8),
                     shape: BoxShape.circle,
                   ),
                   child: AnimatedSwitcher(
@@ -666,11 +642,10 @@ class _BookmarkButtonState extends State<BookmarkButton>
                       );
                     },
                     child: Icon(
-                      isBookmarked
-                          ? LucideIcons.bookMarked
-                          : LucideIcons.bookmark,
+                      isBookmarked ? Icons.bookmark : Icons.bookmark_border,
                       key: ValueKey<bool>(isBookmarked),
-                      color: isBookmarked ? Colors.greenAccent : Colors.white,
+                      color:
+                          isBookmarked ? ColorClass.coquelicot : Colors.black,
                       size: 18,
                     ),
                   ),
