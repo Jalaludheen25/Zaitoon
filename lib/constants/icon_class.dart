@@ -13,6 +13,7 @@ class IconClass {
   static const String bookmark = '${iconRoot}bookmark.svg';
   static const String profile = '${iconRoot}user.svg';
   static const String note = '${iconRoot}note.svg';
+  static const String quiz = '${iconRoot}brain.svg';
 
   static const String launcherImage = '${iconRoot}launcherImage.svg';
   static const String menuIcon = '${iconRoot}Menu_Icon.svg';

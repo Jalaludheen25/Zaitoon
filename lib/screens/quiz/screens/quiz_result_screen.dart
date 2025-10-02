@@ -16,9 +16,11 @@ class QuizResultScreen extends StatelessWidget {
         child: Consumer<QuizProvider>(
           builder: (context, quizProvider, child) {
             final result = quizProvider.currentQuizResult;
-            
-            if (result == null) {
+            if (quizProvider.isLoading) {
               return _buildLoadingState();
+            }
+            if (result == null) {
+              return _buildNoResultState();
             }
 
             return CustomScrollView(
@@ -577,6 +579,18 @@ class QuizResultScreen extends StatelessWidget {
     return const Center(
       child: CircularProgressIndicator(
         color: ColorClass.primaryColor,
+      ),
+    );
+  }
+  Widget _buildNoResultState() {
+    return const Center(
+      child: Text(
+        "No result available",
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 18,
+          fontWeight: FontWeight.w500,
+        ),
       ),
     );
   }

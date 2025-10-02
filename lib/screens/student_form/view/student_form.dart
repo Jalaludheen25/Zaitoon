@@ -6,6 +6,7 @@ import '../database/db_helper.dart';
 import '../../../constants/color_class.dart';
 import '../../../constants/icon_class.dart';
 import '../../../screens/quiz/quiz_screen.dart';
+import '../../../screens/bottom_navigation/bottom_navigation.dart';
 import '../../../screens/user_data_collection_screen/components/gender_card.dart';
 import '../../../constants/textstyle_class.dart';
 import 'dart:ui';
@@ -103,11 +104,8 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
       }
 
       if (mounted) {
-        // Navigate to quiz screen
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const QuizScreen()),
-        );
+        // Navigate back to quiz landing (which is now shown in bottom navigation)
+        Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
@@ -183,7 +181,7 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors:  [
+                  colors: [
                     Color(0xFFAC28DC).withOpacity(0.25),
                     Color(0xFF4E1BCF).withOpacity(0.25),
                     Color(0xFF7E1EB7).withOpacity(0.25),
@@ -208,7 +206,7 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
           Positioned(
             top: 42,
             // right: -50,
-            left:304,
+            left: 304,
             child: Container(
               width: 100,
               height: 100,
@@ -217,7 +215,7 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors:  [
+                  colors: [
                     Color(0xFFAC28DC).withOpacity(0.25),
                     Color(0xFF4E1BCF).withOpacity(0.25),
                     Color(0xFF7E1EB7).withOpacity(0.25),

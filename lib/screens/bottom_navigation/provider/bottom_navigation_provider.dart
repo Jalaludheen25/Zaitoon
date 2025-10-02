@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:zaitoon/services/quiz_config_service.dart';
+import 'package:zaitoon/screens/student_form/database/db_helper.dart';
 import 'package:zaitoon/screens/quiz/quiz_screen.dart';
 import 'package:zaitoon/screens/student_form/view/student_form.dart';
-import 'package:zaitoon/screens/student_form/database/db_helper.dart';
-import 'package:zaitoon/services/quiz_config_service.dart';
 
 class NavigationProvider extends ChangeNotifier {
   int _currentIndex = 0;
@@ -23,6 +23,7 @@ class NavigationProvider extends ChangeNotifier {
   }
 
   Future<void> setIndex(int index, BuildContext context) async {
+    // Handle quiz tab navigation through QuizLanding
     if (_showQuiz && index == 4) {
       try {
         final dbHelper = DatabaseHelper();
@@ -56,7 +57,7 @@ class NavigationProvider extends ChangeNotifier {
         }
       }
     } else {
-      // For all other tabs (Episodes, Stories, Bookmarks, BrightBox, Settings), update the current index
+      // For all other tabs, just update the current index
       _currentIndex = index;
       notifyListeners();
     }
