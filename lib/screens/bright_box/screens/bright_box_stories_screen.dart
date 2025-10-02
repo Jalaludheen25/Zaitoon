@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -9,6 +10,7 @@ import 'package:zaitoon/screens/bright_box/provider/bright_box_provider.dart';
 import 'package:zaitoon/screens/bright_box/models/bright_box_models.dart';
 import 'package:zaitoon/screens/bright_box/screens/bright_box_story_reader_screen.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
+import 'package:zaitoon/screens/bookmark_screen/provider/bookmark_provider.dart';
 
 class BrightBoxStoriesScreen extends StatefulWidget {
   final BrightBoxSubcategory subcategory;
@@ -441,18 +443,59 @@ class _BrightBoxStoriesScreenState extends State<BrightBoxStoriesScreen> {
             ),
 
             // Bookmark Button
-            Container(
-              width: 30,
-              height: 30,
-              decoration: BoxDecoration(
-                color: Colors.grey.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                LucideIcons.bookmark,
-                color: Colors.grey,
-                size: 18,
-              ),
+            Consumer<BookmarkProvider>(
+              builder: (context, bookmarkProvider, child) {
+                final storyId = story.id.toString();
+                final isBookmarked = bookmarkProvider.isBookmarked(storyId);
+
+                return GestureDetector(
+                  onTap: () async {
+                    final storyTitle =
+                        _getStoryTitle(story, homeProvider.selectedLanguage);
+                    final success = await bookmarkProvider.toggleBookmark(
+                      context: context,
+                      id: storyId,
+                      thumbnail: story.coverImage.isNotEmpty
+                          ? ApiUrls.assetBaseUrl + story.coverImage
+                          : '',
+                      title: storyTitle,
+                      fileUrl: '', // Bright Box stories don't have file URLs
+                      tag: 'Bright Box',
+                      contentType: 'bright_box_story',
+                      brightBoxContent: jsonEncode(story.toJson()),
+                    );
+
+                    if (success && mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(isBookmarked
+                              ? 'Removed from bookmarks'
+                              : 'Added to bookmarks'),
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                    }
+                  },
+                  child: Container(
+                    width: 30,
+                    height: 30,
+                    decoration: BoxDecoration(
+                      color: isBookmarked
+                          ? ColorClass.primaryColor.withOpacity(0.2)
+                          : Colors.grey.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      isBookmarked
+                          ? LucideIcons.bookMarked
+                          : LucideIcons.bookmark,
+                      color:
+                          isBookmarked ? ColorClass.primaryColor : Colors.grey,
+                      size: 18,
+                    ),
+                  ),
+                );
+              },
             ),
           ],
         ),

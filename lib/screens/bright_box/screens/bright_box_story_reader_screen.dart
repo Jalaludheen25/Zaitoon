@@ -629,26 +629,32 @@ Join thousands of families making reading time special! 🎉
   String _getStoryTitle(BrightBoxStory story, String language) {
     switch (language) {
       case 'ml':
-        return story.storyTitleMl ?? story.storyTitleEn ?? '';
+        return story.storyTitleMl.isNotEmpty
+            ? story.storyTitleMl
+            : story.storyTitleEn;
       case 'hi':
-        return story.storyTitleHi ?? story.storyTitleEn ?? '';
+        return story.storyTitleHi.isNotEmpty
+            ? story.storyTitleHi
+            : story.storyTitleEn;
       case 'ur':
-        return story.storyTitleUr ?? story.storyTitleEn ?? '';
+        return story.storyTitleUr.isNotEmpty
+            ? story.storyTitleUr
+            : story.storyTitleEn;
       default: // 'en' or any other language
-        return story.storyTitleEn ?? '';
+        return story.storyTitleEn;
     }
   }
 
   String _getStoryFile(BrightBoxStory story, String language) {
     switch (language) {
       case 'ml':
-        return story.storyMl ?? story.storyEn ?? '';
+        return story.storyMl.isNotEmpty ? story.storyMl : story.storyEn;
       case 'hi':
-        return story.storyHi ?? story.storyEn ?? '';
+        return story.storyHi.isNotEmpty ? story.storyHi : story.storyEn;
       case 'ur':
-        return story.storyUr ?? story.storyEn ?? '';
+        return story.storyUr.isNotEmpty ? story.storyUr : story.storyEn;
       default: // 'en' or any other language
-        return story.storyEn ?? '';
+        return story.storyEn;
     }
   }
 

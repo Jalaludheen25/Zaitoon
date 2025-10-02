@@ -22,13 +22,15 @@ class BookmarkModelAdapter extends TypeAdapter<BookmarkModel> {
       title: fields[2] as String,
       fileUrl: fields[3] as String,
       tag: fields[4] as String,
+      contentType: fields[5] as String?,
+      brightBoxContent: fields[6] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, BookmarkModel obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -38,7 +40,11 @@ class BookmarkModelAdapter extends TypeAdapter<BookmarkModel> {
       ..writeByte(3)
       ..write(obj.fileUrl)
       ..writeByte(4)
-      ..write(obj.tag);
+      ..write(obj.tag)
+      ..writeByte(5)
+      ..write(obj.contentType)
+      ..writeByte(6)
+      ..write(obj.brightBoxContent);
   }
 
   @override

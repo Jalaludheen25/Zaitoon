@@ -346,25 +346,6 @@ class _BrightBoxSubcategoriesScreenState
                               ),
                             ),
                     ),
-
-                    // Bookmark Button (Top Right)
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                      child: Container(
-                        width: 30,
-                        height: 30,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.9),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          LucideIcons.bookmark,
-                          color: Colors.black,
-                          size: 18,
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),

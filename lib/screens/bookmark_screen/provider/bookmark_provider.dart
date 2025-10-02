@@ -85,6 +85,8 @@ class BookmarkProvider extends ChangeNotifier {
     required String title,
     required String fileUrl,
     required String tag,
+    String? contentType,
+    String? brightBoxContent,
   }) async {
     if (!await _checkLoginStatus(context)) return false;
     if (_bookmarkBox == null) {
@@ -99,6 +101,8 @@ class BookmarkProvider extends ChangeNotifier {
         title: title,
         fileUrl: fileUrl,
         tag: tag,
+        contentType: contentType,
+        brightBoxContent: brightBoxContent,
       );
 
       await _bookmarkBox!.put(id, bookmark);
@@ -142,6 +146,8 @@ class BookmarkProvider extends ChangeNotifier {
     required String title,
     required String fileUrl,
     required String tag,
+    String? contentType,
+    String? brightBoxContent,
   }) async {
     if (!await _checkLoginStatus(context)) return false;
 
@@ -155,6 +161,8 @@ class BookmarkProvider extends ChangeNotifier {
         title: title,
         fileUrl: fileUrl,
         tag: tag,
+        contentType: contentType,
+        brightBoxContent: brightBoxContent,
       );
     }
   }

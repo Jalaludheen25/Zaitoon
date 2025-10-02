@@ -13,11 +13,13 @@ import 'package:zaitoon/constants/textstyle_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/screens/bookmark_screen/provider/bookmark_provider.dart';
 import 'package:zaitoon/screens/bookmark_screen/hive/bookmark_hive_model.dart';
-import 'package:zaitoon/screens/bright_box/screens/bright_box_home_screen.dart';
 import 'package:zaitoon/screens/login_screen/login_screen.dart';
 import 'package:zaitoon/screens/login_screen/provider/auth_provider.dart';
+import 'dart:convert';
 import 'package:zaitoon/screens/reading_screen/story_reader_page.dart';
 import 'package:zaitoon/utils/cache_manager.dart';
+import 'package:zaitoon/screens/bright_box/screens/bright_box_story_reader_screen.dart';
+import 'package:zaitoon/screens/bright_box/models/bright_box_models.dart';
 
 class BookmarkScreen extends StatefulWidget {
   final String? initialCategory;
@@ -182,14 +184,7 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                               setState(() {
                                 selectedCategory = category;
                               });
-                              // Navigate to Bright Box screen when selected
-                              if (category == "Bright Box") {
-                                navigatePR(
-                                  context: context,
-                                  screen: const BrightBoxHomeScreen(
-                                      sourceScreen: 'bookmark'),
-                                );
-                              }
+                              // Don't navigate to Bright Box, just show the content
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(
@@ -293,8 +288,15 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
 
                           return isEpisode;
                         }).toList();
+                      } else if (selectedCategory == "Bright Box") {
+                        // Show only Bright Box bookmarks
+                        filteredBookmarks =
+                            provider.bookmarks.where((bookmark) {
+                          return bookmark.contentType == 'bright_box_story' ||
+                              bookmark.tag.toLowerCase() == 'bright box';
+                        }).toList();
                       } else {
-                        // For "Bright Box" or any other category, show all bookmarks
+                        // For any other category, show all bookmarks
                         filteredBookmarks = provider.bookmarks;
                       }
 
@@ -384,29 +386,39 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                             final story = filteredBookmarks[index];
                             return GestureDetector(
                               onTap: () {
-                                navigatePR(
-                                  context: context,
-                                  screen: StoryReadingScreen(
-                                    id: story.id.toString(),
-                                    title: story.title,
-                                    thumbnail: story.thumbnail
-                                            .startsWith('http')
-                                        ? story.thumbnail
-                                        : '${ApiUrls.assetBaseUrl}${story.thumbnail}',
-                                    tag: story.tag,
-                                    pdfUrl: story.fileUrl,
-                                  ),
-                                );
-                              },
-                              child: BookmarkCard(
-                                id: story.id.toString(),
-                                title: story.title,
-                                category: story.tag,
-                                imageUrl: story.thumbnail.startsWith('http')
-                                    ? story.thumbnail
-                                    : '${ApiUrls.assetBaseUrl}${story.thumbnail}',
-                                fileUrl: story.fileUrl,
-                                onReadStory: () {
+                                // Handle Bright Box content differently - only if it has the content data
+                                if (story.contentType == 'bright_box_story' &&
+                                    story.brightBoxContent != null) {
+                                  // Reconstruct BrightBoxStory and open reader
+                                  try {
+                                    final storyData =
+                                        jsonDecode(story.brightBoxContent!);
+                                    final brightBoxStory =
+                                        BrightBoxStory.fromJson(storyData);
+                                    navigatePR(
+                                      context: context,
+                                      screen: BrightBoxStoryReaderScreen(
+                                        story: brightBoxStory,
+                                      ),
+                                    );
+                                  } catch (e) {
+                                    // Fallback to regular story reader if JSON parsing fails
+                                    navigatePR(
+                                      context: context,
+                                      screen: StoryReadingScreen(
+                                        id: story.id.toString(),
+                                        title: story.title,
+                                        thumbnail: story.thumbnail
+                                                .startsWith('http')
+                                            ? story.thumbnail
+                                            : '${ApiUrls.assetBaseUrl}${story.thumbnail}',
+                                        tag: story.tag,
+                                        pdfUrl: story.fileUrl,
+                                      ),
+                                    );
+                                  }
+                                } else {
+                                  // Default: All content opens in StoryReadingScreen
                                   navigatePR(
                                     context: context,
                                     screen: StoryReadingScreen(
@@ -420,6 +432,65 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                                       pdfUrl: story.fileUrl,
                                     ),
                                   );
+                                }
+                              },
+                              child: BookmarkCard(
+                                id: story.id.toString(),
+                                title: story.title,
+                                category: story.tag,
+                                imageUrl: story.thumbnail.startsWith('http')
+                                    ? story.thumbnail
+                                    : '${ApiUrls.assetBaseUrl}${story.thumbnail}',
+                                fileUrl: story.fileUrl,
+                                contentType: story.contentType,
+                                onReadStory: () {
+                                  // Handle Bright Box content differently - only if it has the content data
+                                  if (story.contentType == 'bright_box_story' &&
+                                      story.brightBoxContent != null) {
+                                    // Reconstruct BrightBoxStory and open reader
+                                    try {
+                                      final storyData =
+                                          jsonDecode(story.brightBoxContent!);
+                                      final brightBoxStory =
+                                          BrightBoxStory.fromJson(storyData);
+                                      navigatePR(
+                                        context: context,
+                                        screen: BrightBoxStoryReaderScreen(
+                                          story: brightBoxStory,
+                                        ),
+                                      );
+                                    } catch (e) {
+                                      // Fallback to regular story reader if JSON parsing fails
+                                      navigatePR(
+                                        context: context,
+                                        screen: StoryReadingScreen(
+                                          id: story.id.toString(),
+                                          title: story.title,
+                                          thumbnail: story.thumbnail
+                                                  .startsWith('http')
+                                              ? story.thumbnail
+                                              : '${ApiUrls.assetBaseUrl}${story.thumbnail}',
+                                          tag: story.tag,
+                                          pdfUrl: story.fileUrl,
+                                        ),
+                                      );
+                                    }
+                                  } else {
+                                    // Regular story/episode content
+                                    navigatePR(
+                                      context: context,
+                                      screen: StoryReadingScreen(
+                                        id: story.id.toString(),
+                                        title: story.title,
+                                        thumbnail: story.thumbnail
+                                                .startsWith('http')
+                                            ? story.thumbnail
+                                            : '${ApiUrls.assetBaseUrl}${story.thumbnail}',
+                                        tag: story.tag,
+                                        pdfUrl: story.fileUrl,
+                                      ),
+                                    );
+                                  }
                                 },
                               ),
                             );
@@ -445,6 +516,7 @@ class BookmarkCard extends StatelessWidget {
   final String imageUrl;
   final String fileUrl;
   final VoidCallback onReadStory;
+  final String? contentType;
 
   const BookmarkCard({
     super.key,
@@ -454,6 +526,7 @@ class BookmarkCard extends StatelessWidget {
     required this.imageUrl,
     required this.fileUrl,
     required this.onReadStory,
+    this.contentType,
   });
 
   @override

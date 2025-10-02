@@ -20,11 +20,19 @@ class BookmarkModel extends HiveObject {
   @HiveField(4)
   final String tag;
 
+  @HiveField(5)
+  final String? contentType; // 'story', 'episode', 'bright_box'
+
+  @HiveField(6)
+  final String? brightBoxContent; // JSON string for Bright Box content
+
   BookmarkModel({
     required this.id,
     required this.thumbnail,
     required this.title,
     required this.fileUrl,
     required this.tag,
+    this.contentType,
+    this.brightBoxContent,
   });
 }
