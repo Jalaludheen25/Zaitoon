@@ -5,10 +5,10 @@ import '../model/student_model.dart';
 import '../database/db_helper.dart';
 import '../../../constants/color_class.dart';
 import '../../../constants/icon_class.dart';
-import '../../../screens/quiz/quiz_screen.dart';
-import '../../../screens/bottom_navigation/bottom_navigation.dart';
 import '../../../screens/user_data_collection_screen/components/gender_card.dart';
 import '../../../constants/textstyle_class.dart';
+import '../../../screens/bottom_navigation/provider/bottom_navigation_provider.dart';
+import 'package:provider/provider.dart';
 import 'dart:ui';
 
 class StudentFormScreen extends StatefulWidget {
@@ -104,7 +104,10 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
       }
 
       if (mounted) {
-        // Navigate back to quiz landing (which is now shown in bottom navigation)
+        // Mark quiz landing as completed and refresh the state
+        context.read<NavigationProvider>().markQuizLandingCompleted();
+
+        // Navigate back to bottom navigation (quiz tab will now show QuizScreen)
         Navigator.pop(context);
       }
     } catch (e) {

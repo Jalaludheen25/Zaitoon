@@ -16,6 +16,8 @@ class QuizLanding extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('QuizLanding: Building quiz landing page');
+
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -27,6 +29,7 @@ class QuizLanding extends StatelessWidget {
     );
 
     return Scaffold(
+      backgroundColor: Colors.white,
       extendBodyBehindAppBar: true,
       body: SizedBox(
         width: double.infinity,
@@ -82,7 +85,7 @@ class QuizLanding extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Let’s Start the Quiz!',
+                      'Let\'s Start the Quiz!',
                       textAlign: TextAlign.center,
                       style: TextStyleClass.openSans(
                         color: ColorClass.black87,

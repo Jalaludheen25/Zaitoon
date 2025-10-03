@@ -8,6 +8,7 @@ import 'package:zaitoon/screens/bookmark_screen/bookmark_screen.dart';
 import 'package:zaitoon/screens/bottom_navigation/provider/bottom_navigation_provider.dart';
 import 'package:zaitoon/screens/home_screen/home_screen.dart';
 import 'package:zaitoon/screens/login_screen/provider/auth_provider.dart';
+import 'package:zaitoon/screens/quiz/screens/quiz_landing.dart';
 import 'package:zaitoon/screens/settings_screen/settings_screen.dart';
 import 'package:zaitoon/constants/textstyle_class.dart';
 import 'package:zaitoon/constants/color_class.dart';
@@ -16,7 +17,7 @@ import 'package:zaitoon/screens/standalone_stories/standalone_story_list_screen.
 import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:zaitoon/screens/kids_corner_screen/kids_corner_screen.dart';
-import 'package:zaitoon/screens/quiz/screens/quiz_landing.dart';
+import 'package:zaitoon/screens/quiz/quiz_screen.dart';
 
 class BottomNavigationScreen extends StatefulWidget {
   final int currentIndex;
@@ -51,6 +52,8 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
   Widget build(BuildContext context) {
     return Consumer<NavigationProvider>(
         builder: (context, navigationProvider, child) {
+      debugPrint(
+          'BottomNavigation: showQuiz=${navigationProvider.showQuiz}, quizLandingCompleted=${navigationProvider.quizLandingCompleted}, currentIndex=${navigationProvider.currentIndex}');
       return Scaffold(
         //backgroundColor: const Color(0xFF121212),
         body: IndexedStack(
@@ -60,11 +63,12 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
             const StoriesScreen(),
             const KidsCornerScreen(),
             const BookmarkScreen(),
-            // 5th tab: either Quiz placeholder or Settings
-            if (navigationProvider.showQuiz)
-              const QuizLanding() // Quiz tab - show quiz landing screen
-            else
-              const SettingsScreen() // Settings tab
+            // 5th tab: either Quiz content or Settings
+            navigationProvider.showQuiz
+                ? (navigationProvider.quizLandingCompleted
+                    ? const QuizScreen() // Show QuizScreen if landing is completed
+                    : const QuizLanding()) // Show QuizLanding if not completed
+                : const SettingsScreen() // Settings tab
           ],
         ),
         bottomNavigationBar: StoryAppBottomNav(
@@ -169,6 +173,7 @@ class StoryAppBottomNav extends StatelessWidget {
               }
               return TextStyleClass.openSans(
                 fontSize: 12, // Consistent font size for 5 tabs
+
                 color: ColorClass.black87.withOpacity(0.5),
               );
             },
