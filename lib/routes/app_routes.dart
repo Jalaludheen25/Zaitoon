@@ -9,6 +9,7 @@ class AppRoutes {
   static const String bottomNavigation = '/bottom-navigation';
   static const String quiz = '/quiz';
   static const String quizLanding = '/quiz-landing';
+  static const String quizResultDetail = '/quiz-result-detail';
 
   // Route paths
   static const Map<String, String> routes = {
@@ -21,5 +22,6 @@ class AppRoutes {
     'bottomNavigation': bottomNavigation,
     'quiz': quiz,
     'quizLanding': quizLanding,
+    'quizResultDetail': quizResultDetail,
   };
 }

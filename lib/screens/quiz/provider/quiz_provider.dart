@@ -1014,23 +1014,24 @@ class QuizProvider extends ChangeNotifier {
     return '$hour:${localTime.minute.toString().padLeft(2, '0')} $period';
   }
 
-  String _calculateGrade(double percentage) {
+  String calculateGrade(double percentage) {
     debugPrint('Calculating grade for percentage: $percentage');
     String grade;
-    if (percentage >= 90)
+    if (percentage >= 90) {
       grade = 'A+';
-    else if (percentage >= 80)
+    } else if (percentage >= 80) {
       grade = 'A';
-    else if (percentage >= 70)
+    } else if (percentage >= 70) {
       grade = 'B+';
-    else if (percentage >= 60)
+    } else if (percentage >= 60) {
       grade = 'B';
-    else if (percentage >= 50)
+    } else if (percentage >= 50) {
       grade = 'C';
-    else if (percentage >= 40)
+    } else if (percentage >= 40) {
       grade = 'D';
-    else
+    } else {
       grade = 'F';
+    }
     debugPrint('Grade calculated: $grade');
     return grade;
   }
@@ -1308,9 +1309,10 @@ class QuizProvider extends ChangeNotifier {
       } else if (Platform.isIOS) {
         // For iOS, use the documents directory and make it accessible via Files app
         downloadsDirectory = await getApplicationDocumentsDirectory();
-        
+
         // Create a subdirectory for certificates that will be visible in Files app
-        final certificatesDir = Directory('${downloadsDirectory.path}/Certificates');
+        final certificatesDir =
+            Directory('${downloadsDirectory.path}/Certificates');
         if (!await certificatesDir.exists()) {
           await certificatesDir.create(recursive: true);
         }
@@ -1339,7 +1341,8 @@ class QuizProvider extends ChangeNotifier {
 
       // For iOS, automatically trigger share to allow user to save to Files app or Photos
       if (Platform.isIOS) {
-        debugPrint('iOS detected - triggering automatic share for better user experience');
+        debugPrint(
+            'iOS detected - triggering automatic share for better user experience');
         // Small delay to ensure file is written
         await Future.delayed(const Duration(milliseconds: 500));
         try {
