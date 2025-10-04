@@ -26,6 +26,7 @@ import 'package:zaitoon/screens/quiz/provider/quiz_provider.dart';
 import 'package:zaitoon/screens/bright_box/provider/bright_box_provider.dart';
 import 'package:zaitoon/screens/registration/providers/registration_provider.dart';
 import 'package:zaitoon/screens/search/provider/search_provider.dart';
+import 'package:zaitoon/screens/ott_watchlist/provider/ott_watchlist_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -95,6 +96,7 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(create: (_) => BrightBoxProvider()),
         ChangeNotifierProvider(create: (_) => RegistrationProvider()),
+        ChangeNotifierProvider(create: (_) => OttWatchlistProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
