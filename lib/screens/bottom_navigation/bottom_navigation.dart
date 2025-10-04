@@ -13,7 +13,7 @@ import 'package:zaitoon/screens/settings_screen/settings_screen.dart';
 import 'package:zaitoon/constants/textstyle_class.dart';
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/icon_class.dart';
-import 'package:zaitoon/screens/standalone_stories/standalone_story_list_screen.dart';
+import 'package:zaitoon/screens/ott_watchlist/ott_watchlist_screen.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:zaitoon/screens/kids_corner_screen/kids_corner_screen.dart';
@@ -60,7 +60,7 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
           index: navigationProvider.currentIndex,
           children: [
             const HomeScreen(),
-            const StoriesScreen(),
+            const OttWatchlistScreen(),
             const KidsCornerScreen(),
             const BookmarkScreen(),
             // 5th tab: either Quiz content or Settings
