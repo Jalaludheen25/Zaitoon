@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:zaitoon/constants/textstyle_class.dart';
 import 'package:zaitoon/screens/bottom_navigation/bottom_navigation.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/components/gender_card.dart';
@@ -238,37 +239,43 @@ class _UserDataCollectionState extends State<UserDataCollection> {
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: Column(
                     children: [
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 15),
 
                       // Avatar Selection Row (carousel)
                       AvatarCustomizerScreen(),
 
-                      const SizedBox(height: 15),
-
-                      Container(
-                        width: 184,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [
-                              ColorClass.grad1,
-                              ColorClass.grad2,
-                              ColorClass.grad3,
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Center(
-                          child: Text(
-                            "Choose Avatar",
-                            style: GoogleFonts.fredoka(
-                              fontWeight: FontWeight.w500,
-                              fontSize: 16,
-                              color: Colors.white,
-                            ),
-                          ),
+                      //const SizedBox(height: 20),
+                      Text(
+                        "Swipe to choose avatar",
+                        style: TextStyleClass.openSans(
+                          fontSize: 16,
+                          color: Colors.black54,
                         ),
                       ),
+                      // Container(
+                      //   width: 184,
+                      //   height: 40,
+                      //   decoration: BoxDecoration(
+                      //     gradient: const LinearGradient(
+                      //       colors: [
+                      //         ColorClass.grad1,
+                      //         ColorClass.grad2,
+                      //         ColorClass.grad3,
+                      //       ],
+                      //     ),
+                      //     borderRadius: BorderRadius.circular(20),
+                      //   ),
+                      //   child: Center(
+                      //     child: Text(
+                      //       "Choose Avatar",
+                      //       style: GoogleFonts.fredoka(
+                      //         fontWeight: FontWeight.w500,
+                      //         fontSize: 16,
+                      //         color: Colors.white,
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
 
                       const SizedBox(height: 25),
 
@@ -362,7 +369,7 @@ class _UserDataCollectionState extends State<UserDataCollection> {
                                   ],
                                 ),
 
-                                const SizedBox(height: 30),
+                                const SizedBox(height: 50),
 
                                 // Error Message
                                 if (provider.error.isNotEmpty)
