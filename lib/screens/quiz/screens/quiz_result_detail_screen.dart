@@ -5,6 +5,8 @@ import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/textstyle_class.dart';
 import 'package:zaitoon/screens/quiz/provider/quiz_provider.dart';
 import 'package:zaitoon/screens/quiz/models/quiz_models.dart';
+import 'package:flutter/services.dart';
+import 'package:zaitoon/screens/bottom_navigation/bottom_navigation.dart';
 
 class QuizResultDetailScreen extends StatefulWidget {
   final QuizSession session;
@@ -32,14 +34,14 @@ class _QuizResultDetailScreenState extends State<QuizResultDetailScreen> {
   Future<void> _loadQuizDetails() async {
     try {
       final quizProvider = context.read<QuizProvider>();
-      
+
       // Load answers for this session
       _answers = await quizProvider.getQuizAnswers(widget.session.sessionUuid);
-      
+
       // Load all questions to get the full question data
       await quizProvider.loadQuestions();
       _questions = quizProvider.allQuestions;
-      
+
       setState(() {
         _isLoading = false;
       });
@@ -53,23 +55,38 @@ class _QuizResultDetailScreenState extends State<QuizResultDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarIconBrightness: Brightness.dark,
+      ),
+    );
     return Scaffold(
-      backgroundColor: ColorClass.black,
+      backgroundColor: ColorClass.white,
       body: SafeArea(
         child: _isLoading
-            ? const Center(
-                child: CircularProgressIndicator(
-                  color: ColorClass.primaryColor,
-                ),
-              )
-            : CustomScrollView(
-                slivers: [
-                  _buildAppBar(),
-                  _buildResultSummary(),
-                  _buildQuestionsList(),
-                ],
+        ? const Center(
+            child: CircularProgressIndicator(
+              color: ColorClass.primaryColor,
+            ),
+          )
+        : CustomScrollView(
+            slivers: [
+              _buildAppBar(),
+              //_buildResultSummary(),
+              _buildQuestionsList(),
+              SliverToBoxAdapter(
+                child: SizedBox(
+                    height: 100), // Add bottom padding for the floating button
               ),
+            ],
+          ),    
       ),
+      floatingActionButton: _buildBackToHomeButton(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
@@ -77,140 +94,140 @@ class _QuizResultDetailScreenState extends State<QuizResultDetailScreen> {
     return SliverAppBar(
       leading: IconButton(
         icon: const Icon(
-          LucideIcons.arrowLeft,
-          color: ColorClass.white,
+          LucideIcons.chevronLeft,
+          color: ColorClass.black,
         ),
         onPressed: () => Navigator.pop(context),
       ),
-      title: Text(
-        'Quiz Results',
-        style: TextStyleClass.poppinsSemiBold(
-          fontSize: 20,
-          color: ColorClass.white,
+      title: Center(
+        child: ShaderMask(
+          shaderCallback: (bounds) => LinearGradient(
+            colors: [
+              ColorClass.grad1,
+              ColorClass.grad2,
+              ColorClass.grad3,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ).createShader(bounds),
+          child: Text(
+            'Check My Answers',
+            style: TextStyleClass.fredoka(
+              fontSize: 24,
+              color: Colors.white,
+            ),
+          ),
         ),
       ),
-      backgroundColor: ColorClass.black,
+      backgroundColor: ColorClass.transparent,
       floating: true,
       pinned: false,
       elevation: 0,
     );
   }
-
-  Widget _buildResultSummary() {
-    final percentage = widget.session.correctAnswers != null && widget.session.totalQuestions > 0
-        ? (widget.session.correctAnswers! / widget.session.totalQuestions * 100)
-        : 0.0;
-
-    return SliverToBoxAdapter(
-      child: Container(
-        margin: const EdgeInsets.all(16),
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              _getGradeColor(percentage).withOpacity(0.2),
-              _getGradeColor(percentage).withOpacity(0.1),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: _getGradeColor(percentage).withOpacity(0.3),
-            width: 1,
-          ),
-        ),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  percentage >= 60 ? LucideIcons.trophy : LucideIcons.target,
-                  color: _getGradeColor(percentage),
-                  size: 32,
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  '${percentage.toStringAsFixed(1)}%',
-                  style: TextStyleClass.poppinsBold(
-                    fontSize: 32,
-                    color: ColorClass.white,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: _getGradeColor(percentage),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    _calculateGrade(percentage),
-                    style: TextStyleClass.poppinsBold(
-                      fontSize: 16,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildSummaryItem(
-                  'Correct',
-                  '${widget.session.correctAnswers ?? 0}',
-                  Colors.green,
-                  LucideIcons.check,
-                ),
-                _buildSummaryItem(
-                  'Wrong',
-                  '${widget.session.totalQuestions - (widget.session.correctAnswers ?? 0)}',
-                  Colors.red,
-                  LucideIcons.x,
-                ),
-                _buildSummaryItem(
-                  'Total',
-                  '${widget.session.totalQuestions}',
-                  Colors.blue,
-                  LucideIcons.fileText,
-                ),
-                _buildSummaryItem(
-                  'Time',
-                  _formatTime(widget.session.totalTimeTaken ?? 0),
-                  Colors.orange,
-                  LucideIcons.clock,
-                ),
-              ],
-            ),
+  Widget _buildBackToHomeButton() {
+    return Container(
+      width: 217,
+      height: 45,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [
+            Color(0xFFAC28DC), // Purple
+            Color(0xFF7E1EB7), // Darker purple
+            Color(0xFF501392), // Dark purple
           ],
+          stops: [0.0, 0.50, 1.0],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: FloatingActionButton.extended(
+        onPressed: () => _navigateToHome(),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+        ),
+        label: Text(
+          'Back to Home',
+          style: TextStyleClass.fredoka(
+            fontSize: 16,
+            color: Colors.white,
+          ),
         ),
       ),
     );
   }
+  // Widget _buildResultSummary() {
+  //   return
+  //           Row(
+  //             mainAxisAlignment: MainAxisAlignment.spaceAround,
+  //             children: [
+  //               _buildSummaryItem(
+  //                 'Correct',
+  //                 '${widget.session.correctAnswers ?? 0}',
+  //                 Colors.green,
+  //                 LucideIcons.check,
+  //               ),
+  //               _buildSummaryItem(
+  //                 'Wrong',
+  //                 '${widget.session.totalQuestions - (widget.session.correctAnswers ?? 0)}',
+  //                 Colors.red,
+  //                 LucideIcons.x,
+  //               ),
+  //               _buildSummaryItem(
+  //                 'Total',
+  //                 '${widget.session.totalQuestions}',
+  //                 Colors.blue,
+  //                 LucideIcons.fileText,
+  //               ),
+  //               _buildSummaryItem(
+  //                 'Time',
+  //                 _formatTime(widget.session.totalTimeTaken ?? 0),
+  //                 Colors.orange,
+  //                 LucideIcons.clock,
+  //               ),
+  //             ],
+  //   );
+  // }
 
-  Widget _buildSummaryItem(String label, String value, Color color, IconData icon) {
-    return Column(
-      children: [
-        Icon(icon, color: color, size: 20),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: TextStyleClass.poppinsSemiBold(
-            fontSize: 16,
-            color: ColorClass.white,
-          ),
-        ),
-        Text(
-          label,
-          style: TextStyleClass.poppinsRegular(
-            fontSize: 12,
-            color: ColorClass.white.withOpacity(0.7),
-          ),
-        ),
-      ],
+  // Widget _buildSummaryItem(String label, String value, Color color, IconData icon) {
+  //   return Column(
+  //     children: [
+  //       Icon(icon, color: color, size: 20),
+  //       const SizedBox(height: 4),
+  //       Text(
+  //         value,
+  //         style: TextStyleClass.poppinsSemiBold(
+  //           fontSize: 16,
+  //           color: ColorClass.white,
+  //         ),
+  //       ),
+  //       Text(
+  //         label,
+  //         style: TextStyleClass.poppinsRegular(
+  //           fontSize: 12,
+  //           color: ColorClass.white.withOpacity(0.7),
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
+  void _navigateToHome() {
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const BottomNavigationScreen(currentIndex: 4),
+      ),
+      (route) => false,
     );
   }
 
@@ -240,20 +257,19 @@ class _QuizResultDetailScreenState extends State<QuizResultDetailScreen> {
     );
   }
 
-  Widget _buildQuestionCard(QuizQuestion question, QuizAnswer answer, int questionNumber) {
+  Widget _buildQuestionCard(
+      QuizQuestion question, QuizAnswer answer, int questionNumber) {
     final isCorrect = answer.isCorrect;
     final language = context.read<QuizProvider>().currentLanguage;
-    
+
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
       decoration: BoxDecoration(
-        color: ColorClass.white.withOpacity(0.05),
+        color: ColorClass.grey3,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isCorrect 
-              ? Colors.green.withOpacity(0.3)
-              : Colors.red.withOpacity(0.3),
-          width: 1,
+          color: ColorClass.violet30,
+          width: 0.2,
         ),
       ),
       child: Column(
@@ -262,43 +278,29 @@ class _QuizResultDetailScreenState extends State<QuizResultDetailScreen> {
           // Question header
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: isCorrect 
-                  ? Colors.green.withOpacity(0.1)
-                  : Colors.red.withOpacity(0.1),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(16),
-                topRight: Radius.circular(16),
-              ),
-            ),
             child: Row(
               children: [
                 Text(
                   'Question $questionNumber',
-                  style: TextStyleClass.poppinsSemiBold(
-                    fontSize: 16,
-                    color: ColorClass.white,
+                  style: TextStyleClass.fredoka(
+                    fontSize: 20,
+                    color: ColorClass.black,
                   ),
                 ),
                 const Spacer(),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   decoration: BoxDecoration(
-                    color: isCorrect ? Colors.green : Colors.red,
+                    color: isCorrect ? Colors.lightGreen : Colors.red,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        isCorrect ? LucideIcons.check : LucideIcons.x,
-                        color: Colors.white,
-                        size: 16,
-                      ),
-                      const SizedBox(width: 4),
                       Text(
                         isCorrect ? 'Correct' : 'Incorrect',
-                        style: TextStyleClass.poppinsMedium(
+                        style: TextStyleClass.openSansSemiBold(
                           fontSize: 12,
                           color: Colors.white,
                         ),
@@ -309,37 +311,29 @@ class _QuizResultDetailScreenState extends State<QuizResultDetailScreen> {
               ],
             ),
           ),
-          
+
           // Question text
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
               language == 'en' ? question.questionEn : question.questionMl,
-              style: TextStyleClass.poppinsMedium(
+              style: TextStyleClass.openSans(
                 fontSize: 16,
                 color: ColorClass.white,
               ),
             ),
           ),
-          
+          const SizedBox(height: 20),
           // Options
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Options:',
-                  style: TextStyleClass.poppinsMedium(
-                    fontSize: 14,
-                    color: ColorClass.white.withOpacity(0.8),
-                  ),
-                ),
-                const SizedBox(height: 8),
                 ...List.generate(
                   question.optionsEn.length,
                   (optionIndex) => _buildOptionItem(
-                    language == 'en' 
+                    language == 'en'
                         ? question.optionsEn[optionIndex]
                         : question.optionsMl[optionIndex],
                     optionIndex,
@@ -350,106 +344,100 @@ class _QuizResultDetailScreenState extends State<QuizResultDetailScreen> {
               ],
             ),
           ),
-          
+
           // Answer summary
-          Container(
-            margin: const EdgeInsets.all(16),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Correct Answer:',
-                        style: TextStyleClass.poppinsMedium(
-                          fontSize: 12,
-                          color: Colors.green,
-                        ),
-                      ),
-                      Text(
-                        language == 'en' 
-                            ? question.optionsEn[question.correctAnswer]
-                            : question.optionsMl[question.correctAnswer],
-                        style: TextStyleClass.poppinsRegular(
-                          fontSize: 14,
-                          color: Colors.green,
-                        ),
-                      ),
-                    ],
+          if (!isCorrect)
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    'Correct Answer:',
+                    style: TextStyleClass.openSansSemiBold(
+                      fontSize: 16,
+                      color: Colors.black,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Your Answer:',
-                        style: TextStyleClass.poppinsMedium(
-                          fontSize: 12,
-                          color: isCorrect ? Colors.green : Colors.red,
-                        ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      language == 'en'
+                          ? question.optionsEn[question.correctAnswer]
+                          : question.optionsMl[question.correctAnswer],
+                      style: TextStyleClass.openSans(
+                        fontSize: 16,
+                        color: Colors.black,
                       ),
-                      Text(
-                        answer.selectedAnswer != null
-                            ? (language == 'en' 
-                                ? question.optionsEn[answer.selectedAnswer!]
-                                : question.optionsMl[answer.selectedAnswer!])
-                            : 'Not answered',
-                        style: TextStyleClass.poppinsRegular(
-                          fontSize: 14,
-                          color: isCorrect ? Colors.green : Colors.red,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
+              // const SizedBox(width: 16),
+              // Expanded(
+              //   child: Column(
+              //     crossAxisAlignment: CrossAxisAlignment.start,
+              //     children: [
+              //       Text(
+              //         'Your Answer:',
+              //         style: TextStyleClass.poppinsMedium(
+              //           fontSize: 12,
+              //           color: isCorrect ? Colors.green : Colors.red,
+              //         ),
+              //       ),
+              //       Text(
+              //         answer.selectedAnswer != null
+              //             ? (language == 'en'
+              //                 ? question.optionsEn[answer.selectedAnswer!]
+              //                 : question.optionsMl[answer.selectedAnswer!])
+              //             : 'Not answered',
+              //         style: TextStyleClass.poppinsRegular(
+              //           fontSize: 14,
+              //           color: isCorrect ? Colors.green : Colors.red,
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
             ),
-          ),
         ],
       ),
     );
   }
 
-  Widget _buildOptionItem(String option, int index, int correctIndex, int? selectedIndex) {
+  Widget _buildOptionItem(
+      String option, int index, int correctIndex, int? selectedIndex) {
     bool isCorrect = index == correctIndex;
     bool isSelected = index == selectedIndex;
-    
+
     Color backgroundColor;
     Color textColor;
     IconData? icon;
-    
+
     if (isCorrect) {
-      backgroundColor = Colors.green.withOpacity(0.2);
-      textColor = Colors.green;
-      icon = LucideIcons.check;
+      backgroundColor = ColorClass.green3.withOpacity(0.2);
+      textColor = Colors.black;
+      // icon = LucideIcons.check;
     } else if (isSelected && !isCorrect) {
-      backgroundColor = Colors.red.withOpacity(0.2);
-      textColor = Colors.red;
-      icon = LucideIcons.x;
+      backgroundColor = Colors.red.withOpacity(0.1);
+      textColor = Colors.black;
+      // icon = LucideIcons.x;
     } else {
-      backgroundColor = Colors.transparent;
-      textColor = ColorClass.white.withOpacity(0.7);
+      backgroundColor = ColorClass.grey33.withOpacity(0.15);
+      textColor = ColorClass.black;
     }
-    
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: isCorrect 
-              ? Colors.green.withOpacity(0.5)
-              : isSelected 
-                  ? Colors.red.withOpacity(0.5)
+          color: isCorrect
+              ? ColorClass.green3
+              : isSelected
+                  ? Colors.red
                   : Colors.transparent,
           width: 1,
         ),
@@ -459,8 +447,8 @@ class _QuizResultDetailScreenState extends State<QuizResultDetailScreen> {
           Expanded(
             child: Text(
               option,
-              style: TextStyleClass.poppinsRegular(
-                fontSize: 14,
+              style: TextStyleClass.openSans(
+                fontSize: 16,
                 color: textColor,
               ),
             ),
@@ -478,25 +466,25 @@ class _QuizResultDetailScreenState extends State<QuizResultDetailScreen> {
     );
   }
 
-  Color _getGradeColor(double percentage) {
-    if (percentage >= 80) return Colors.green;
-    if (percentage >= 60) return Colors.orange;
-    return Colors.red;
-  }
+  // Color _getGradeColor(double percentage) {
+  //   if (percentage >= 80) return Colors.green;
+  //   if (percentage >= 60) return Colors.orange;
+  //   return Colors.red;
+  // }
 
-  String _calculateGrade(double percentage) {
-    if (percentage >= 90) return 'A+';
-    if (percentage >= 80) return 'A';
-    if (percentage >= 70) return 'B+';
-    if (percentage >= 60) return 'B';
-    if (percentage >= 50) return 'C';
-    if (percentage >= 40) return 'D';
-    return 'F';
-  }
+  // String _calculateGrade(double percentage) {
+  //   if (percentage >= 90) return 'A+';
+  //   if (percentage >= 80) return 'A';
+  //   if (percentage >= 70) return 'B+';
+  //   if (percentage >= 60) return 'B';
+  //   if (percentage >= 50) return 'C';
+  //   if (percentage >= 40) return 'D';
+  //   return 'F';
+  // }
 
-  String _formatTime(int seconds) {
-    final minutes = seconds ~/ 60;
-    final remainingSeconds = seconds % 60;
-    return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
-  }
+  // String _formatTime(int seconds) {
+  //   final minutes = seconds ~/ 60;
+  //   final remainingSeconds = seconds % 60;
+  //   return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
+  // }
 }

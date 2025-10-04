@@ -90,6 +90,6 @@ class TextStyleClass {
       GoogleFonts.openSans(
         color: color,
         fontSize: fontSize,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w700,
       );
 }

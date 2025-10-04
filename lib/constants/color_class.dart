@@ -26,6 +26,9 @@ class ColorClass {
   static const Color neutral900 = Color(0xff0A0D14);
   static const Color containerBg = Color(0xffF0C6FF);
   static const Color containerBg2 = Color(0xffF0C6FF);
+  static const Color grey3 = Color(0xffF9F9F9);
+  static const Color grey33 = Color(0xffF0C6FF);
+  static const Color green3 = Color(0xff4CAF50);
 
   //gradient colors
   static const Color grad1 = Color(0xffAC28DC);
