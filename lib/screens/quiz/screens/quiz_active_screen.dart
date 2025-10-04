@@ -152,7 +152,8 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                const BottomNavigationScreen()),
+                                                const BottomNavigationScreen(
+                                                    currentIndex: 4)),
                                       );
                                     },
                                     child: Text(
@@ -190,7 +191,8 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
                                               context,
                                               MaterialPageRoute(
                                                   builder: (context) =>
-                                                      const BottomNavigationScreen()),
+                                                      const BottomNavigationScreen(
+                                                          currentIndex: 4)),
                                             );
                                           }
                                         } catch (e) {
@@ -212,7 +214,10 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
                                                         context,
                                                         MaterialPageRoute(
                                                             builder: (context) =>
-                                                                const BottomNavigationScreen()),
+                                                                const BottomNavigationScreen(
+                                                                  currentIndex:
+                                                                      4,
+                                                                )),
                                                       );
                                                     },
                                                     child: const Text(
@@ -1051,16 +1056,16 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
               child: Container(
                 decoration: BoxDecoration(
                   color: isCurrent
-                      ? ColorClass.primaryColor
+                      ? ColorClass.violet30.withOpacity(0.1)
                       : (isAnswered
                           ? Colors.green.withOpacity(0.3)
                           : Colors.grey.withOpacity(0.3)),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
                     color: isCurrent
-                        ? ColorClass.primaryColor
+                        ? ColorClass.violet30
                         : (isAnswered ? Colors.green : Colors.grey),
-                    width: 2,
+                    width: 0.5,
                   ),
                 ),
                 child: Center(
@@ -1070,7 +1075,7 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
                       color: isCurrent || isAnswered
-                          ? Colors.blue
+                          ? Colors.white
                           : Colors.grey[400],
                     ),
                   ),
@@ -1115,7 +1120,7 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
                 'You have answered ${quizProvider.questionsAnswered} out of ${quizProvider.currentQuizQuestions.length} questions.',
                 style: TextStyleClass.openSans(
                   fontSize: 14,
-                  color: ColorClass.black.withOpacity(0.8),
+                  color: Colors.black54,
                 ),
               ),
               if (unansweredCount > 0) ...[
@@ -1161,7 +1166,8 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
                           context,
                           MaterialPageRoute(
                               builder: (context) =>
-                                  const BottomNavigationScreen()),
+                                  const BottomNavigationScreen(
+                                      currentIndex: 4)),
                         );
                       }
                     },
