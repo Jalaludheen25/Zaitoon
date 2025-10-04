@@ -19,6 +19,7 @@ class ImageClass {
 
   //quiz
   static const String quizBg = '${imageRoot}quizLanding.png';
+  static const String quizHome = '${imageRoot}quizHome.png';
 
   // static const String onboarding1 = '${imageRoot}onboarding1.png';
   // static const String onboarding2 = '${imageRoot}onboarding2.png';
