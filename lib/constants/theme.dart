@@ -49,7 +49,7 @@ class AppTheme {
       foregroundColor: ColorClass.white,
       elevation: 0,
       centerTitle: true,
-      surfaceTintColor: ColorClass.splashBg,
+      surfaceTintColor: ColorClass.bg,
       iconTheme: IconThemeData(color: ColorClass.white),
       titleTextStyle: TextStyle(
         color: ColorClass.white,
@@ -71,11 +71,11 @@ class AppTheme {
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
     ),
-    cardColor: ColorClass.gradient1,
-    canvasColor: ColorClass.splashBg,
+    cardColor: ColorClass.bg,
+    canvasColor: ColorClass.bg,
     colorScheme: const ColorScheme.dark(
       primary: ColorClass.black,
-      secondary: ColorClass.gradient1,
+      secondary: ColorClass.violet30,
       onPrimary: ColorClass.white,
       onSecondary: ColorClass.white,
       onSurface: ColorClass.white,

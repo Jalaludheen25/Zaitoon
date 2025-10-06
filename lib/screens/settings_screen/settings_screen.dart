@@ -5,10 +5,11 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:zaitoon/constants/color_class.dart';
-import 'package:zaitoon/constants/image_class.dart';
 import 'package:zaitoon/constants/textstyle_class.dart';
+import 'package:zaitoon/constants/image_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
 import 'package:zaitoon/helper/url_launcher.dart';
+import 'package:zaitoon/providers/theme_provider.dart';
 import 'package:zaitoon/screens/language_selection/language_selection.dart';
 import 'package:zaitoon/screens/login_screen/login_screen.dart';
 import 'package:zaitoon/screens/login_screen/provider/auth_provider.dart';
@@ -55,53 +56,61 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: ColorClass.white,
-      body: SafeArea(
-        child: Consumer2<UserDataProvider, AuthProvider>(
-          builder: (context, userDataProvider, authProvider, child) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header with Profile Title
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ShaderMask(
-                        shaderCallback: (bounds) => LinearGradient(
-                          colors: [
-                            ColorClass.grad1,
-                            ColorClass.grad2,
-                            ColorClass.grad3,
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ).createShader(bounds),
-                        child: Text(
-                          'Profile',
-                          style: TextStyleClass.fredoka(
-                            fontSize: 28,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 30),
-                      // Profile Avatar and Name
-                      Center(
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        final isDark = themeProvider.isDarkMode;
+        return Scaffold(
+          backgroundColor: isDark ? ColorClass.black : ColorClass.white,
+          appBar: AppBar(
+            // backgroundColor: ColorClass.white,
+            elevation: 0,
+            centerTitle: false,
+            titleSpacing: 18,
+            title: ShaderMask(
+              shaderCallback: (bounds) => LinearGradient(
+                colors: [
+                  ColorClass.grad1,
+                  ColorClass.grad2,
+                  ColorClass.grad3,
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ).createShader(bounds),
+              child: Text(
+                'Profile',
+                style: TextStyleClass.fredoka(
+                  fontSize: 24,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 16),
+                child: Consumer<ThemeProvider>(
+                  builder: (context, themeProvider, _) => _ThemeToggle(
+                    isDark: themeProvider.isDarkMode,
+                    onToggle: themeProvider.toggleTheme,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          body: SafeArea(
+            child: Consumer2<UserDataProvider, AuthProvider>(
+              builder: (context, userDataProvider, authProvider, child) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header with Profile Avatar and Name (moved title to AppBar)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                      child: Center(
                         child: Column(
                           children: [
                             Container(
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.3),
-                                    blurRadius: 10,
-                                    spreadRadius: 2,
-                                  ),
-                                ],
                               ),
                               child: FluttermojiCircleAvatar(
                                 radius: 50,
@@ -110,253 +119,265 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              userDataProvider.name ?? 'Rosy Mery',
+                              userDataProvider.name ?? 'Unknown',
                               style: TextStyleClass.fredoka(
-                                fontSize: 20,
-                                color: Colors.black,
+                                fontSize: 22,
+                                color: isDark
+                                    ? ColorClass.white
+                                    : ColorClass.black,
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-
-                // Settings Items
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: ListView(
-                      children: [
-                        _buildSettingItem(
-                          icon: LucideIcons.user,
-                          title: 'My Profile',
-                          subtitle: 'Manage your personal information',
-                          onTap: () {
-                            _showParentalGate(() {
-                              // ignore: unrelated_type_equality_checks
-                              if (authProvider.isSignedIn) {
-                                navigatePR(
-                                  context: context,
-                                  screen: const UserDataCollection(
-                                    isFromOnboarding: false,
-                                  ),
-                                );
-                              } else {
-                                navigatePR(
-                                  context: context,
-                                  screen: const AuthScreen(),
-                                );
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'Please sign in to access this feature',
-                                    ),
-                                  ),
-                                );
-                              }
-                            });
-                          },
-                        ),
-                        // _buildSettingItem(
-                        //   icon: Icons.golf_course_rounded,
-                        //   title: 'Reward',
-                        //   subtitle: 'View your reading progress',
-                        //   onTap: () {
-                        //     navigatePR(
-                        //         context: context,
-                        //         screen: const RewardScreen(
-                        //           storiesCompleted:
-                        //               15, // Number of completed stories
-                        //           totalReadingMinutes:
-                        //               240, // Total reading time in minutes
-                        //           currentStreak: 5, // Current daily streak
-                        //           longestStreak: 7, // Longest streak achieved
-                        //           completionRate: 75.5, // Completion percentage
-                        //         ));
-                        //   },
-                        // ),
-                        _buildSettingItem(
-                          icon: LucideIcons.globe,
-                          title: 'Language',
-                          subtitle: 'Change your preferred language',
-                          onTap: () {
-                            navigatePR(
-                              context: context,
-                              screen: const LanguageSelection(),
-                            );
-                          },
-                        ),
-                        _buildSettingItem(
-                          icon: LucideIcons.share2,
-                          title: 'Share App',
-                          subtitle: 'Share Zai Toon with your friends',
-                          onTap: () async {
-                            _showParentalGate(() {
-                              shareApp(context);
-                            });
-                          },
-                        ),
-                        _buildSettingItem(
-                          icon: LucideIcons.alertCircle,
-                          title: 'About Us',
-                          subtitle: 'Learn more about zaitoon',
-                          onTap: () {
-                            _websiteD4dx();
-                          },
-                        ),
-                        _buildSettingItem(
-                          icon: LucideIcons.messageCircle,
-                          title: 'Raise bug / Feedback',
-                          subtitle: 'Help us improve your experience',
-                          onTap: () {
-                            _showParentalGate(() {
-                              launchEmailFeedback();
-                            });
-                          },
-                        ),
-                        Consumer<AuthProvider>(
-                          builder: (context, value, child) => _buildSettingItem(
-                            icon: !authProvider.isSignedIn
-                                ? LucideIcons.user
-                                : LucideIcons.userMinus,
-                            title: !authProvider.isSignedIn
-                                ? 'Create Account'
-                                : 'Delete Account',
-                            subtitle: !authProvider.isSignedIn
-                                ? 'Sign in to your account'
-                                : 'Permanently delete your account',
-                            onTap: () {
-                              _showParentalGate(() {
-                                !authProvider.isSignedIn
-                                    ? navigatePR(
-                                        context: context,
-                                        screen: const AuthScreen(),
-                                      )
-                                    : showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            backgroundColor: ColorClass.white,
-                                            title: const Text(
-                                              'Delete Account',
-                                              style: TextStyle(
-                                                  color: Colors.black),
-                                            ),
-                                            content: const Text(
-                                              'Are you sure you want to delete your account? This action cannot be undone.',
-                                              style: TextStyle(
-                                                  color: Colors.black87),
-                                            ),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () =>
-                                                    Navigator.of(context).pop(),
-                                                child: const Text('Cancel'),
-                                              ),
-                                              TextButton(
-                                                onPressed: () {
-                                                  Navigator.of(context).pop();
-                                                  value.signOut(context);
-                                                  navigatePR(
-                                                    context: context,
-                                                    screen: const AuthScreen(),
-                                                  );
-                                                },
-                                                child: const Text(
-                                                  'Delete',
-                                                  style: TextStyle(
-                                                      color: Colors.red),
-                                                ),
-                                              ),
-                                            ],
-                                          );
-                                        },
-                                      );
-                              });
-                            },
-                          ),
-                        ),
-                        Consumer<AuthProvider>(
-                          builder: (context, value, child) => _buildSettingItem(
-                            icon: !authProvider.isSignedIn
-                                ? LucideIcons.user
-                                : LucideIcons.logOut,
-                            title: !authProvider.isSignedIn
-                                ? 'Sign In'
-                                : 'Sign Out',
-                            subtitle: !authProvider.isSignedIn
-                                ? 'Sign in to your account'
-                                : 'Sign out of account',
-                            onTap: () {
-                              _showParentalGate(() {
-                                !authProvider.isSignedIn
-                                    ? navigatePR(
-                                        context: context,
-                                        screen: const AuthScreen(),
-                                      )
-                                    : value.signOut(context);
-                              });
-                            },
-                          ),
-                        ),
-                        _buildSettingItem(
-                          icon: LucideIcons.phone,
-                          title: 'Contact Us',
-                          subtitle: 'Contact us for any support',
-                          onTap: () {
-                            _showParentalGate(() {
-                              navigatePR(
-                                context: context,
-                                screen: const ContactUs(),
-                              );
-                            });
-                          },
-                        ),
-                        const SizedBox(height: 30),
-                        const Center(
-                          child: Text(
-                            'Version 1.0.15',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        Column(
+                    ),
+                    const SizedBox(height: 20),
+                    // Settings Items
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 18),
+                        child: ListView(
                           children: [
-                            const Text(
-                              'Powered By',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey,
+                            _buildSettingItem(
+                              icon: LucideIcons.user,
+                              title: 'My Profile',
+                              subtitle: 'Manage your personal information',
+                              onTap: () {
+                                _showParentalGate(() {
+                                  // ignore: unrelated_type_equality_checks
+                                  if (authProvider.isSignedIn) {
+                                    navigatePR(
+                                      context: context,
+                                      screen: const UserDataCollection(
+                                        isFromOnboarding: false,
+                                      ),
+                                    );
+                                  } else {
+                                    navigatePR(
+                                      context: context,
+                                      screen: const AuthScreen(),
+                                    );
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Please sign in to access this feature',
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                });
+                              },
+                            ),
+                            // _buildSettingItem(
+                            //   icon: Icons.golf_course_rounded,
+                            //   title: 'Reward',
+                            //   subtitle: 'View your reading progress',
+                            //   onTap: () {
+                            //     navigatePR(
+                            //         context: context,
+                            //         screen: const RewardScreen(
+                            //           storiesCompleted:
+                            //               15, // Number of completed stories
+                            //           totalReadingMinutes:
+                            //               240, // Total reading time in minutes
+                            //           currentStreak: 5, // Current daily streak
+                            //           longestStreak: 7, // Longest streak achieved
+                            //           completionRate: 75.5, // Completion percentage
+                            //         ));
+                            //   },
+                            // ),
+                            _buildSettingItem(
+                              icon: LucideIcons.globe,
+                              title: 'Language',
+                              subtitle: 'Change your preferred language',
+                              onTap: () {
+                                navigatePR(
+                                  context: context,
+                                  screen: const LanguageSelection(),
+                                );
+                              },
+                            ),
+                            _buildSettingItem(
+                              icon: LucideIcons.share2,
+                              title: 'Share App',
+                              subtitle: 'Share Zai Toon with your friends',
+                              onTap: () async {
+                                _showParentalGate(() {
+                                  shareApp(context);
+                                });
+                              },
+                            ),
+                            _buildSettingItem(
+                              icon: LucideIcons.alertCircle,
+                              title: 'About Us',
+                              subtitle: 'Learn more about zaitoon',
+                              onTap: () {
+                                _websiteD4dx();
+                              },
+                            ),
+                            _buildSettingItem(
+                              icon: LucideIcons.messageCircle,
+                              title: 'Raise bug / Feedback',
+                              subtitle: 'Help us improve your experience',
+                              onTap: () {
+                                _showParentalGate(() {
+                                  launchEmailFeedback();
+                                });
+                              },
+                            ),
+                            Consumer<AuthProvider>(
+                              builder: (context, value, child) =>
+                                  _buildSettingItem(
+                                icon: !authProvider.isSignedIn
+                                    ? LucideIcons.user
+                                    : LucideIcons.userMinus,
+                                title: !authProvider.isSignedIn
+                                    ? 'Create Account'
+                                    : 'Delete Account',
+                                subtitle: !authProvider.isSignedIn
+                                    ? 'Sign in to your account'
+                                    : 'Permanently delete your account',
+                                onTap: () {
+                                  _showParentalGate(() {
+                                    !authProvider.isSignedIn
+                                        ? navigatePR(
+                                            context: context,
+                                            screen: const AuthScreen(),
+                                          )
+                                        : showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                backgroundColor:
+                                                    ColorClass.white,
+                                                title: const Text(
+                                                  'Delete Account',
+                                                  style: TextStyle(
+                                                      color: Colors.black),
+                                                ),
+                                                content: const Text(
+                                                  'Are you sure you want to delete your account? This action cannot be undone.',
+                                                  style: TextStyle(
+                                                      color: Colors.black87),
+                                                ),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () =>
+                                                        Navigator.of(context)
+                                                            .pop(),
+                                                    child: const Text('Cancel'),
+                                                  ),
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                      value.signOut(context);
+                                                      navigatePR(
+                                                        context: context,
+                                                        screen:
+                                                            const AuthScreen(),
+                                                      );
+                                                    },
+                                                    child: const Text(
+                                                      'Delete',
+                                                      style: TextStyle(
+                                                          color: Colors.red),
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
+                                  });
+                                },
                               ),
                             ),
-                            const SizedBox(height: 8),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                            Consumer<AuthProvider>(
+                              builder: (context, value, child) =>
+                                  _buildSettingItem(
+                                icon: !authProvider.isSignedIn
+                                    ? LucideIcons.user
+                                    : LucideIcons.logOut,
+                                title: !authProvider.isSignedIn
+                                    ? 'Sign In'
+                                    : 'Sign Out',
+                                subtitle: !authProvider.isSignedIn
+                                    ? 'Sign in to your account'
+                                    : 'Sign out of account',
+                                onTap: () {
+                                  _showParentalGate(() {
+                                    !authProvider.isSignedIn
+                                        ? navigatePR(
+                                            context: context,
+                                            screen: const AuthScreen(),
+                                          )
+                                        : value.signOut(context);
+                                  });
+                                },
+                              ),
+                            ),
+                            _buildSettingItem(
+                              icon: LucideIcons.phone,
+                              title: 'Contact Us',
+                              subtitle: 'Contact us for any support',
+                              onTap: () {
+                                _showParentalGate(() {
+                                  navigatePR(
+                                    context: context,
+                                    screen: const ContactUs(),
+                                  );
+                                });
+                              },
+                            ),
+                            const SizedBox(height: 30),
+                            Center(
+                              child: Text(
+                                'Version 1.0.15',
+                                style: TextStyleClass.openSans(
+                                  fontSize: 12,
+                                  color:
+                                      isDark ? ColorClass.white : Colors.grey,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            Column(
                               children: [
-                                Image.asset(
-                                  ImageClass.d4Logo,
-                                  height: 60,
-                                  fit: BoxFit.contain,
+                                Text(
+                                  'Powered By',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color:
+                                        isDark ? ColorClass.white : Colors.grey,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Image.asset(
+                                      isDark
+                                          ? ImageClass.d4LogoWhite
+                                          : ImageClass.d4Logo,
+                                      height: 60,
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
+                            const SizedBox(height: 20),
                           ],
                         ),
-                        const SizedBox(height: 20),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
-      ),
+                  ],
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -366,82 +387,90 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required String subtitle,
     required VoidCallback onTap,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: ColorClass.containerBg,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        final isDark = themeProvider.isDarkMode;
+        return Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          decoration: BoxDecoration(
+            color: isDark
+                ? ColorClass.bg.withOpacity(0.5)
+                : ColorClass.containerBg.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                spreadRadius: 1,
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(16),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        ColorClass.grad1,
-                        ColorClass.grad2,
-                        ColorClass.grad3,
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: onTap,
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            ColorClass.grad1,
+                            ColorClass.grad2,
+                            ColorClass.grad3,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        icon,
+                        color: Colors.white,
+                        size: 20,
+                      ),
                     ),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: TextStyleClass.fredoka(
-                          color: Colors.black,
-                          fontSize: 16,
-                        ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            style: TextStyleClass.fredoka(
+                              color: isDark ? ColorClass.white : Colors.black,
+                              fontSize: 16,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            subtitle,
+                            style: TextStyleClass.openSans(
+                              color: isDark
+                                  ? ColorClass.white.withOpacity(0.5)
+                                  : Colors.grey,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        subtitle,
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                    Icon(
+                      Icons.arrow_forward_ios,
+                      color: isDark ? ColorClass.white : Colors.black,
+                      size: 16,
+                    ),
+                  ],
                 ),
-                const Icon(
-                  Icons.arrow_forward_ios,
-                  color: Colors.grey,
-                  size: 16,
-                ),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -522,4 +551,74 @@ Join us in making reading fun for every child! 📖✨''',
       },
     );
   } */
+}
+
+class _ThemeToggle extends StatelessWidget {
+  final bool isDark;
+  final VoidCallback onToggle;
+
+  const _ThemeToggle({required this.isDark, required this.onToggle});
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: isDark ? 'Switch to light mode' : 'Switch to dark mode',
+      button: true,
+      child: InkWell(
+        onTap: onToggle,
+        borderRadius: BorderRadius.circular(24),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOut,
+          height: 36,
+          width: 78,
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: isDark
+                  ? [ColorClass.grad3, ColorClass.grad2]
+                  : [ColorClass.grad1, ColorClass.grad2],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.12),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: const [
+                  Icon(Icons.wb_sunny_rounded, color: Colors.white, size: 18),
+                  Icon(Icons.nights_stay_outlined,
+                      color: Colors.white, size: 18),
+                ],
+              ),
+              AnimatedAlign(
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOut,
+                alignment:
+                    isDark ? Alignment.centerRight : Alignment.centerLeft,
+                child: Container(
+                  height: 22,
+                  width: 22,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

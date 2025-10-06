@@ -35,12 +35,5 @@ class ColorClass {
   static const Color grad3 = Color(0xff501392);
 
   //darkTheme colors
-  static const Color splashBg = Color(0xff2A2C38);
-  static const Color gradient1 = Color(0xffAC28DC);
-  static const Color gradient2 = Color(0xff7E1EB7);
-  static const Color gradient3 = Color(0xff501392);
-  static const primary = Color(0xffAC28DC);
-  static const itemBg = Color(0xff2A2C38);
-  
-
+  static const bg = Color(0xff2A2C38);
 }

@@ -1,7 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:zaitoon/constants/color_class.dart';
 import 'package:zaitoon/constants/textstyle_class.dart';
+import 'package:zaitoon/providers/theme_provider.dart';
 
 class ParentalGate extends StatefulWidget {
   final Function onSuccess;
@@ -56,145 +58,156 @@ class _ParentalGateState extends State<ParentalGate> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: ColorClass.white,
-          borderRadius: BorderRadius.circular(24),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Title
-            Text(
-              'Parental Access\nRequired',
-              textAlign: TextAlign.center,
-              style: TextStyleClass.fredoka(
-                fontSize: 24,
-                color: Colors.black,
-              ),
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        final isDark = themeProvider.isDarkMode;
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: isDark ? ColorClass.black : ColorClass.white,
+              borderRadius: BorderRadius.circular(24),
             ),
-            const SizedBox(height: 24),
-
-            // Description
-            const Text(
-              'This section is for parents only.\nTo continue, please solve this simple\nmath problem:',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey,
-              ),
-            ),
-            const SizedBox(height: 32),
-
-            // Math Problem
-            Text(
-              '$num1 + $num2 =',
-              style: TextStyleClass.fredoka(
-                fontSize: 48,
-                color: Colors.black,
-              ),
-            ),
-            const SizedBox(height: 32),
-
-            // Answer Input
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(50),
-              ),
-              child: TextField(
-                controller: _answerController,
-                keyboardType: TextInputType.number,
-                textAlign: TextAlign.center,
-                style: TextStyleClass.fredoka(
-                  fontSize: 18,
-                  color: Colors.black,
-                ),
-                decoration: InputDecoration(
-                  hintText: 'Type your answer here...',
-                  hintStyle: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey,
-                  ),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 16,
-                  ),
-                  errorText: errorText.isNotEmpty ? errorText : null,
-                ),
-              ),
-            ),
-            const SizedBox(height: 32),
-
-            // Buttons
-            Row(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                // Cancel Button
-                Expanded(
-                  child: Container(
-                    height: 50,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(25),
+                // Title
+                Text(
+                  'Parental Access\nRequired',
+                  textAlign: TextAlign.center,
+                  style: TextStyleClass.fredoka(
+                    fontSize: 24,
+                    color: isDark ? Colors.white : Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Description
+                Text(
+                  'This section is for parents only. To continue, please solve this simple math problem:',
+                  textAlign: TextAlign.center,
+                  style: TextStyleClass.openSans(
+                    fontSize: 16,
+                    color: isDark ? Colors.white : Colors.grey,
+                  ),
+                ),
+                const SizedBox(height: 11),
+
+                // Math Problem
+                Text(
+                  '$num1 + $num2 =',
+                  style: TextStyleClass.openSans(
+                    fontSize: 40,
+                    color: isDark ? Colors.white : Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Answer Input
+                Container(
+                  decoration: BoxDecoration(
+                    color: ColorClass.transparent,
+                  ),
+                  child: TextField(
+                    controller: _answerController,
+                    keyboardType: TextInputType.number,
+                    textAlign: TextAlign.center,
+                    style: TextStyleClass.openSans(
+                      fontSize: 14,
+                      color: isDark ? Colors.white : Colors.black,
                     ),
-                    child: TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: Text(
-                        'Cancel',
-                        style: TextStyleClass.fredoka(
-                          fontSize: 16,
-                          color: Colors.black,
-                        ),
+                    decoration: InputDecoration(
+                      hintText: 'Type your answer here...',
+                      hintStyle: TextStyleClass.openSans(
+                        fontSize: 14,
+                        color: isDark
+                            ? Colors.white.withOpacity(0.5)
+                            : Colors.grey,
                       ),
+                      border: isDark
+                          ? OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(24),
+                              borderSide: BorderSide(color: ColorClass.white),
+                            )
+                          : InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
+                      errorText: errorText.isNotEmpty ? errorText : null,
                     ),
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(height: 30),
 
-                // Confirm Button
-                Expanded(
-                  child: Container(
-                    height: 50,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          ColorClass.grad1,
-                          ColorClass.grad2,
-                          ColorClass.grad3,
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(25),
-                    ),
-                    child: ElevatedButton(
-                      onPressed: _checkAnswer,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        shadowColor: Colors.transparent,
-                        shape: RoundedRectangleBorder(
+                // Buttons
+                Row(
+                  children: [
+                    // Cancel Button
+                    Expanded(
+                      child: Container(
+                        height: 50,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey),
                           borderRadius: BorderRadius.circular(25),
                         ),
-                      ),
-                      child: Text(
-                        'Confirm',
-                        style: TextStyleClass.fredoka(
-                          fontSize: 16,
-                          color: Colors.white,
+                        child: TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: Text(
+                            'Cancel',
+                            style: TextStyleClass.fredoka(
+                              fontSize: 16,
+                              color: isDark ? Colors.white : Colors.black,
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                    const SizedBox(width: 16),
+
+                    // Confirm Button
+                    Expanded(
+                      child: Container(
+                        height: 50,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              ColorClass.grad1,
+                              ColorClass.grad2,
+                              ColorClass.grad3,
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        child: ElevatedButton(
+                          onPressed: _checkAnswer,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                          ),
+                          child: Text(
+                            'Confirm',
+                            style: TextStyleClass.fredoka(
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
