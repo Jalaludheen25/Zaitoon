@@ -16,7 +16,6 @@ import 'package:zaitoon/screens/login_screen/provider/auth_provider.dart';
 import 'package:zaitoon/screens/reading_screen/provider/pdf_provider.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
 import 'package:zaitoon/services/navigation_service.dart';
-import 'package:zaitoon/screens/splash_screen/splashscreen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:zaitoon/screens/standalone_stories/provider/story_provider.dart';
@@ -27,6 +26,11 @@ import 'package:zaitoon/screens/bright_box/provider/bright_box_provider.dart';
 import 'package:zaitoon/screens/registration/providers/registration_provider.dart';
 import 'package:zaitoon/screens/search/provider/search_provider.dart';
 import 'package:zaitoon/screens/ott_watchlist/provider/ott_watchlist_provider.dart';
+// import 'package:zaitoon/screens/splash_screen/splashscreen.dart';
+// import 'package:zaitoon/screens/quiz/screens/quiz_result_screen.dart';
+// import 'package:zaitoon/screens/dummy_quiz_result_detail_screen.dart';
+import 'package:zaitoon/providers/theme_provider.dart';
+import 'package:zaitoon/screens/settings_screen/settings_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -97,14 +101,20 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => BrightBoxProvider()),
         ChangeNotifierProvider(create: (_) => RegistrationProvider()),
         ChangeNotifierProvider(create: (_) => OttWatchlistProvider()),
+        ChangeNotifierProvider(create: (context) => ThemeProvider()),
       ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Zai Toon',
-        theme: AppTheme.lightTheme(context),
-        navigatorKey: NavigationService.navigatorKey,
-        home: const SplashScreen(),
-      ),
+      child: Consumer<ThemeProvider>(builder: (context, themeProvider, child) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Zai Toon',
+          theme: AppTheme.lightTheme(context),
+          darkTheme: AppTheme.darkTheme,
+          themeMode:
+              themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+          navigatorKey: NavigationService.navigatorKey,
+          home: const SettingsScreen(),
+        );
+      }),
     );
   }
 }

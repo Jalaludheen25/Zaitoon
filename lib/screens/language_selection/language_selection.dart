@@ -242,10 +242,7 @@ class LanguageSelection extends StatelessWidget {
                       ),
                       const SizedBox(height: 40),
                       // Next button with gradient
-                      SizedBox(
-                        width: 220,
-                        height: 50,
-                        child: ElevatedButton(
+                      ElevatedButton(
                           onPressed: () {
                             // Navigate to next screen when a language is selected
                             final homeProvider = Provider.of<HomeProvider>(
@@ -264,6 +261,8 @@ class LanguageSelection extends StatelessWidget {
                             ),
                           ),
                           child: Container(
+                            width:217,
+                            height:45,
                             decoration: BoxDecoration(
                               gradient: const LinearGradient(
                                 colors: [
@@ -288,7 +287,7 @@ class LanguageSelection extends StatelessWidget {
                             ),
                           ),
                         ),
-                      ),
+                     
                       const SizedBox(height: 20),
                     ],
                   ),

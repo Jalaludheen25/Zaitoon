@@ -34,6 +34,7 @@ class ImageClass {
   static const String exhibition5 = '${imageRoot}exhibition-5.jpeg';
   static const String malarvadiLogo = '${imageRoot}malarvadi-logo.png';
   static const String d4Logo = '${imageRoot}D4DX _logo.png';
+  static const String d4LogoWhite = '${imageRoot}D4DX _logo_white.png';
   static const String d4dxLogo = '${imageRoot}D4media_logo.png';
   static const String language = '${imageRoot}language-icon.png';
   static const String shareAppAndroid = '${imageRoot}gplay-wt.png';
