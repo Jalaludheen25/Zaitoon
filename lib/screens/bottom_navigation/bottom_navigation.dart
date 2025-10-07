@@ -17,6 +17,7 @@ import 'package:zaitoon/screens/ott_watchlist/ott_watchlist_screen.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:zaitoon/screens/kids_corner_screen/kids_corner_screen.dart';
+import 'package:zaitoon/providers/theme_provider.dart';
 import 'package:zaitoon/screens/quiz/quiz_screen.dart';
 
 class BottomNavigationScreen extends StatefulWidget {
@@ -98,35 +99,49 @@ class StoryAppBottomNav extends StatelessWidget {
   }
 
   // Helper: build SVG icon with gradient color when selected
-  Widget _buildSvgIcon(String iconPath, bool isSelected, {double size = 24}) {
+  Widget _buildSvgIcon(String iconPath, bool isSelected,
+      {double size = 24, Color? color}) {
     return SvgPicture.asset(
       iconPath,
       width: size,
       height: size,
+      colorFilter:
+          color != null ? ColorFilter.mode(color, BlendMode.srcIn) : null,
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDark =
+        Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
+
     // Build destinations list dynamically
     List<NavigationDestination> destinations = [
       NavigationDestination(
-        icon: const Icon(LucideIcons.home),
+        icon: Icon(LucideIcons.home,
+            color:
+                isDark ? Colors.white70 : ColorClass.black87.withOpacity(0.5)),
         selectedIcon: _buildSvgIcon(IconClass.home, true),
         label: 'Home',
       ),
       NavigationDestination(
-        icon: const Icon(LucideIcons.tv),
+        icon: Icon(LucideIcons.tv,
+            color:
+                isDark ? Colors.white70 : ColorClass.black87.withOpacity(0.5)),
         selectedIcon: _buildSvgIcon(IconClass.tv, true),
         label: 'Watchlist',
       ),
       NavigationDestination(
-        icon: _buildSvgIcon(IconClass.note, true),
+        icon: Icon(LucideIcons.bookOpen,
+            color:
+                isDark ? Colors.white70 : ColorClass.black87.withOpacity(0.5)),
         selectedIcon: _buildSvgIcon(IconClass.kidsCorner, true),
         label: 'kids Corner',
       ),
       NavigationDestination(
-        icon: const Icon(LucideIcons.bookmark),
+        icon: Icon(LucideIcons.bookmark,
+            color:
+                isDark ? Colors.white70 : ColorClass.black87.withOpacity(0.5)),
         selectedIcon: _buildSvgIcon(IconClass.bookmark, true),
         label: 'Bookmarks',
       ),
@@ -136,7 +151,10 @@ class StoryAppBottomNav extends StatelessWidget {
     if (showQuiz) {
       destinations.add(
         NavigationDestination(
-          icon: const Icon(LucideIcons.brainCircuit),
+          icon: Icon(LucideIcons.brain,
+              color: isDark
+                  ? Colors.white70
+                  : ColorClass.black87.withOpacity(0.5)),
           selectedIcon: _buildSvgIcon(IconClass.quiz, true),
           label: 'Quiz',
         ),
@@ -144,7 +162,10 @@ class StoryAppBottomNav extends StatelessWidget {
     } else {
       destinations.add(
         NavigationDestination(
-          icon: const Icon(LucideIcons.user2),
+          icon: Icon(LucideIcons.user,
+              color: isDark
+                  ? Colors.white70
+                  : ColorClass.black87.withOpacity(0.5)),
           selectedIcon: _buildSvgIcon(IconClass.profile, true),
           label: 'profile',
         ),
@@ -173,8 +194,9 @@ class StoryAppBottomNav extends StatelessWidget {
               }
               return TextStyleClass.openSans(
                 fontSize: 12, // Consistent font size for 5 tabs
-
-                color: ColorClass.black87.withOpacity(0.5),
+                color: isDark
+                    ? Colors.white70
+                    : ColorClass.black87.withOpacity(0.5),
               );
             },
           ),
@@ -184,7 +206,7 @@ class StoryAppBottomNav extends StatelessWidget {
         height: 65, // Consistent height for 5 tabs
         selectedIndex: currentIndex,
         onDestinationSelected: onTap,
-        backgroundColor: Colors.white,
+        backgroundColor: isDark ? ColorClass.black : Colors.white,
         indicatorColor: Colors.transparent,
         destinations: destinations,
       ),

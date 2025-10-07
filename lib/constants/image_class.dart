@@ -3,6 +3,7 @@ class ImageClass {
   static const String appIcon = '${imageRoot}appicon.png';
   static const String appIconPlain = '${imageRoot}appicon_plain.png';
   static const String splashBg = '${imageRoot}spalsh-bg.png';
+  static const String splashBgDark = '${imageRoot}LogoWhite.png';
   static const String whiteLogo = '${imageRoot}appicon_plain.png';
   static const String loginBg = '${imageRoot}loginbg.png';
   static const String languageBg = '${imageRoot}languageBg.png';
@@ -11,6 +12,11 @@ class ImageClass {
   static const String onboard2 = '${imageRoot}onboard2.png';
   static const String onboard3 = '${imageRoot}onboard3.png';
   static const String onboard4 = '${imageRoot}onboard4.png';
+
+  static const String dark1 = '${imageRoot}darkonboard1.png';
+  static const String dark2 = '${imageRoot}dark2.png';
+  static const String dark3 = '${imageRoot}dark3.png';
+  static const String dark4 = '${imageRoot}dark4.png';
 
   //Avatar eLlipses
   static const String avatar1 = '${imageRoot}avatar1.jpeg';

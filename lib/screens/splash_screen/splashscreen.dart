@@ -3,7 +3,7 @@
 // import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-// import 'package:zaitoon/constants/color_class.dart';
+import 'package:zaitoon/constants/color_class.dart';
 import 'package:flutter/services.dart';
 import 'package:zaitoon/constants/image_class.dart';
 import 'package:zaitoon/helper/navigation_helper.dart';
@@ -15,6 +15,7 @@ import 'package:zaitoon/screens/login_screen/provider/auth_provider.dart';
 import 'package:zaitoon/screens/splash_screen/onboarding_screens.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/user_data_collection_screen.dart';
+import 'package:zaitoon/providers/theme_provider.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -146,37 +147,48 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark,
-        statusBarBrightness: Brightness.light,
-        systemNavigationBarColor: Colors.transparent,
-        systemNavigationBarIconBrightness: Brightness.dark,
-      ),
-    );
-    return Scaffold(
-      backgroundColor: const Color.fromRGBO(255, 255, 255, 1.0),
-      body: SizedBox(
-        height: 852.0,
-        width: MediaQuery.of(context).size.width,
-        child: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) => Stack(
-            children: [
-              // Centered Color Logo
-              Positioned(
-                top: (constraints.maxHeight / 2) - (852.0 / 2 - 326.0),
-                left: (constraints.maxWidth / 2) - (393.0 / 2 - 96.0),
-                child: _buildCenteredLogo(),
-              ),
-            ],
+    // Use Consumer to listen to theme changes
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        final isDark = themeProvider.isDarkMode;
+
+        SystemChrome.setSystemUIOverlayStyle(
+          SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness:
+                isDark ? Brightness.light : Brightness.dark,
+            statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
+            systemNavigationBarColor: Colors.transparent,
+            systemNavigationBarIconBrightness:
+                isDark ? Brightness.light : Brightness.dark,
           ),
-        ),
-      ),
+        );
+
+        return Scaffold(
+          backgroundColor: isDark ? Colors.black87 : ColorClass.white,
+          body: SizedBox(
+            height: 852.0,
+            width: MediaQuery.of(context).size.width,
+            child: LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints constraints) =>
+                  Stack(
+                children: [
+                  // Centered Color Logo
+                  Positioned(
+                    top: (constraints.maxHeight / 2) - (852.0 / 2 - 326.0),
+                    left: (constraints.maxWidth / 2) - (393.0 / 2 - 96.0),
+                    child: _buildCenteredLogo(isDark),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildCenteredLogo() {
+  Widget _buildCenteredLogo(bool isDark) {
     return FadeTransition(
       opacity: _fadeAnimation,
       child: AnimatedBuilder(
@@ -191,7 +203,7 @@ class _SplashScreenState extends State<SplashScreen>
                 height: 200.0,
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: AssetImage(ImageClass.whiteLogo),
+                    image: AssetImage(isDark ? ImageClass.splashBgDark : ImageClass.whiteLogo),
                     fit: BoxFit.cover,
                   ),
                 ),
