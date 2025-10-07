@@ -20,6 +20,7 @@ import 'package:zaitoon/screens/bright_box/models/bright_box_models.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:http/http.dart' as http;
+import 'package:zaitoon/providers/theme_provider.dart';
 
 class BrightBoxStoryReaderScreen extends StatefulWidget {
   final BrightBoxStory story;
@@ -133,88 +134,95 @@ class _BrightBoxStoryReaderScreenState extends State<BrightBoxStoryReaderScreen>
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setEnabledSystemUIMode(
-      SystemUiMode.edgeToEdge,
-      overlays: [SystemUiOverlay.top],
-    );
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark,
-        systemNavigationBarColor: Colors.transparent,
-      ),
-    );
-
-    return Scaffold(
-      body: Stack(
-        children: [
-          // Progress Indicator
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: LinearProgressIndicator(
-              value: _totalPages == 0 ? 0 : _currentPage / _totalPages,
-              backgroundColor: ColorClass.primaryColor.withOpacity(0.1),
-              color: ColorClass.primaryColor,
-              minHeight: 3,
-            ),
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        SystemChrome.setEnabledSystemUIMode(
+          SystemUiMode.edgeToEdge,
+          overlays: [SystemUiOverlay.top],
+        );
+        SystemChrome.setSystemUIOverlayStyle(
+          SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness:
+                themeProvider.isDarkMode ? Brightness.light : Brightness.dark,
+            systemNavigationBarColor: Colors.transparent,
           ),
-          // PDF Viewer
-          if (_localPdfPath != null && !_isLoading)
-            PDFView(
-              filePath: _localPdfPath!,
-              enableSwipe: true,
-              swipeHorizontal: false,
-              autoSpacing: false,
-              pageFling: false,
-              pageSnap: true,
-              defaultPage: 0,
-              fitPolicy: FitPolicy.WIDTH,
-              preventLinkNavigation: false,
-              onRender: (pages) {
-                setState(() {
-                  _totalPages = pages!;
-                });
-              },
-              onPageChanged: (int? page, int? total) {
-                if (page != null) {
-                  setState(() {
-                    _currentPage = page + 1;
-                  });
-                  _checkIfAtBottom();
-                }
-              },
-              onError: (error) {
-                debugPrint('PDF View Error: $error');
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('PDF Error: ${error.toString()}'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                }
-              },
-            ),
+        );
 
-          // Error state when PDF fails to load
-          if (!_isLoading && _localPdfPath == null) _buildErrorState(),
+        return Scaffold(
+          backgroundColor:
+              themeProvider.isDarkMode ? ColorClass.black : ColorClass.white,
+          body: Stack(
+            children: [
+              // Progress Indicator
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: LinearProgressIndicator(
+                  value: _totalPages == 0 ? 0 : _currentPage / _totalPages,
+                  backgroundColor: ColorClass.primaryColor.withOpacity(0.1),
+                  color: ColorClass.primaryColor,
+                  minHeight: 3,
+                ),
+              ),
+              // PDF Viewer
+              if (_localPdfPath != null && !_isLoading)
+                PDFView(
+                  filePath: _localPdfPath!,
+                  enableSwipe: true,
+                  swipeHorizontal: false,
+                  autoSpacing: false,
+                  pageFling: false,
+                  pageSnap: true,
+                  defaultPage: 0,
+                  fitPolicy: FitPolicy.WIDTH,
+                  preventLinkNavigation: false,
+                  onRender: (pages) {
+                    setState(() {
+                      _totalPages = pages!;
+                    });
+                  },
+                  onPageChanged: (int? page, int? total) {
+                    if (page != null) {
+                      setState(() {
+                        _currentPage = page + 1;
+                      });
+                      _checkIfAtBottom();
+                    }
+                  },
+                  onError: (error) {
+                    debugPrint('PDF View Error: $error');
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('PDF Error: ${error.toString()}'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  },
+                ),
 
-          // Loading Overlay
-          if (_isLoading) _buildLoadingOverlay(),
+              // Error state when PDF fails to load
+              if (!_isLoading && _localPdfPath == null) _buildErrorState(),
 
-          // Top Bar
-          _buildTopBar(),
+              // Loading Overlay
+              if (_isLoading) _buildLoadingOverlay(),
 
-          // Reading Helper
-          if (_isAtBottom) _buildReadingCompleteBadge(),
+              // Top Bar
+              _buildTopBar(),
 
-          // Reading Guide Mascot
-          if (!_isLoading && !_isAtBottom && _localPdfPath != null)
-            _buildReadingGuide(),
-        ],
-      ),
+              // Reading Helper
+              if (_isAtBottom) _buildReadingCompleteBadge(),
+
+              // Reading Guide Mascot
+              if (!_isLoading && !_isAtBottom && _localPdfPath != null)
+                _buildReadingGuide(),
+            ],
+          ),
+        );
+      },
     );
   }
 

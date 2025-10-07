@@ -10,6 +10,7 @@ import 'package:zaitoon/constants/textstyle_class.dart';
 import 'package:zaitoon/screens/ott_watchlist/provider/ott_watchlist_provider.dart';
 import 'package:zaitoon/screens/ott_watchlist/models/ott_content_model.dart';
 import 'package:zaitoon/utils/cache_manager.dart';
+import 'package:zaitoon/providers/theme_provider.dart';
 
 class OttWatchlistScreen extends StatefulWidget {
   const OttWatchlistScreen({super.key});
@@ -29,105 +30,117 @@ class _OttWatchlistScreenState extends State<OttWatchlistScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: ColorClass.white,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ShaderMask(
-                shaderCallback: (bounds) => LinearGradient(
-                  colors: [
-                    ColorClass.grad1,
-                    ColorClass.grad2,
-                    ColorClass.grad3,
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ).createShader(bounds),
-                child: Text(
-                  'Watchlist',
-                  style: TextStyleClass.fredoka(
-                    fontSize: 24,
-                    color: ColorClass.white,
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return Scaffold(
+          backgroundColor:
+              themeProvider.isDarkMode ? ColorClass.black : ColorClass.white,
+          body: SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: ShaderMask(
+                    shaderCallback: (bounds) => LinearGradient(
+                      colors: [
+                        ColorClass.grad1,
+                        ColorClass.grad2,
+                        ColorClass.grad3,
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ).createShader(bounds),
+                    child: Text(
+                      'Watchlist',
+                      style: TextStyleClass.fredoka(
+                        fontSize: 24,
+                        color: ColorClass.white,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
 
-            // Watchlist Content
-            Expanded(
-              child: Consumer<OttWatchlistProvider>(
-                builder: (context, provider, child) {
-                  if (provider.isLoading) {
-                    return const Center(
-                      child: CircularProgressIndicator(
-                        color: ColorClass.primaryColor,
-                      ),
-                    );
-                  }
-
-                  if (provider.watchlist.isEmpty) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            LucideIcons.tv,
-                            size: 64,
-                            color: ColorClass.grey.withOpacity(0.5),
+                // Watchlist Content
+                Expanded(
+                  child: Consumer<OttWatchlistProvider>(
+                    builder: (context, provider, child) {
+                      if (provider.isLoading) {
+                        return const Center(
+                          child: CircularProgressIndicator(
+                            color: ColorClass.primaryColor,
                           ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Your watchlist is empty',
-                            style: TextStyleClass.fredoka(
-                              fontSize: 18,
-                              color: ColorClass.black,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Add movies and shows to watch later',
-                            style: TextStyleClass.fredoka(
-                              fontSize: 14,
-                              color: ColorClass.grey,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: GridView.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 1,
-                        mainAxisSpacing: 16,
-                        childAspectRatio:
-                            1.6, // Wider aspect ratio for the cards
-                      ),
-                      itemCount: provider.watchlist.length,
-                      itemBuilder: (context, index) {
-                        final content = provider.watchlist[index];
-                        return OttContentCard(
-                          content: content,
-                          onTap: () => _playContent(content),
-                          onRemove: () => _removeFromWatchlist(content),
                         );
-                      },
-                    ),
-                  );
-                },
-              ),
+                      }
+
+                      if (provider.watchlist.isEmpty) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                LucideIcons.tv,
+                                size: 64,
+                                color: themeProvider.isDarkMode
+                                    ? ColorClass.grey400.withOpacity(0.5)
+                                    : ColorClass.grey.withOpacity(0.5),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Your watchlist is empty',
+                                style: TextStyleClass.fredoka(
+                                  fontSize: 18,
+                                  color: themeProvider.isDarkMode
+                                      ? ColorClass.white
+                                      : ColorClass.black,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Add movies and shows to watch later',
+                                style: TextStyleClass.fredoka(
+                                  fontSize: 14,
+                                  color: themeProvider.isDarkMode
+                                      ? ColorClass.grey400
+                                      : ColorClass.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: GridView.builder(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 1,
+                            mainAxisSpacing: 16,
+                            childAspectRatio:
+                                1.6, // Wider aspect ratio for the cards
+                          ),
+                          itemCount: provider.watchlist.length,
+                          itemBuilder: (context, index) {
+                            final content = provider.watchlist[index];
+                            return OttContentCard(
+                              content: content,
+                              onTap: () => _playContent(content),
+                              onRemove: () => _removeFromWatchlist(content),
+                              isDarkMode: themeProvider.isDarkMode,
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -182,12 +195,14 @@ class OttContentCard extends StatelessWidget {
   final OttContentModel content;
   final VoidCallback onTap;
   final VoidCallback onRemove;
+  final bool isDarkMode;
 
   const OttContentCard({
     super.key,
     required this.content,
     required this.onTap,
     required this.onRemove,
+    required this.isDarkMode,
   });
 
   @override
@@ -197,10 +212,12 @@ class OttContentCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          color: ColorClass.white,
+          color: isDarkMode ? ColorClass.bg.withOpacity(0.5) : ColorClass.white,
           boxShadow: [
             BoxShadow(
-              color: ColorClass.grey400.withOpacity(0.2),
+              color: isDarkMode
+                  ? ColorClass.black.withOpacity(0.3)
+                  : ColorClass.grey400.withOpacity(0.2),
               spreadRadius: 1,
               blurRadius: 8,
               offset: const Offset(0, 2),
@@ -229,22 +246,30 @@ class OttContentCard extends StatelessWidget {
                         width: double.infinity,
                         height: double.infinity,
                         placeholder: (context, url) => Container(
-                          color: ColorClass.grey400.withOpacity(0.2),
-                          child: const Center(
+                          color: isDarkMode
+                              ? ColorClass.grey900.withOpacity(0.3)
+                              : ColorClass.grey400.withOpacity(0.2),
+                          child: Center(
                             child: CircularProgressIndicator(
-                              color: ColorClass.grey,
+                              color: isDarkMode
+                                  ? ColorClass.grey400
+                                  : ColorClass.grey,
                               strokeWidth: 2,
                             ),
                           ),
                         ),
                         errorWidget: (context, url, error) => Container(
-                          color: ColorClass.grey400.withOpacity(0.2),
+                          color: isDarkMode
+                              ? ColorClass.grey900.withOpacity(0.3)
+                              : ColorClass.grey400.withOpacity(0.2),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(
                                 Icons.play_circle_outline,
-                                color: ColorClass.grey,
+                                color: isDarkMode
+                                    ? ColorClass.grey400
+                                    : ColorClass.grey,
                                 size: 48,
                               ),
                               const SizedBox(height: 8),
@@ -252,7 +277,9 @@ class OttContentCard extends StatelessWidget {
                                 'Video Thumbnail',
                                 style: TextStyleClass.poppinsRegular(
                                   fontSize: 12,
-                                  color: ColorClass.grey,
+                                  color: isDarkMode
+                                      ? ColorClass.grey400
+                                      : ColorClass.grey,
                                 ),
                               ),
                             ],
@@ -310,10 +337,12 @@ class OttContentCard extends StatelessWidget {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
-              decoration: const BoxDecoration(
-                color: ColorClass.white,
+              decoration: BoxDecoration(
+                color: isDarkMode
+                    ? ColorClass.bg.withOpacity(0.5)
+                    : ColorClass.white,
                 borderRadius:
-                    BorderRadius.vertical(bottom: Radius.circular(16)),
+                    const BorderRadius.vertical(bottom: Radius.circular(16)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -323,7 +352,7 @@ class OttContentCard extends StatelessWidget {
                     content.title,
                     style: TextStyleClass.poppinsSemiBold(
                       fontSize: 18,
-                      color: ColorClass.black,
+                      color: isDarkMode ? ColorClass.white : ColorClass.black,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -333,7 +362,7 @@ class OttContentCard extends StatelessWidget {
                     '${content.year} • ${content.genre} • ${content.duration}',
                     style: TextStyleClass.poppinsRegular(
                       fontSize: 14,
-                      color: ColorClass.grey,
+                      color: isDarkMode ? ColorClass.grey400 : ColorClass.grey,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

@@ -40,6 +40,7 @@ import 'package:zaitoon/screens/bright_box/provider/bright_box_provider.dart';
 import 'package:zaitoon/screens/bright_box/models/bright_box_models.dart';
 import 'package:zaitoon/screens/bright_box/screens/bright_box_subcategories_screen.dart';
 import 'package:zaitoon/screens/bright_box/screens/bright_box_home_screen.dart';
+import 'package:zaitoon/providers/theme_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -208,157 +209,183 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setEnabledSystemUIMode(
-      SystemUiMode.edgeToEdge,
-      overlays: [
-        SystemUiOverlay.top
-      ], // Empty array hides all overlays (both top and bottom)
-    );
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Consumer3<UserDataProvider, StoriesProvider, BookmarkProvider>(
-          builder: (context, user, storiesProvider, bookmarkProvider, _) {
-            services.SystemChrome.setSystemUIOverlayStyle(
-                const services.SystemUiOverlayStyle(
-              statusBarColor: Colors.transparent,
-              statusBarIconBrightness: Brightness.dark,
-              statusBarBrightness: Brightness.light,
-              systemNavigationBarColor: Colors.white,
-              systemNavigationBarIconBrightness: Brightness.dark,
-            ));
-            return ListView(
-              padding: const EdgeInsets.symmetric(vertical: 0),
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 10),
-                  child: _buildGreetingSection(user.name ?? '', user),
-                ),
-                Consumer<HomeProvider>(
-                  builder: (context, provider, _) {
-                    if (provider.isHighlightedLoading) {
-                      return const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(20.0),
-                          child: CircularProgressIndicator(
-                            color: ColorClass.primaryColor,
-                          ),
-                        ),
-                      );
-                    }
-                    if (provider.highlightedEpisodes == null &&
-                        provider.singleStoryModel == null) {
-                      return const SizedBox.shrink();
-                    }
-                    return HighlightedCards(
-                      storyModel: provider.storyModel,
-                      singleStoryModel: provider.singleStoryModel,
-                      episodes: provider.highlightedEpisodes?.data ?? [],
-                      selectedLanguage: provider.selectedLanguage,
-                      onEpisodeTap: (episode) {
-                        navigatePR(
-                          context: context,
-                          screen: StoryReadingScreen(
-                            id: episode.id.toString(),
-                            title: _getEpisodeTitle(
-                                episode, provider.selectedLanguage),
-                            thumbnail:
-                                ApiUrls.assetBaseUrl + episode.coverImage!,
-                            tag: '',
-                            pdfUrl: ApiUrls.assetBaseUrl +
-                                _getEpisodeFile(
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        SystemChrome.setEnabledSystemUIMode(
+          SystemUiMode.edgeToEdge,
+          overlays: [
+            SystemUiOverlay.top
+          ], // Empty array hides all overlays (both top and bottom)
+        );
+        return Scaffold(
+          backgroundColor:
+              themeProvider.isDarkMode ? ColorClass.black : Colors.white,
+          body: SafeArea(
+            child:
+                Consumer3<UserDataProvider, StoriesProvider, BookmarkProvider>(
+              builder: (context, user, storiesProvider, bookmarkProvider, _) {
+                services.SystemChrome.setSystemUIOverlayStyle(
+                    services.SystemUiOverlayStyle(
+                  statusBarColor: Colors.transparent,
+                  statusBarIconBrightness: themeProvider.isDarkMode
+                      ? Brightness.light
+                      : Brightness.dark,
+                  statusBarBrightness: themeProvider.isDarkMode
+                      ? Brightness.dark
+                      : Brightness.light,
+                  systemNavigationBarColor: themeProvider.isDarkMode
+                      ? ColorClass.black
+                      : Colors.white,
+                  systemNavigationBarIconBrightness: themeProvider.isDarkMode
+                      ? Brightness.light
+                      : Brightness.dark,
+                ));
+                return ListView(
+                  padding: const EdgeInsets.symmetric(vertical: 0),
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: _buildGreetingSection(
+                          user.name ?? '', user, themeProvider.isDarkMode),
+                    ),
+                    Consumer<HomeProvider>(
+                      builder: (context, provider, _) {
+                        if (provider.isHighlightedLoading) {
+                          return const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(20.0),
+                              child: CircularProgressIndicator(
+                                color: ColorClass.primaryColor,
+                              ),
+                            ),
+                          );
+                        }
+                        if (provider.highlightedEpisodes == null &&
+                            provider.singleStoryModel == null) {
+                          return const SizedBox.shrink();
+                        }
+                        return HighlightedCards(
+                          storyModel: provider.storyModel,
+                          singleStoryModel: provider.singleStoryModel,
+                          episodes: provider.highlightedEpisodes?.data ?? [],
+                          selectedLanguage: provider.selectedLanguage,
+                          onEpisodeTap: (episode) {
+                            navigatePR(
+                              context: context,
+                              screen: StoryReadingScreen(
+                                id: episode.id.toString(),
+                                title: _getEpisodeTitle(
                                     episode, provider.selectedLanguage),
-                          ),
+                                thumbnail:
+                                    ApiUrls.assetBaseUrl + episode.coverImage!,
+                                tag: '',
+                                pdfUrl: ApiUrls.assetBaseUrl +
+                                    _getEpisodeFile(
+                                        episode, provider.selectedLanguage),
+                              ),
+                            );
+                          },
+                          onStoryTap: (story) {
+                            navigatePR(
+                              context: context,
+                              screen: StoryReadingScreen(
+                                id: story.id.toString(),
+                                title: _getStoryTitle(
+                                    story, provider.selectedLanguage),
+                                thumbnail:
+                                    ApiUrls.assetBaseUrl + story.coverImage!,
+                                tag: story.tag!,
+                                pdfUrl: ApiUrls.assetBaseUrl +
+                                    _getStoryFile(
+                                        story, provider.selectedLanguage),
+                              ),
+                            );
+                          },
                         );
                       },
-                      onStoryTap: (story) {
-                        navigatePR(
-                          context: context,
-                          screen: StoryReadingScreen(
-                            id: story.id.toString(),
-                            title: _getStoryTitle(
-                                story, provider.selectedLanguage),
-                            thumbnail: ApiUrls.assetBaseUrl + story.coverImage!,
-                            tag: story.tag!,
-                            pdfUrl: ApiUrls.assetBaseUrl +
-                                _getStoryFile(story, provider.selectedLanguage),
-                          ),
+                    ),
+                    const SizedBox(height: 20),
+                    Consumer<HomeProvider>(
+                      builder: (context, homeProvider, _) {
+                        final items = homeProvider.activeReadingProgress;
+                        if (items.isEmpty) return const SizedBox.shrink();
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildSectionTitle('Continue Reading',
+                                isDarkMode: themeProvider.isDarkMode),
+                            const SizedBox(height: 12),
+                            _buildContinueReadingList(context, items),
+                          ],
                         );
                       },
-                    );
-                  },
-                ),
-                const SizedBox(height: 20),
-                Consumer<HomeProvider>(
-                  builder: (context, homeProvider, _) {
-                    final items = homeProvider.activeReadingProgress;
-                    if (items.isEmpty) return const SizedBox.shrink();
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildSectionTitle('Continue Reading'),
-                        const SizedBox(height: 12),
-                        _buildContinueReadingList(context, items),
-                      ],
-                    );
-                  },
-                ),
-                Consumer<StoriesProvider>(
-                  builder: (context, provider, child) {
-                    final singleStories =
-                        (provider.singleStoryModel?.data ?? [])
-                            .reversed
-                            .toList();
-                    if (singleStories.isEmpty) {
-                      return const SizedBox.shrink();
-                    }
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildSectionTitle('Single Stories',
-                            trailing: _buildSeeAll(context)),
-                        const SizedBox(height: 12),
-                        _buildSingleStoriesList(context, singleStories),
-                        const SizedBox(height: 24),
-                      ],
-                    );
-                  },
-                ),
-                _buildSectionTitle('Recent Upload videos'),
-                const SizedBox(height: 12),
-                _buildRecentUploadsList(context),
-                const SizedBox(height: 24),
-                _buildSectionTitle('All Stories'),
-                const SizedBox(height: 12),
-                _buildAllStoriesHorizontal(context),
-                const SizedBox(height: 24),
-                Consumer2<BrightBoxProvider, HomeProvider>(
-                  builder: (context, brightBoxProvider, homeProvider, child) {
-                    if (brightBoxProvider.categories.isEmpty) {
-                      return const SizedBox.shrink();
-                    }
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildSectionTitle('Bright Box',
-                            trailing: _buildBrightBoxSeeAll(context)),
-                        const SizedBox(height: 12),
-                        _buildBrightBoxCategoriesList(context,
-                            brightBoxProvider.categories, homeProvider),
-                        const SizedBox(height: 24),
-                      ],
-                    );
-                  },
-                ),
-              ],
-            );
-          },
-        ),
-      ),
+                    ),
+                    Consumer<StoriesProvider>(
+                      builder: (context, provider, child) {
+                        final singleStories =
+                            (provider.singleStoryModel?.data ?? [])
+                                .reversed
+                                .toList();
+                        if (singleStories.isEmpty) {
+                          return const SizedBox.shrink();
+                        }
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildSectionTitle('Single Stories',
+                                trailing: _buildSeeAll(
+                                    context, themeProvider.isDarkMode),
+                                isDarkMode: themeProvider.isDarkMode),
+                            const SizedBox(height: 12),
+                            _buildSingleStoriesList(context, singleStories),
+                            const SizedBox(height: 24),
+                          ],
+                        );
+                      },
+                    ),
+                    _buildSectionTitle('Recent Upload videos',
+                        isDarkMode: themeProvider.isDarkMode),
+                    const SizedBox(height: 12),
+                    _buildRecentUploadsList(context),
+                    const SizedBox(height: 24),
+                    _buildSectionTitle('All Stories',
+                        isDarkMode: themeProvider.isDarkMode),
+                    const SizedBox(height: 12),
+                    _buildAllStoriesHorizontal(context),
+                    const SizedBox(height: 24),
+                    Consumer2<BrightBoxProvider, HomeProvider>(
+                      builder:
+                          (context, brightBoxProvider, homeProvider, child) {
+                        if (brightBoxProvider.categories.isEmpty) {
+                          return const SizedBox.shrink();
+                        }
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildSectionTitle('Bright Box',
+                                trailing: _buildBrightBoxSeeAll(
+                                    context, themeProvider.isDarkMode),
+                                isDarkMode: themeProvider.isDarkMode),
+                            const SizedBox(height: 12),
+                            _buildBrightBoxCategoriesList(context,
+                                brightBoxProvider.categories, homeProvider),
+                            const SizedBox(height: 24),
+                          ],
+                        );
+                      },
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildGreetingSection(String name, UserDataProvider user) {
+  Widget _buildGreetingSection(
+      String name, UserDataProvider user, bool isDarkMode) {
     final String avatarAsset = user.avatar ??
         (user.gender == 'girl' ? ImageClass.avatar2 : ImageClass.avatar1);
     return Column(
@@ -375,7 +402,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     style: GoogleFonts.fredoka(
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
-                      color: Colors.black,
+                      color: isDarkMode ? ColorClass.white : Colors.black,
                     ),
                   ),
                   ShaderMask(
@@ -415,7 +442,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       context: context,
                       screen: const SearchScreen(),
                     ),
-                    icon: const Icon(LucideIcons.search, color: Colors.black),
+                    icon: Icon(LucideIcons.search,
+                        color: isDarkMode ? ColorClass.white : Colors.black),
                   ),
                   const SizedBox(width: 6),
                   ClipRRect(
@@ -437,7 +465,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           'Let’s explore magical stories together!',
           style: GoogleFonts.openSans(
             fontSize: 14,
-            color: Colors.black.withOpacity(0.7),
+            color:
+                isDarkMode ? ColorClass.grey400 : Colors.black.withOpacity(0.7),
           ),
         ),
       ],
@@ -466,7 +495,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   //   );
   // }
 
-  Widget _buildSectionTitle(String title, {Widget? trailing}) {
+  Widget _buildSectionTitle(String title,
+      {Widget? trailing, required bool isDarkMode}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
@@ -477,7 +507,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               style: GoogleFonts.fredoka(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
-                color: Colors.black,
+                color: isDarkMode ? ColorClass.white : Colors.black,
               ),
             ),
           ),
@@ -487,7 +517,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildSeeAll(BuildContext context) {
+  Widget _buildSeeAll(BuildContext context, bool isDarkMode) {
     return TextButton(
       onPressed: () => navigatePR(
         context: context,
@@ -495,12 +525,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       ),
       child: Text(
         'See all',
-        style: GoogleFonts.openSans(color: Colors.black, fontSize: 14),
+        style: GoogleFonts.openSans(
+            color: isDarkMode ? ColorClass.white : Colors.black, fontSize: 14),
       ),
     );
   }
 
-  Widget _buildBrightBoxSeeAll(BuildContext context) {
+  Widget _buildBrightBoxSeeAll(BuildContext context, bool isDarkMode) {
     return TextButton(
       onPressed: () => navigatePR(
         context: context,
@@ -508,7 +539,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       ),
       child: Text(
         'See all',
-        style: GoogleFonts.openSans(color: Colors.black, fontSize: 14),
+        style: GoogleFonts.openSans(
+            color: isDarkMode ? ColorClass.white : Colors.black, fontSize: 14),
       ),
     );
   }

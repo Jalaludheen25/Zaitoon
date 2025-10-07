@@ -17,6 +17,7 @@ import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
 import 'package:zaitoon/screens/reading_screen/story_reader_page.dart';
 import 'package:zaitoon/screens/standalone_stories/provider/story_provider.dart';
 import 'package:zaitoon/utils/cache_manager.dart';
+import 'package:zaitoon/providers/theme_provider.dart';
 
 class StoriesScreen extends StatefulWidget {
   const StoriesScreen({super.key});
@@ -43,251 +44,271 @@ class _StoriesScreenState extends State<StoriesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: ColorClass.white,
-      body: SafeArea(
-        child: Consumer2<StoriesProvider, HomeProvider>(
-          builder: (context, provider, homeProvider, child) {
-            if (provider.isLoading) {
-              return const Center(child: CupertinoActivityIndicator());
-            }
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return Scaffold(
+          backgroundColor:
+              themeProvider.isDarkMode ? ColorClass.black : ColorClass.white,
+          body: SafeArea(
+            child: Consumer2<StoriesProvider, HomeProvider>(
+              builder: (context, provider, homeProvider, child) {
+                if (provider.isLoading) {
+                  return const Center(child: CupertinoActivityIndicator());
+                }
 
-            if (provider.error.isNotEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                if (provider.error.isNotEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.error_outline,
+                          color: Colors.red,
+                          size: 48,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          provider.error,
+                          style: TextStyle(
+                              color: themeProvider.isDarkMode
+                                  ? ColorClass.white
+                                  : ColorClass.black),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () => provider.fetchStories(),
+                          child: const Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                final stories = provider.filteredStories.reversed.toList();
+
+                return Column(
                   children: [
-                    const Icon(
-                      Icons.error_outline,
-                      color: Colors.red,
-                      size: 48,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      provider.error,
-                      style: TextStyle(color: ColorClass.black),
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () => provider.fetchStories(),
-                      child: const Text('Retry'),
-                    ),
-                  ],
-                ),
-              );
-            }
+                    // Custom Header with back button, title and search in same row
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      child: Row(
+                        children: [
+                          // Back Button with gradient
+                          GestureDetector(
+                            onTap: () {
+                              debugPrint(
+                                  '🔙 Back button pressed in StoriesScreen');
+                              debugPrint(
+                                  '🔙 Force navigating to BottomNavigationScreen with index 0');
 
-            final stories = provider.filteredStories.reversed.toList();
+                              // Always navigate to home with explicit index 0
+                              // First set the navigation provider to index 0
+                              context
+                                  .read<NavigationProvider>()
+                                  .setIndexDirectly(0);
 
-            return Column(
-              children: [
-                // Custom Header with back button, title and search in same row
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Row(
-                    children: [
-                      // Back Button with gradient
-                      GestureDetector(
-                        onTap: () {
-                          debugPrint('🔙 Back button pressed in StoriesScreen');
-                          debugPrint(
-                              '🔙 Force navigating to BottomNavigationScreen with index 0');
-
-                          // Always navigate to home with explicit index 0
-                          // First set the navigation provider to index 0
-                          context
-                              .read<NavigationProvider>()
-                              .setIndexDirectly(0);
-
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  const BottomNavigationScreen(currentIndex: 0),
+                              Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const BottomNavigationScreen(
+                                          currentIndex: 0),
+                                ),
+                                (route) => false,
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              child: ShaderMask(
+                                shaderCallback: (bounds) => LinearGradient(
+                                  colors: [
+                                    ColorClass.grad1,
+                                    ColorClass.grad2,
+                                    ColorClass.grad3
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ).createShader(bounds),
+                                child: Icon(
+                                  Icons.arrow_back_ios,
+                                  color: ColorClass.white,
+                                  size: 24,
+                                ),
+                              ),
                             ),
-                            (route) => false,
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          child: ShaderMask(
+                          ),
+
+                          const SizedBox(width: 4), // Closer gap
+
+                          // Stories Title with gradient
+                          ShaderMask(
                             shaderCallback: (bounds) => LinearGradient(
                               colors: [
                                 ColorClass.grad1,
                                 ColorClass.grad2,
-                                ColorClass.grad3
+                                ColorClass.grad3,
                               ],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ).createShader(bounds),
-                            child: Icon(
-                              Icons.arrow_back_ios,
-                              color: ColorClass.white,
-                              size: 24,
+                            child: Text(
+                              'Stories',
+                              style: TextStyleClass.fredoka(
+                                fontSize: 30,
+                                color: ColorClass.white,
+                              ),
                             ),
                           ),
-                        ),
-                      ),
 
-                      const SizedBox(width: 4), // Closer gap
+                          const Spacer(), // Push search button to the right
 
-                      // Stories Title with gradient
-                      ShaderMask(
-                        shaderCallback: (bounds) => LinearGradient(
-                          colors: [
-                            ColorClass.grad1,
-                            ColorClass.grad2,
-                            ColorClass.grad3,
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ).createShader(bounds),
-                        child: Text(
-                          'Stories',
-                          style: TextStyleClass.fredoka(
-                            fontSize: 30,
-                            color: ColorClass.white,
-                          ),
-                        ),
-                      ),
-
-                      const Spacer(), // Push search button to the right
-
-                      // Search Button with circular background
-                      GestureDetector(
-                        onTap: () {
-                          // Add search functionality here
-                        },
-                        child: Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: ColorClass.containerBg,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.search,
-                            color: ColorClass.black,
-                            size: 20,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                // Category Buttons
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: categories.map((category) {
-                      final isSelected = provider.selectedCategory == category;
-                      return GestureDetector(
-                        onTap: () {
-                          provider.setSelectedCategory(category);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            gradient: isSelected
-                                ? LinearGradient(
-                                    colors: [
-                                      ColorClass.grad1,
-                                      ColorClass.grad2,
-                                      ColorClass.grad3,
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  )
-                                : null,
-                            color: isSelected ? null : ColorClass.transparent,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            category,
-                            style: TextStyleClass.fredoka(
-                              fontSize: 13,
-                              color: isSelected
-                                  ? ColorClass.white
-                                  : ColorClass.black,
+                          // Search Button with circular background
+                          GestureDetector(
+                            onTap: () {
+                              // Add search functionality here
+                            },
+                            child: Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: themeProvider.isDarkMode
+                                    ? ColorClass.grey800
+                                    : ColorClass.containerBg,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.search,
+                                color: themeProvider.isDarkMode
+                                    ? ColorClass.white
+                                    : ColorClass.black,
+                                size: 20,
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                // Stories Grid
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: GridView.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        mainAxisSpacing: 16,
-                        crossAxisSpacing: 16,
-                        childAspectRatio: 0.75,
+                        ],
                       ),
-                      itemCount: stories.length,
-                      itemBuilder: (context, index) {
-                        final story = stories[index];
-                        return GestureDetector(
-                          onTap: () {
-                            navigatePR(
-                              context: context,
-                              screen: StoryReadingScreen(
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Category Buttons
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: categories.map((category) {
+                          final isSelected =
+                              provider.selectedCategory == category;
+                          return GestureDetector(
+                            onTap: () {
+                              provider.setSelectedCategory(category);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                gradient: isSelected
+                                    ? LinearGradient(
+                                        colors: [
+                                          ColorClass.grad1,
+                                          ColorClass.grad2,
+                                          ColorClass.grad3,
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      )
+                                    : null,
+                                color:
+                                    isSelected ? null : ColorClass.transparent,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                category,
+                                style: TextStyleClass.fredoka(
+                                  fontSize: 13,
+                                  color: isSelected
+                                      ? ColorClass.white
+                                      : themeProvider.isDarkMode
+                                          ? ColorClass.white
+                                          : ColorClass.black,
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Stories Grid
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: GridView.builder(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            mainAxisSpacing: 16,
+                            crossAxisSpacing: 16,
+                            childAspectRatio: 0.75,
+                          ),
+                          itemCount: stories.length,
+                          itemBuilder: (context, index) {
+                            final story = stories[index];
+                            return GestureDetector(
+                              onTap: () {
+                                navigatePR(
+                                  context: context,
+                                  screen: StoryReadingScreen(
+                                    id: (story.id ?? 0).toString(),
+                                    title: homeProvider.selectedLanguage == 'en'
+                                        ? (story.storyTitleEn ?? 'Untitled')
+                                        : (story.storyTitleMl ?? 'Untitled'),
+                                    thumbnail:
+                                        '${ApiUrls.assetBaseUrl}${story.coverImage ?? ''}',
+                                    tag: story.tag ?? '',
+                                    pdfUrl:
+                                        homeProvider.selectedLanguage == 'en'
+                                            ? ApiUrls.assetBaseUrl +
+                                                (story.storyFileEn ?? '')
+                                            : ApiUrls.assetBaseUrl +
+                                                (story.storyFileMl ?? ''),
+                                  ),
+                                );
+                              },
+                              child: StoryCard(
                                 id: (story.id ?? 0).toString(),
                                 title: homeProvider.selectedLanguage == 'en'
                                     ? (story.storyTitleEn ?? 'Untitled')
                                     : (story.storyTitleMl ?? 'Untitled'),
-                                thumbnail:
-                                    '${ApiUrls.assetBaseUrl}${story.coverImage ?? ''}',
-                                tag: story.tag ?? '',
-                                pdfUrl: homeProvider.selectedLanguage == 'en'
+                                category: story.tag ?? 'Story',
+                                fileUrl: homeProvider.selectedLanguage == 'en'
                                     ? ApiUrls.assetBaseUrl +
                                         (story.storyFileEn ?? '')
                                     : ApiUrls.assetBaseUrl +
                                         (story.storyFileMl ?? ''),
+                                duration: '${story.readTime ?? '0'} min',
+                                imageUrl:
+                                    '${ApiUrls.assetBaseUrl}${story.coverImage ?? ''}',
+                                description: story.description ?? '',
+                                isDarkMode: themeProvider.isDarkMode,
                               ),
                             );
                           },
-                          child: StoryCard(
-                            id: (story.id ?? 0).toString(),
-                            title: homeProvider.selectedLanguage == 'en'
-                                ? (story.storyTitleEn ?? 'Untitled')
-                                : (story.storyTitleMl ?? 'Untitled'),
-                            category: story.tag ?? 'Story',
-                            fileUrl: homeProvider.selectedLanguage == 'en'
-                                ? ApiUrls.assetBaseUrl +
-                                    (story.storyFileEn ?? '')
-                                : ApiUrls.assetBaseUrl +
-                                    (story.storyFileMl ?? ''),
-                            duration: '${story.readTime ?? '0'} min',
-                            imageUrl:
-                                '${ApiUrls.assetBaseUrl}${story.coverImage ?? ''}',
-                            description: story.description ?? '',
-                          ),
-                        );
-                      },
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
-      ),
+                  ],
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -300,6 +321,7 @@ class StoryCard extends StatelessWidget {
   final String imageUrl;
   final String description;
   final String fileUrl;
+  final bool isDarkMode;
 
   const StoryCard({
     super.key,
@@ -310,6 +332,7 @@ class StoryCard extends StatelessWidget {
     required this.imageUrl,
     required this.description,
     required this.fileUrl,
+    required this.isDarkMode,
   });
 
   @override
@@ -317,10 +340,12 @@ class StoryCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color: ColorClass.white,
+        color: isDarkMode ? ColorClass.bg.withOpacity(0.5) : ColorClass.white,
         boxShadow: [
           BoxShadow(
-            color: ColorClass.grey400.withOpacity(0.2),
+            color: isDarkMode
+                ? ColorClass.black.withOpacity(0.3)
+                : ColorClass.grey400.withOpacity(0.2),
             spreadRadius: 1,
             blurRadius: 8,
             offset: const Offset(0, 2),
@@ -351,10 +376,13 @@ class StoryCard extends StatelessWidget {
                         child: CupertinoActivityIndicator(),
                       ),
                       errorWidget: (context, url, error) => Container(
-                        color: ColorClass.grey400,
+                        color: isDarkMode
+                            ? ColorClass.grey900.withOpacity(0.3)
+                            : ColorClass.grey400,
                         child: Icon(
                           Icons.error_outline,
-                          color: ColorClass.grey,
+                          color:
+                              isDarkMode ? ColorClass.grey400 : ColorClass.grey,
                         ),
                       ),
                       cacheManager: CustomCacheManager.instance,
@@ -416,11 +444,15 @@ class StoryCard extends StatelessWidget {
                     style: data.selectedLanguage == 'en'
                         ? TextStyleClass.poppinsSemiBold(
                             fontSize: 16,
-                            color: ColorClass.black,
+                            color: isDarkMode
+                                ? ColorClass.white
+                                : ColorClass.black,
                           )
                         : TextStyleClass.manjariSemiBold(
                             fontSize: 16,
-                            color: ColorClass.black,
+                            color: isDarkMode
+                                ? ColorClass.white
+                                : ColorClass.black,
                           ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -430,7 +462,8 @@ class StoryCard extends StatelessWidget {
                     children: [
                       Icon(
                         LucideIcons.clock,
-                        color: ColorClass.grey,
+                        color:
+                            isDarkMode ? ColorClass.grey400 : ColorClass.grey,
                         size: 14,
                       ),
                       const SizedBox(width: 4),
@@ -438,7 +471,8 @@ class StoryCard extends StatelessWidget {
                         duration,
                         style: TextStyleClass.poppinsRegular(
                           fontSize: 12,
-                          color: ColorClass.grey,
+                          color:
+                              isDarkMode ? ColorClass.grey400 : ColorClass.grey,
                         ),
                       ),
                     ],

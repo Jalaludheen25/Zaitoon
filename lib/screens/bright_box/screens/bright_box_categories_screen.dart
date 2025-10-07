@@ -8,6 +8,7 @@ import 'package:zaitoon/constants/app_urls.dart';
 import 'package:zaitoon/screens/bright_box/provider/bright_box_provider.dart';
 import 'package:zaitoon/screens/bright_box/screens/bright_box_subcategories_screen.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
+import 'package:zaitoon/providers/theme_provider.dart';
 
 class BrightBoxCategoriesScreen extends StatefulWidget {
   const BrightBoxCategoriesScreen({super.key});
@@ -30,76 +31,84 @@ class _BrightBoxCategoriesScreenState extends State<BrightBoxCategoriesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: ColorClass.white,
-      body: SafeArea(
-        child: Consumer2<BrightBoxProvider, HomeProvider>(
-          builder: (context, brightBoxProvider, homeProvider, child) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ShaderMask(
-                        shaderCallback: (bounds) => LinearGradient(
-                          colors: [
-                            ColorClass.grad1,
-                            ColorClass.grad2,
-                            ColorClass.grad3,
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ).createShader(bounds),
-                        child: Text(
-                          'Freedom fighters of india',
-                          style: TextStyleClass.fredoka(
-                            fontSize: 28,
-                            color: ColorClass.white,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'Did you know ?',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: ColorClass.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Content
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: brightBoxProvider.isLoading
-                        ? const Center(
-                            child: CircularProgressIndicator(
-                              color: ColorClass.primaryColor,
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return Scaffold(
+          backgroundColor:
+              themeProvider.isDarkMode ? ColorClass.black : ColorClass.white,
+          body: SafeArea(
+            child: Consumer2<BrightBoxProvider, HomeProvider>(
+              builder: (context, brightBoxProvider, homeProvider, child) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ShaderMask(
+                            shaderCallback: (bounds) => LinearGradient(
+                              colors: [
+                                ColorClass.grad1,
+                                ColorClass.grad2,
+                                ColorClass.grad3,
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ).createShader(bounds),
+                            child: Text(
+                              'Freedom fighters of india',
+                              style: TextStyleClass.fredoka(
+                                fontSize: 28,
+                                color: ColorClass.white,
+                              ),
                             ),
-                          )
-                        : brightBoxProvider.error != null
-                            ? _buildErrorState(
-                                brightBoxProvider.error!, brightBoxProvider)
-                            : _buildCategoriesGrid(
-                                brightBoxProvider, homeProvider),
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
-      ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Did you know ?',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: themeProvider.isDarkMode
+                                  ? ColorClass.grey400
+                                  : ColorClass.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Content
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: brightBoxProvider.isLoading
+                            ? const Center(
+                                child: CircularProgressIndicator(
+                                  color: ColorClass.primaryColor,
+                                ),
+                              )
+                            : brightBoxProvider.error != null
+                                ? _buildErrorState(brightBoxProvider.error!,
+                                    brightBoxProvider, themeProvider.isDarkMode)
+                                : _buildCategoriesGrid(brightBoxProvider,
+                                    homeProvider, themeProvider.isDarkMode),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildErrorState(String error, BrightBoxProvider provider) {
+  Widget _buildErrorState(
+      String error, BrightBoxProvider provider, bool isDarkMode) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -116,15 +125,15 @@ class _BrightBoxCategoriesScreenState extends State<BrightBoxCategoriesScreen> {
               'Oops! Something went wrong',
               style: TextStyleClass.fredoka(
                 fontSize: 18,
-                color: Colors.black,
+                color: isDarkMode ? ColorClass.white : Colors.black,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               error,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey,
+                color: isDarkMode ? ColorClass.grey400 : Colors.grey,
               ),
               textAlign: TextAlign.center,
             ),
@@ -142,10 +151,10 @@ class _BrightBoxCategoriesScreenState extends State<BrightBoxCategoriesScreen> {
     );
   }
 
-  Widget _buildCategoriesGrid(
-      BrightBoxProvider brightBoxProvider, HomeProvider homeProvider) {
+  Widget _buildCategoriesGrid(BrightBoxProvider brightBoxProvider,
+      HomeProvider homeProvider, bool isDarkMode) {
     if (brightBoxProvider.categories.isEmpty) {
-      return _buildEmptyState();
+      return _buildEmptyState(isDarkMode);
     }
 
     return GridView.builder(
@@ -158,12 +167,13 @@ class _BrightBoxCategoriesScreenState extends State<BrightBoxCategoriesScreen> {
       itemCount: brightBoxProvider.categories.length,
       itemBuilder: (context, index) {
         final category = brightBoxProvider.categories[index];
-        return _buildCategoryCard(category, homeProvider);
+        return _buildCategoryCard(category, homeProvider, isDarkMode);
       },
     );
   }
 
-  Widget _buildCategoryCard(category, HomeProvider homeProvider) {
+  Widget _buildCategoryCard(
+      category, HomeProvider homeProvider, bool isDarkMode) {
     final title = _getCategoryTitle(category, homeProvider.selectedLanguage);
     debugPrint('Category: $title, Cover Image: ${category.coverImage}');
 
@@ -221,9 +231,8 @@ class _BrightBoxCategoriesScreenState extends State<BrightBoxCategoriesScreen> {
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
                                     colors: [
-                                      Colors.orange.withOpacity(0.7),
-                                      Colors.white.withOpacity(0.4),
-                                      Colors.green.withOpacity(0.7),
+                                      ColorClass.primaryColor.withOpacity(0.3),
+                                      ColorClass.primaryColor.withOpacity(0.1),
                                     ],
                                   ),
                                   borderRadius: const BorderRadius.vertical(
@@ -245,9 +254,8 @@ class _BrightBoxCategoriesScreenState extends State<BrightBoxCategoriesScreen> {
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
                                     colors: [
-                                      Colors.orange.withOpacity(0.7),
-                                      Colors.white.withOpacity(0.4),
-                                      Colors.green.withOpacity(0.7),
+                                      ColorClass.primaryColor.withOpacity(0.3),
+                                      ColorClass.primaryColor.withOpacity(0.1),
                                     ],
                                   ),
                                   borderRadius: const BorderRadius.vertical(
@@ -270,9 +278,8 @@ class _BrightBoxCategoriesScreenState extends State<BrightBoxCategoriesScreen> {
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                   colors: [
-                                    Colors.orange.withOpacity(0.7),
-                                    Colors.white.withOpacity(0.4),
-                                    Colors.green.withOpacity(0.7),
+                                    ColorClass.primaryColor.withOpacity(0.3),
+                                    ColorClass.primaryColor.withOpacity(0.1),
                                   ],
                                 ),
                                 borderRadius: const BorderRadius.vertical(
@@ -297,10 +304,12 @@ class _BrightBoxCategoriesScreenState extends State<BrightBoxCategoriesScreen> {
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(12),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
+                decoration: BoxDecoration(
+                  color: isDarkMode
+                      ? ColorClass.bg.withOpacity(0.5)
+                      : Colors.white,
                   borderRadius:
-                      BorderRadius.vertical(bottom: Radius.circular(16)),
+                      const BorderRadius.vertical(bottom: Radius.circular(16)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -313,17 +322,18 @@ class _BrightBoxCategoriesScreenState extends State<BrightBoxCategoriesScreen> {
                           title,
                           style: TextStyleClass.fredoka(
                             fontSize: 16,
-                            color: Colors.black,
+                            color: isDarkMode ? ColorClass.white : Colors.black,
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 4),
-                        const Text(
+                        Text(
                           '8 Episode',
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.grey,
+                            color:
+                                isDarkMode ? ColorClass.grey400 : Colors.grey,
                           ),
                         ),
                       ],
@@ -338,7 +348,7 @@ class _BrightBoxCategoriesScreenState extends State<BrightBoxCategoriesScreen> {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(bool isDarkMode) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -353,15 +363,15 @@ class _BrightBoxCategoriesScreenState extends State<BrightBoxCategoriesScreen> {
             'Coming Soon',
             style: TextStyleClass.fredoka(
               fontSize: 24,
-              color: Colors.black,
+              color: isDarkMode ? ColorClass.white : Colors.black,
             ),
           ),
           const SizedBox(height: 12),
-          const Text(
+          Text(
             'Exciting new content is on the way!\nStay tuned for amazing stories.',
             style: TextStyle(
               fontSize: 16,
-              color: Colors.grey,
+              color: isDarkMode ? ColorClass.grey400 : Colors.grey,
             ),
             textAlign: TextAlign.center,
           ),

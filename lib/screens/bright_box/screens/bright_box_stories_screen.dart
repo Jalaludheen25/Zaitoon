@@ -11,6 +11,7 @@ import 'package:zaitoon/screens/bright_box/models/bright_box_models.dart';
 import 'package:zaitoon/screens/bright_box/screens/bright_box_story_reader_screen.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
 import 'package:zaitoon/screens/bookmark_screen/provider/bookmark_provider.dart';
+import 'package:zaitoon/providers/theme_provider.dart';
 
 class BrightBoxStoriesScreen extends StatefulWidget {
   final BrightBoxSubcategory subcategory;
@@ -39,59 +40,66 @@ class _BrightBoxStoriesScreenState extends State<BrightBoxStoriesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: ColorClass.white,
-      body: Consumer2<BrightBoxProvider, HomeProvider>(
-        builder: (context, brightBoxProvider, homeProvider, child) {
-          final subcategoryTitle = _getSubcategoryTitle(
-              widget.subcategory, homeProvider.selectedLanguage);
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return Scaffold(
+          backgroundColor:
+              themeProvider.isDarkMode ? ColorClass.black : ColorClass.white,
+          body: Consumer2<BrightBoxProvider, HomeProvider>(
+            builder: (context, brightBoxProvider, homeProvider, child) {
+              final subcategoryTitle = _getSubcategoryTitle(
+                  widget.subcategory, homeProvider.selectedLanguage);
 
-          if (brightBoxProvider.isLoading) {
-            return const Center(
-              child: CircularProgressIndicator(
-                color: ColorClass.primaryColor,
-              ),
-            );
-          }
+              if (brightBoxProvider.isLoading) {
+                return const Center(
+                  child: CircularProgressIndicator(
+                    color: ColorClass.primaryColor,
+                  ),
+                );
+              }
 
-          if (brightBoxProvider.error != null) {
-            return _buildErrorState(
-                brightBoxProvider.error!, brightBoxProvider);
-          }
+              if (brightBoxProvider.error != null) {
+                return _buildErrorState(brightBoxProvider.error!,
+                    brightBoxProvider, themeProvider.isDarkMode);
+              }
 
-          return Column(
-            children: [
-              // Hero Image Section
-              _buildHeroSection(subcategoryTitle),
+              return Column(
+                children: [
+                  // Hero Image Section
+                  _buildHeroSection(subcategoryTitle),
 
-              // Content Section
-              Expanded(
-                child: RefreshIndicator(
-                  onRefresh: () async {
-                    await brightBoxProvider.loadStories(widget.subcategory.id);
-                  },
-                  color: ColorClass.primaryColor,
-                  child: SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Description Section
-                        _buildDescriptionSection(),
-                        const SizedBox(height: 24),
+                  // Content Section
+                  Expanded(
+                    child: RefreshIndicator(
+                      onRefresh: () async {
+                        await brightBoxProvider
+                            .loadStories(widget.subcategory.id);
+                      },
+                      color: ColorClass.primaryColor,
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Description Section
+                            _buildDescriptionSection(),
+                            const SizedBox(height: 24),
 
-                        // Episodes Section
-                        _buildEpisodesSection(brightBoxProvider, homeProvider),
-                      ],
+                            // Episodes Section
+                            _buildEpisodesSection(brightBoxProvider,
+                                homeProvider, themeProvider.isDarkMode),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-            ],
-          );
-        },
-      ),
+                ],
+              );
+            },
+          ),
+        );
+      },
     );
   }
 
@@ -272,8 +280,8 @@ class _BrightBoxStoriesScreenState extends State<BrightBoxStoriesScreen> {
     );
   }
 
-  Widget _buildEpisodesSection(
-      BrightBoxProvider brightBoxProvider, HomeProvider homeProvider) {
+  Widget _buildEpisodesSection(BrightBoxProvider brightBoxProvider,
+      HomeProvider homeProvider, bool isDarkMode) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -281,18 +289,18 @@ class _BrightBoxStoriesScreenState extends State<BrightBoxStoriesScreen> {
           'Episodes:',
           style: TextStyleClass.fredoka(
             fontSize: 18,
-            color: Colors.black,
+            color: isDarkMode ? ColorClass.white : Colors.black,
           ),
         ),
         const SizedBox(height: 16),
 
         if (brightBoxProvider.stories.isEmpty)
-          _buildEmptyState()
+          _buildEmptyState(isDarkMode)
         else
           ...brightBoxProvider.stories.asMap().entries.map((entry) {
             final index = entry.key;
             final story = entry.value;
-            return _buildEpisodeCard(story, homeProvider, index);
+            return _buildEpisodeCard(story, homeProvider, index, isDarkMode);
           }),
 
         const SizedBox(height: 20),
@@ -347,8 +355,8 @@ class _BrightBoxStoriesScreenState extends State<BrightBoxStoriesScreen> {
     );
   }
 
-  Widget _buildEpisodeCard(
-      BrightBoxStory story, HomeProvider homeProvider, int index) {
+  Widget _buildEpisodeCard(BrightBoxStory story, HomeProvider homeProvider,
+      int index, bool isDarkMode) {
     final title = _getStoryTitle(story, homeProvider.selectedLanguage);
 
     return Container(
@@ -376,9 +384,8 @@ class _BrightBoxStoriesScreenState extends State<BrightBoxStoriesScreen> {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Colors.orange.withOpacity(0.7),
-                    Colors.white.withOpacity(0.4),
-                    Colors.green.withOpacity(0.7),
+                    ColorClass.primaryColor.withOpacity(0.3),
+                    ColorClass.primaryColor.withOpacity(0.1),
                   ],
                 ),
               ),
@@ -425,7 +432,7 @@ class _BrightBoxStoriesScreenState extends State<BrightBoxStoriesScreen> {
                     title,
                     style: TextStyleClass.fredoka(
                       fontSize: 16,
-                      color: Colors.black,
+                      color: isDarkMode ? ColorClass.white : Colors.black,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -433,9 +440,9 @@ class _BrightBoxStoriesScreenState extends State<BrightBoxStoriesScreen> {
                   const SizedBox(height: 4),
                   Text(
                     'Episode ${index + 1}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: Colors.grey,
+                      color: isDarkMode ? ColorClass.grey400 : Colors.grey,
                     ),
                   ),
                 ],
@@ -503,7 +510,8 @@ class _BrightBoxStoriesScreenState extends State<BrightBoxStoriesScreen> {
     );
   }
 
-  Widget _buildErrorState(String error, BrightBoxProvider provider) {
+  Widget _buildErrorState(
+      String error, BrightBoxProvider provider, bool isDarkMode) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -520,15 +528,15 @@ class _BrightBoxStoriesScreenState extends State<BrightBoxStoriesScreen> {
               'Oops! Something went wrong',
               style: TextStyleClass.fredoka(
                 fontSize: 18,
-                color: Colors.black,
+                color: isDarkMode ? ColorClass.white : Colors.black,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               error,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey,
+                color: isDarkMode ? ColorClass.grey400 : Colors.grey,
               ),
               textAlign: TextAlign.center,
             ),
@@ -546,7 +554,7 @@ class _BrightBoxStoriesScreenState extends State<BrightBoxStoriesScreen> {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(bool isDarkMode) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -561,15 +569,15 @@ class _BrightBoxStoriesScreenState extends State<BrightBoxStoriesScreen> {
             'Coming Soon',
             style: TextStyleClass.fredoka(
               fontSize: 24,
-              color: Colors.black,
+              color: isDarkMode ? ColorClass.white : Colors.black,
             ),
           ),
           const SizedBox(height: 12),
-          const Text(
+          Text(
             'Exciting new content is on the way!\nStay tuned for amazing stories.',
             style: TextStyle(
               fontSize: 16,
-              color: Colors.grey,
+              color: isDarkMode ? ColorClass.grey400 : Colors.grey,
             ),
             textAlign: TextAlign.center,
           ),

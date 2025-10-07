@@ -20,6 +20,7 @@ import 'package:zaitoon/screens/reading_screen/story_reader_page.dart';
 import 'package:zaitoon/utils/cache_manager.dart';
 import 'package:zaitoon/screens/bright_box/screens/bright_box_story_reader_screen.dart';
 import 'package:zaitoon/screens/bright_box/models/bright_box_models.dart';
+import 'package:zaitoon/providers/theme_provider.dart';
 
 class BookmarkScreen extends StatefulWidget {
   final String? initialCategory;
@@ -63,404 +64,394 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: ColorClass.white,
-      body: SafeArea(
-        child: Consumer<AuthProvider>(
-          builder: (context, authProvider, child) {
-            if (!authProvider.isSignedIn) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.bookmark_border_rounded,
-                      size: 64,
-                      color: ColorClass.black,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Login Required',
-                      style: TextStyleClass.fredoka(
-                        fontSize: 18,
-                        color: ColorClass.black,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Please login to view your bookmarks',
-                      style: TextStyleClass.fredoka(
-                        fontSize: 14,
-                        color: ColorClass.grey,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            ColorClass.grad1,
-                            ColorClass.grad2,
-                            ColorClass.grad3,
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return Scaffold(
+          backgroundColor:
+              themeProvider.isDarkMode ? ColorClass.black : ColorClass.white,
+          body: SafeArea(
+            child: Consumer<AuthProvider>(
+              builder: (context, authProvider, child) {
+                if (!authProvider.isSignedIn) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.bookmark_border_rounded,
+                          size: 64,
+                          color: themeProvider.isDarkMode
+                              ? ColorClass.white
+                              : ColorClass.black,
                         ),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          navigatePR(
-                              context: context, screen: const AuthScreen());
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 32,
-                            vertical: 12,
+                        const SizedBox(height: 16),
+                        Text(
+                          'Login Required',
+                          style: TextStyleClass.fredoka(
+                            fontSize: 18,
+                            color: themeProvider.isDarkMode
+                                ? ColorClass.white
+                                : ColorClass.black,
                           ),
-                          shape: RoundedRectangleBorder(
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Please login to view your bookmarks',
+                          style: TextStyleClass.fredoka(
+                            fontSize: 14,
+                            color: ColorClass.grey,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                ColorClass.grad1,
+                                ColorClass.grad2,
+                                ColorClass.grad3,
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                        ),
-                        child: Text(
-                          'Login',
-                          style: TextStyleClass.fredoka(
-                            fontSize: 16,
-                            color: ColorClass.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }
-
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ShaderMask(
-                        shaderCallback: (bounds) => LinearGradient(
-                          colors: [
-                            ColorClass.grad1,
-                            ColorClass.grad2,
-                            ColorClass.grad3,
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ).createShader(bounds),
-                        child: Text(
-                          'My Bookmarks',
-                          style: TextStyleClass.fredoka(
-                            fontSize: 28,
-                            color: ColorClass.white,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Your saved stories, ready to explore anytime.',
-                        style: TextStyleClass.fredoka(
-                          fontSize: 16,
-                          color: ColorClass.grey,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      // Category Buttons
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: categories.map((category) {
-                          final isSelected = selectedCategory == category;
-                          return GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                selectedCategory = category;
-                              });
-                              // Don't navigate to Bright Box, just show the content
+                          child: ElevatedButton(
+                            onPressed: () {
+                              navigatePR(
+                                  context: context, screen: const AuthScreen());
                             },
-                            child: Container(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 10,
+                                horizontal: 32,
+                                vertical: 12,
                               ),
-                              decoration: BoxDecoration(
-                                gradient: isSelected
-                                    ? LinearGradient(
-                                        colors: [
-                                          ColorClass.grad1,
-                                          ColorClass.grad2,
-                                          ColorClass.grad3,
-                                        ],
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                      )
-                                    : null,
-                                color: isSelected ? null : Colors.transparent,
-                                borderRadius: BorderRadius.circular(20),
-                                border: isSelected
-                                    ? null
-                                    : Border.all(
-                                        color: ColorClass.grey.withOpacity(0.3),
-                                        width: 1,
-                                      ),
-                              ),
-                              child: Text(
-                                category,
-                                style: TextStyleClass.fredoka(
-                                  fontSize: 14,
-                                  color: isSelected
-                                      ? ColorClass.white
-                                      : ColorClass.grey,
-                                ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
                               ),
                             ),
-                          );
-                        }).toList(),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Main Content
-                Expanded(
-                  child: Consumer<BookmarkProvider>(
-                    builder: (context, provider, child) {
-                      // Filter bookmarks based on selected category
-                      List<BookmarkModel> filteredBookmarks = [];
-
-                      if (selectedCategory == "Stories") {
-                        // Show single stories (exclude episodes)
-                        filteredBookmarks =
-                            provider.bookmarks.where((bookmark) {
-                          final tag = bookmark.tag.toLowerCase();
-                          final title = bookmark.title.toLowerCase();
-
-                          // Exclude items that are clearly episodes
-                          bool isEpisode = tag.contains('episode') ||
-                              tag.contains('ep') ||
-                              title.contains('episode') ||
-                              title.contains('ep') ||
-                              title.contains('part') ||
-                              title.contains('chapter') ||
-                              // Check for episode numbering patterns
-                              RegExp(r'episode\s*\d+', caseSensitive: false)
-                                  .hasMatch(title) ||
-                              RegExp(r'ep\s*\d+', caseSensitive: false)
-                                  .hasMatch(title) ||
-                              RegExp(r'part\s*\d+', caseSensitive: false)
-                                  .hasMatch(title) ||
-                              RegExp(r'chapter\s*\d+', caseSensitive: false)
-                                  .hasMatch(title);
-
-                          return !isEpisode;
-                        }).toList();
-                      } else if (selectedCategory == "Episode") {
-                        // Show only episodes
-                        filteredBookmarks =
-                            provider.bookmarks.where((bookmark) {
-                          final tag = bookmark.tag.toLowerCase();
-                          final title = bookmark.title.toLowerCase();
-
-                          // Include items that are clearly episodes
-                          bool isEpisode = tag.contains('episode') ||
-                              tag.contains('ep') ||
-                              title.contains('episode') ||
-                              title.contains('ep') ||
-                              title.contains('part') ||
-                              title.contains('chapter') ||
-                              // Check for episode numbering patterns
-                              RegExp(r'episode\s*\d+', caseSensitive: false)
-                                  .hasMatch(title) ||
-                              RegExp(r'ep\s*\d+', caseSensitive: false)
-                                  .hasMatch(title) ||
-                              RegExp(r'part\s*\d+', caseSensitive: false)
-                                  .hasMatch(title) ||
-                              RegExp(r'chapter\s*\d+', caseSensitive: false)
-                                  .hasMatch(title);
-
-                          return isEpisode;
-                        }).toList();
-                      } else if (selectedCategory == "Bright Box") {
-                        // Show only Bright Box bookmarks
-                        filteredBookmarks =
-                            provider.bookmarks.where((bookmark) {
-                          return bookmark.contentType == 'bright_box_story' ||
-                              bookmark.tag.toLowerCase() == 'bright box';
-                        }).toList();
-                      } else {
-                        // For any other category, show all bookmarks
-                        filteredBookmarks = provider.bookmarks;
-                      }
-
-                      if (provider.bookmarks.isEmpty) {
-                        return Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.bookmark_border_rounded,
-                                size: 64,
-                                color: ColorClass.grey.withOpacity(0.5),
+                            child: Text(
+                              'Login',
+                              style: TextStyleClass.fredoka(
+                                fontSize: 16,
+                                color: ColorClass.white,
                               ),
-                              const SizedBox(height: 16),
-                              Text(
-                                'No bookmarks yet',
-                                style: TextStyleClass.fredoka(
-                                  fontSize: 18,
-                                  color: ColorClass.black,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Your bookmarked stories will appear here',
-                                style: TextStyleClass.fredoka(
-                                  fontSize: 14,
-                                  color: ColorClass.grey,
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
-                        );
-                      }
+                        ),
+                      ],
+                    ),
+                  );
+                }
 
-                      if (filteredBookmarks.isEmpty &&
-                          selectedCategory != "Bright Box") {
-                        return Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.bookmark_border_rounded,
-                                size: 64,
-                                color: ColorClass.grey.withOpacity(0.5),
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ShaderMask(
+                            shaderCallback: (bounds) => LinearGradient(
+                              colors: [
+                                ColorClass.grad1,
+                                ColorClass.grad2,
+                                ColorClass.grad3,
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ).createShader(bounds),
+                            child: Text(
+                              'My Bookmarks',
+                              style: TextStyleClass.fredoka(
+                                fontSize: 28,
+                                color: ColorClass.white,
                               ),
-                              const SizedBox(height: 16),
-                              Text(
-                                'No ${selectedCategory.toLowerCase()} bookmarks',
-                                style: TextStyleClass.fredoka(
-                                  fontSize: 18,
-                                  color: ColorClass.black,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Found ${filteredBookmarks.length} of ${provider.bookmarks.length} total bookmarks',
-                                style: TextStyleClass.fredoka(
-                                  fontSize: 12,
-                                  color: ColorClass.grey,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Your bookmarked ${selectedCategory.toLowerCase()} will appear here',
-                                style: TextStyleClass.fredoka(
-                                  fontSize: 14,
-                                  color: ColorClass.grey,
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
-                        );
-                      }
-
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: GridView.builder(
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            mainAxisSpacing: 16,
-                            crossAxisSpacing: 16,
-                            childAspectRatio: 0.65,
+                          const SizedBox(height: 8),
+                          Text(
+                            'Your saved stories, ready to explore anytime.',
+                            style: TextStyleClass.fredoka(
+                              fontSize: 16,
+                              color: themeProvider.isDarkMode
+                                  ? ColorClass.grey400
+                                  : ColorClass.grey,
+                            ),
                           ),
-                          itemCount: filteredBookmarks.length,
-                          itemBuilder: (context, index) {
-                            final story = filteredBookmarks[index];
-                            return GestureDetector(
-                              onTap: () {
-                                // Handle Bright Box content differently - only if it has the content data
-                                if (story.contentType == 'bright_box_story' &&
-                                    story.brightBoxContent != null) {
-                                  // Reconstruct BrightBoxStory and open reader
-                                  try {
-                                    final storyData =
-                                        jsonDecode(story.brightBoxContent!);
-                                    final brightBoxStory =
-                                        BrightBoxStory.fromJson(storyData);
-                                    navigatePR(
-                                      context: context,
-                                      screen: BrightBoxStoryReaderScreen(
-                                        story: brightBoxStory,
-                                      ),
-                                    );
-                                  } catch (e) {
-                                    // Fallback to regular story reader if JSON parsing fails
-                                    navigatePR(
-                                      context: context,
-                                      screen: StoryReadingScreen(
-                                        id: story.id.toString(),
-                                        title: story.title,
-                                        thumbnail: story.thumbnail
-                                                .startsWith('http')
-                                            ? story.thumbnail
-                                            : '${ApiUrls.assetBaseUrl}${story.thumbnail}',
-                                        tag: story.tag,
-                                        pdfUrl: story.fileUrl,
-                                      ),
-                                    );
-                                  }
-                                } else {
-                                  // Default: All content opens in StoryReadingScreen
-                                  navigatePR(
-                                    context: context,
-                                    screen: StoryReadingScreen(
-                                      id: story.id.toString(),
-                                      title: story.title,
-                                      thumbnail: story.thumbnail
-                                              .startsWith('http')
-                                          ? story.thumbnail
-                                          : '${ApiUrls.assetBaseUrl}${story.thumbnail}',
-                                      tag: story.tag,
-                                      pdfUrl: story.fileUrl,
+                          const SizedBox(height: 20),
+                          // Category Buttons
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: categories.map((category) {
+                              final isSelected = selectedCategory == category;
+                              return GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    selectedCategory = category;
+                                  });
+                                  // Don't navigate to Bright Box, just show the content
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                    vertical: 10,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    gradient: isSelected
+                                        ? LinearGradient(
+                                            colors: [
+                                              ColorClass.grad1,
+                                              ColorClass.grad2,
+                                              ColorClass.grad3,
+                                            ],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          )
+                                        : null,
+                                    color:
+                                        isSelected ? null : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: isSelected
+                                        ? null
+                                        : Border.all(
+                                            color: themeProvider.isDarkMode
+                                                ? ColorClass.grey400
+                                                    .withOpacity(0.5)
+                                                : ColorClass.grey
+                                                    .withOpacity(0.3),
+                                            width: 1,
+                                          ),
+                                  ),
+                                  child: Text(
+                                    category,
+                                    style: TextStyleClass.fredoka(
+                                      fontSize: 14,
+                                      color: isSelected
+                                          ? ColorClass.white
+                                          : themeProvider.isDarkMode
+                                              ? ColorClass.grey400
+                                              : ColorClass.grey,
                                     ),
-                                  );
-                                }
-                              },
-                              child: BookmarkCard(
-                                id: story.id.toString(),
-                                title: story.title,
-                                category: story.tag,
-                                imageUrl: story.thumbnail.startsWith('http')
-                                    ? story.thumbnail
-                                    : '${ApiUrls.assetBaseUrl}${story.thumbnail}',
-                                fileUrl: story.fileUrl,
-                                contentType: story.contentType,
-                                onReadStory: () {
-                                  // Handle Bright Box content differently - only if it has the content data
-                                  if (story.contentType == 'bright_box_story' &&
-                                      story.brightBoxContent != null) {
-                                    // Reconstruct BrightBoxStory and open reader
-                                    try {
-                                      final storyData =
-                                          jsonDecode(story.brightBoxContent!);
-                                      final brightBoxStory =
-                                          BrightBoxStory.fromJson(storyData);
-                                      navigatePR(
-                                        context: context,
-                                        screen: BrightBoxStoryReaderScreen(
-                                          story: brightBoxStory,
-                                        ),
-                                      );
-                                    } catch (e) {
-                                      // Fallback to regular story reader if JSON parsing fails
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Main Content
+                    Expanded(
+                      child: Consumer<BookmarkProvider>(
+                        builder: (context, provider, child) {
+                          // Filter bookmarks based on selected category
+                          List<BookmarkModel> filteredBookmarks = [];
+
+                          if (selectedCategory == "Stories") {
+                            // Show single stories (exclude episodes)
+                            filteredBookmarks =
+                                provider.bookmarks.where((bookmark) {
+                              final tag = bookmark.tag.toLowerCase();
+                              final title = bookmark.title.toLowerCase();
+
+                              // Exclude items that are clearly episodes
+                              bool isEpisode = tag.contains('episode') ||
+                                  tag.contains('ep') ||
+                                  title.contains('episode') ||
+                                  title.contains('ep') ||
+                                  title.contains('part') ||
+                                  title.contains('chapter') ||
+                                  // Check for episode numbering patterns
+                                  RegExp(r'episode\s*\d+', caseSensitive: false)
+                                      .hasMatch(title) ||
+                                  RegExp(r'ep\s*\d+', caseSensitive: false)
+                                      .hasMatch(title) ||
+                                  RegExp(r'part\s*\d+', caseSensitive: false)
+                                      .hasMatch(title) ||
+                                  RegExp(r'chapter\s*\d+', caseSensitive: false)
+                                      .hasMatch(title);
+
+                              return !isEpisode;
+                            }).toList();
+                          } else if (selectedCategory == "Episode") {
+                            // Show only episodes
+                            filteredBookmarks =
+                                provider.bookmarks.where((bookmark) {
+                              final tag = bookmark.tag.toLowerCase();
+                              final title = bookmark.title.toLowerCase();
+
+                              // Include items that are clearly episodes
+                              bool isEpisode = tag.contains('episode') ||
+                                  tag.contains('ep') ||
+                                  title.contains('episode') ||
+                                  title.contains('ep') ||
+                                  title.contains('part') ||
+                                  title.contains('chapter') ||
+                                  // Check for episode numbering patterns
+                                  RegExp(r'episode\s*\d+', caseSensitive: false)
+                                      .hasMatch(title) ||
+                                  RegExp(r'ep\s*\d+', caseSensitive: false)
+                                      .hasMatch(title) ||
+                                  RegExp(r'part\s*\d+', caseSensitive: false)
+                                      .hasMatch(title) ||
+                                  RegExp(r'chapter\s*\d+', caseSensitive: false)
+                                      .hasMatch(title);
+
+                              return isEpisode;
+                            }).toList();
+                          } else if (selectedCategory == "Bright Box") {
+                            // Show only Bright Box bookmarks
+                            filteredBookmarks =
+                                provider.bookmarks.where((bookmark) {
+                              return bookmark.contentType ==
+                                      'bright_box_story' ||
+                                  bookmark.tag.toLowerCase() == 'bright box';
+                            }).toList();
+                          } else {
+                            // For any other category, show all bookmarks
+                            filteredBookmarks = provider.bookmarks;
+                          }
+
+                          if (provider.bookmarks.isEmpty) {
+                            return Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.bookmark_border_rounded,
+                                    size: 64,
+                                    color: themeProvider.isDarkMode
+                                        ? ColorClass.grey400.withOpacity(0.5)
+                                        : ColorClass.grey.withOpacity(0.5),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    'No bookmarks yet',
+                                    style: TextStyleClass.fredoka(
+                                      fontSize: 18,
+                                      color: themeProvider.isDarkMode
+                                          ? ColorClass.white
+                                          : ColorClass.black,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Your bookmarked stories will appear here',
+                                    style: TextStyleClass.fredoka(
+                                      fontSize: 14,
+                                      color: themeProvider.isDarkMode
+                                          ? ColorClass.grey400
+                                          : ColorClass.grey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
+
+                          if (filteredBookmarks.isEmpty &&
+                              selectedCategory != "Bright Box") {
+                            return Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.bookmark_border_rounded,
+                                    size: 64,
+                                    color: themeProvider.isDarkMode
+                                        ? ColorClass.grey400.withOpacity(0.5)
+                                        : ColorClass.grey.withOpacity(0.5),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    'No ${selectedCategory.toLowerCase()} bookmarks',
+                                    style: TextStyleClass.fredoka(
+                                      fontSize: 18,
+                                      color: themeProvider.isDarkMode
+                                          ? ColorClass.white
+                                          : ColorClass.black,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Found ${filteredBookmarks.length} of ${provider.bookmarks.length} total bookmarks',
+                                    style: TextStyleClass.fredoka(
+                                      fontSize: 12,
+                                      color: themeProvider.isDarkMode
+                                          ? ColorClass.grey400
+                                          : ColorClass.grey,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Your bookmarked ${selectedCategory.toLowerCase()} will appear here',
+                                    style: TextStyleClass.fredoka(
+                                      fontSize: 14,
+                                      color: themeProvider.isDarkMode
+                                          ? ColorClass.grey400
+                                          : ColorClass.grey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
+
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: GridView.builder(
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                mainAxisSpacing: 16,
+                                crossAxisSpacing: 16,
+                                childAspectRatio: 0.65,
+                              ),
+                              itemCount: filteredBookmarks.length,
+                              itemBuilder: (context, index) {
+                                final story = filteredBookmarks[index];
+                                return GestureDetector(
+                                  onTap: () {
+                                    // Handle Bright Box content differently - only if it has the content data
+                                    if (story.contentType ==
+                                            'bright_box_story' &&
+                                        story.brightBoxContent != null) {
+                                      // Reconstruct BrightBoxStory and open reader
+                                      try {
+                                        final storyData =
+                                            jsonDecode(story.brightBoxContent!);
+                                        final brightBoxStory =
+                                            BrightBoxStory.fromJson(storyData);
+                                        navigatePR(
+                                          context: context,
+                                          screen: BrightBoxStoryReaderScreen(
+                                            story: brightBoxStory,
+                                          ),
+                                        );
+                                      } catch (e) {
+                                        // Fallback to regular story reader if JSON parsing fails
+                                        navigatePR(
+                                          context: context,
+                                          screen: StoryReadingScreen(
+                                            id: story.id.toString(),
+                                            title: story.title,
+                                            thumbnail: story.thumbnail
+                                                    .startsWith('http')
+                                                ? story.thumbnail
+                                                : '${ApiUrls.assetBaseUrl}${story.thumbnail}',
+                                            tag: story.tag,
+                                            pdfUrl: story.fileUrl,
+                                          ),
+                                        );
+                                      }
+                                    } else {
+                                      // Default: All content opens in StoryReadingScreen
                                       navigatePR(
                                         context: context,
                                         screen: StoryReadingScreen(
@@ -475,36 +466,83 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                                         ),
                                       );
                                     }
-                                  } else {
-                                    // Regular story/episode content
-                                    navigatePR(
-                                      context: context,
-                                      screen: StoryReadingScreen(
-                                        id: story.id.toString(),
-                                        title: story.title,
-                                        thumbnail: story.thumbnail
-                                                .startsWith('http')
-                                            ? story.thumbnail
-                                            : '${ApiUrls.assetBaseUrl}${story.thumbnail}',
-                                        tag: story.tag,
-                                        pdfUrl: story.fileUrl,
-                                      ),
-                                    );
-                                  }
-                                },
-                              ),
-                            );
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
-      ),
+                                  },
+                                  child: BookmarkCard(
+                                    id: story.id.toString(),
+                                    title: story.title,
+                                    category: story.tag,
+                                    imageUrl: story.thumbnail.startsWith('http')
+                                        ? story.thumbnail
+                                        : '${ApiUrls.assetBaseUrl}${story.thumbnail}',
+                                    fileUrl: story.fileUrl,
+                                    contentType: story.contentType,
+                                    isDarkMode: themeProvider.isDarkMode,
+                                    onReadStory: () {
+                                      // Handle Bright Box content differently - only if it has the content data
+                                      if (story.contentType ==
+                                              'bright_box_story' &&
+                                          story.brightBoxContent != null) {
+                                        // Reconstruct BrightBoxStory and open reader
+                                        try {
+                                          final storyData = jsonDecode(
+                                              story.brightBoxContent!);
+                                          final brightBoxStory =
+                                              BrightBoxStory.fromJson(
+                                                  storyData);
+                                          navigatePR(
+                                            context: context,
+                                            screen: BrightBoxStoryReaderScreen(
+                                              story: brightBoxStory,
+                                            ),
+                                          );
+                                        } catch (e) {
+                                          // Fallback to regular story reader if JSON parsing fails
+                                          navigatePR(
+                                            context: context,
+                                            screen: StoryReadingScreen(
+                                              id: story.id.toString(),
+                                              title: story.title,
+                                              thumbnail: story.thumbnail
+                                                      .startsWith('http')
+                                                  ? story.thumbnail
+                                                  : '${ApiUrls.assetBaseUrl}${story.thumbnail}',
+                                              tag: story.tag,
+                                              pdfUrl: story.fileUrl,
+                                            ),
+                                          );
+                                        }
+                                      } else {
+                                        // Regular story/episode content
+                                        navigatePR(
+                                          context: context,
+                                          screen: StoryReadingScreen(
+                                            id: story.id.toString(),
+                                            title: story.title,
+                                            thumbnail: story.thumbnail
+                                                    .startsWith('http')
+                                                ? story.thumbnail
+                                                : '${ApiUrls.assetBaseUrl}${story.thumbnail}',
+                                            tag: story.tag,
+                                            pdfUrl: story.fileUrl,
+                                          ),
+                                        );
+                                      }
+                                    },
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -517,6 +555,7 @@ class BookmarkCard extends StatelessWidget {
   final String fileUrl;
   final VoidCallback onReadStory;
   final String? contentType;
+  final bool isDarkMode;
 
   const BookmarkCard({
     super.key,
@@ -527,6 +566,7 @@ class BookmarkCard extends StatelessWidget {
     required this.fileUrl,
     required this.onReadStory,
     this.contentType,
+    required this.isDarkMode,
   });
 
   @override
@@ -534,10 +574,12 @@ class BookmarkCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color: ColorClass.white,
+        color: isDarkMode ? ColorClass.bg.withOpacity(0.5) : ColorClass.white,
         boxShadow: [
           BoxShadow(
-            color: ColorClass.grey400.withOpacity(0.2),
+            color: isDarkMode
+                ? ColorClass.black.withOpacity(0.3)
+                : ColorClass.grey400.withOpacity(0.2),
             spreadRadius: 1,
             blurRadius: 8,
             offset: const Offset(0, 2),
@@ -566,19 +608,26 @@ class BookmarkCard extends StatelessWidget {
                       width: double.infinity,
                       height: double.infinity,
                       placeholder: (context, url) => Container(
-                        color: ColorClass.grey400.withOpacity(0.2),
-                        child: const Center(
+                        color: isDarkMode
+                            ? ColorClass.grey900.withOpacity(0.3)
+                            : ColorClass.grey400.withOpacity(0.2),
+                        child: Center(
                           child: CircularProgressIndicator(
-                            color: ColorClass.grey,
+                            color: isDarkMode
+                                ? ColorClass.grey400
+                                : ColorClass.grey,
                             strokeWidth: 2,
                           ),
                         ),
                       ),
                       errorWidget: (context, url, error) => Container(
-                        color: ColorClass.grey400.withOpacity(0.2),
+                        color: isDarkMode
+                            ? ColorClass.grey900.withOpacity(0.3)
+                            : ColorClass.grey400.withOpacity(0.2),
                         child: Icon(
                           Icons.error_outline,
-                          color: ColorClass.grey,
+                          color:
+                              isDarkMode ? ColorClass.grey400 : ColorClass.grey,
                         ),
                       ),
                       cacheManager: CustomCacheManager.instance,
@@ -601,7 +650,8 @@ class BookmarkCard extends StatelessWidget {
                       child: Text(
                         category,
                         style: TextStyleClass.fredoka(
-                          color: ColorClass.black,
+                          color:
+                              isDarkMode ? ColorClass.black : ColorClass.black,
                           fontSize: 12,
                         ),
                       ),
@@ -652,7 +702,7 @@ class BookmarkCard extends StatelessWidget {
                     title,
                     style: TextStyleClass.fredoka(
                       fontSize: 16,
-                      color: ColorClass.black,
+                      color: isDarkMode ? ColorClass.white : ColorClass.black,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,

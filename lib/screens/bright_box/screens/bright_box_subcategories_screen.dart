@@ -9,6 +9,7 @@ import 'package:zaitoon/screens/bright_box/provider/bright_box_provider.dart';
 import 'package:zaitoon/screens/bright_box/models/bright_box_models.dart';
 import 'package:zaitoon/screens/bright_box/screens/bright_box_stories_screen.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
+import 'package:zaitoon/providers/theme_provider.dart';
 
 class BrightBoxSubcategoriesScreen extends StatefulWidget {
   final BrightBoxCategory category;
@@ -39,124 +40,134 @@ class _BrightBoxSubcategoriesScreenState
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: ColorClass.white,
-      body: SafeArea(
-        child: Consumer2<BrightBoxProvider, HomeProvider>(
-          builder: (context, brightBoxProvider, homeProvider, child) {
-            final categoryTitle = _getCategoryTitle(
-                widget.category, homeProvider.selectedLanguage);
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return Scaffold(
+          backgroundColor:
+              themeProvider.isDarkMode ? ColorClass.black : ColorClass.white,
+          body: SafeArea(
+            child: Consumer2<BrightBoxProvider, HomeProvider>(
+              builder: (context, brightBoxProvider, homeProvider, child) {
+                final categoryTitle = _getCategoryTitle(
+                    widget.category, homeProvider.selectedLanguage);
 
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header with back button
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Row(
-                    children: [
-                      // Back Button with gradient
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          child: ShaderMask(
-                            shaderCallback: (bounds) => LinearGradient(
-                              colors: [
-                                ColorClass.grad1,
-                                ColorClass.grad2,
-                                ColorClass.grad3
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ).createShader(bounds),
-                            child: Icon(
-                              Icons.arrow_back_ios,
-                              color: ColorClass.white,
-                              size: 24,
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(width: 4), // Closer gap
-
-                      // Category Title with gradient
-                      Expanded(
-                        child: ShaderMask(
-                          shaderCallback: (bounds) => LinearGradient(
-                            colors: [
-                              ColorClass.grad1,
-                              ColorClass.grad2,
-                              ColorClass.grad3,
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ).createShader(bounds),
-                          child: Text(
-                            categoryTitle,
-                            style: TextStyleClass.fredoka(
-                              fontSize: 28,
-                              color: ColorClass.white,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Subtitle
-                Padding(
-                  padding:
-                      const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-                  child: const Text(
-                    'Did you know ?',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: ColorClass.grey,
-                    ),
-                  ),
-                ),
-
-                // Content
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: brightBoxProvider.isLoading
-                        ? const Center(
-                            child: CircularProgressIndicator(
-                              color: ColorClass.primaryColor,
-                            ),
-                          )
-                        : brightBoxProvider.error != null
-                            ? _buildErrorState(
-                                brightBoxProvider.error!, brightBoxProvider)
-                            : RefreshIndicator(
-                                onRefresh: () async {
-                                  await brightBoxProvider
-                                      .loadSubcategories(widget.category.id);
-                                },
-                                color: ColorClass.primaryColor,
-                                child: _buildSubcategoriesGrid(
-                                    brightBoxProvider, homeProvider),
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header with back button
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      child: Row(
+                        children: [
+                          // Back Button with gradient
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              child: ShaderMask(
+                                shaderCallback: (bounds) => LinearGradient(
+                                  colors: [
+                                    ColorClass.grad1,
+                                    ColorClass.grad2,
+                                    ColorClass.grad3
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ).createShader(bounds),
+                                child: Icon(
+                                  Icons.arrow_back_ios,
+                                  color: ColorClass.white,
+                                  size: 24,
+                                ),
                               ),
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
-      ),
+                            ),
+                          ),
+
+                          const SizedBox(width: 4), // Closer gap
+
+                          // Category Title with gradient
+                          Expanded(
+                            child: ShaderMask(
+                              shaderCallback: (bounds) => LinearGradient(
+                                colors: [
+                                  ColorClass.grad1,
+                                  ColorClass.grad2,
+                                  ColorClass.grad3,
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ).createShader(bounds),
+                              child: Text(
+                                categoryTitle,
+                                style: TextStyleClass.fredoka(
+                                  fontSize: 28,
+                                  color: ColorClass.white,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Subtitle
+                    Padding(
+                      padding: const EdgeInsets.only(
+                          left: 16, right: 16, bottom: 16),
+                      child: Text(
+                        'Did you know ?',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: themeProvider.isDarkMode
+                              ? ColorClass.grey400
+                              : ColorClass.grey,
+                        ),
+                      ),
+                    ),
+
+                    // Content
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: brightBoxProvider.isLoading
+                            ? const Center(
+                                child: CircularProgressIndicator(
+                                  color: ColorClass.primaryColor,
+                                ),
+                              )
+                            : brightBoxProvider.error != null
+                                ? _buildErrorState(brightBoxProvider.error!,
+                                    brightBoxProvider, themeProvider.isDarkMode)
+                                : RefreshIndicator(
+                                    onRefresh: () async {
+                                      await brightBoxProvider.loadSubcategories(
+                                          widget.category.id);
+                                    },
+                                    color: ColorClass.primaryColor,
+                                    child: _buildSubcategoriesGrid(
+                                        brightBoxProvider,
+                                        homeProvider,
+                                        themeProvider.isDarkMode),
+                                  ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildErrorState(String error, BrightBoxProvider provider) {
+  Widget _buildErrorState(
+      String error, BrightBoxProvider provider, bool isDarkMode) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -173,15 +184,15 @@ class _BrightBoxSubcategoriesScreenState
               'Oops! Something went wrong',
               style: TextStyleClass.fredoka(
                 fontSize: 18,
-                color: Colors.black,
+                color: isDarkMode ? ColorClass.white : Colors.black,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               error,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey,
+                color: isDarkMode ? ColorClass.grey400 : Colors.grey,
               ),
               textAlign: TextAlign.center,
             ),
@@ -199,10 +210,10 @@ class _BrightBoxSubcategoriesScreenState
     );
   }
 
-  Widget _buildSubcategoriesGrid(
-      BrightBoxProvider brightBoxProvider, HomeProvider homeProvider) {
+  Widget _buildSubcategoriesGrid(BrightBoxProvider brightBoxProvider,
+      HomeProvider homeProvider, bool isDarkMode) {
     if (brightBoxProvider.subcategories.isEmpty) {
-      return _buildEmptyState();
+      return _buildEmptyState(isDarkMode);
     }
 
     return GridView.builder(
@@ -215,13 +226,13 @@ class _BrightBoxSubcategoriesScreenState
       itemCount: brightBoxProvider.subcategories.length,
       itemBuilder: (context, index) {
         final subcategory = brightBoxProvider.subcategories[index];
-        return _buildSubcategoryCard(subcategory, homeProvider);
+        return _buildSubcategoryCard(subcategory, homeProvider, isDarkMode);
       },
     );
   }
 
-  Widget _buildSubcategoryCard(
-      BrightBoxSubcategory subcategory, HomeProvider homeProvider) {
+  Widget _buildSubcategoryCard(BrightBoxSubcategory subcategory,
+      HomeProvider homeProvider, bool isDarkMode) {
     final title =
         _getSubcategoryTitle(subcategory, homeProvider.selectedLanguage);
     debugPrint('Subcategory: $title, Cover Image: ${subcategory.coverImage}');
@@ -280,9 +291,8 @@ class _BrightBoxSubcategoriesScreenState
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
                                     colors: [
-                                      Colors.orange.withOpacity(0.7),
-                                      Colors.white.withOpacity(0.4),
-                                      Colors.green.withOpacity(0.7),
+                                      ColorClass.primaryColor.withOpacity(0.3),
+                                      ColorClass.primaryColor.withOpacity(0.1),
                                     ],
                                   ),
                                   borderRadius: const BorderRadius.vertical(
@@ -304,9 +314,8 @@ class _BrightBoxSubcategoriesScreenState
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
                                     colors: [
-                                      Colors.orange.withOpacity(0.7),
-                                      Colors.white.withOpacity(0.4),
-                                      Colors.green.withOpacity(0.7),
+                                      ColorClass.primaryColor.withOpacity(0.3),
+                                      ColorClass.primaryColor.withOpacity(0.1),
                                     ],
                                   ),
                                   borderRadius: const BorderRadius.vertical(
@@ -329,9 +338,8 @@ class _BrightBoxSubcategoriesScreenState
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                   colors: [
-                                    Colors.orange.withOpacity(0.7),
-                                    Colors.white.withOpacity(0.4),
-                                    Colors.green.withOpacity(0.7),
+                                    ColorClass.primaryColor.withOpacity(0.3),
+                                    ColorClass.primaryColor.withOpacity(0.1),
                                   ],
                                 ),
                                 borderRadius: const BorderRadius.vertical(
@@ -356,10 +364,12 @@ class _BrightBoxSubcategoriesScreenState
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(12),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
+                decoration: BoxDecoration(
+                  color: isDarkMode
+                      ? ColorClass.bg.withOpacity(0.5)
+                      : Colors.white,
                   borderRadius:
-                      BorderRadius.vertical(bottom: Radius.circular(16)),
+                      const BorderRadius.vertical(bottom: Radius.circular(16)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -372,17 +382,18 @@ class _BrightBoxSubcategoriesScreenState
                           title,
                           style: TextStyleClass.fredoka(
                             fontSize: 16,
-                            color: Colors.black,
+                            color: isDarkMode ? ColorClass.white : Colors.black,
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 4),
-                        const Text(
+                        Text(
                           'Episodes',
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.grey,
+                            color:
+                                isDarkMode ? ColorClass.grey400 : Colors.grey,
                           ),
                         ),
                       ],
@@ -397,7 +408,7 @@ class _BrightBoxSubcategoriesScreenState
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(bool isDarkMode) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -412,15 +423,15 @@ class _BrightBoxSubcategoriesScreenState
             'Coming Soon',
             style: TextStyleClass.fredoka(
               fontSize: 24,
-              color: Colors.black,
+              color: isDarkMode ? ColorClass.white : Colors.black,
             ),
           ),
           const SizedBox(height: 12),
-          const Text(
+          Text(
             'Exciting new content is on the way!\nStay tuned for amazing stories.',
             style: TextStyle(
               fontSize: 16,
-              color: Colors.grey,
+              color: isDarkMode ? ColorClass.grey400 : Colors.grey,
             ),
             textAlign: TextAlign.center,
           ),
