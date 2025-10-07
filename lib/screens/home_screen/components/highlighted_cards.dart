@@ -3,7 +3,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_carousel_widget/flutter_carousel_widget.dart';
 import 'package:zaitoon/constants/app_urls.dart';
 import 'package:zaitoon/constants/color_class.dart';
-import 'package:zaitoon/constants/textstyle_class.dart';
 import 'package:zaitoon/screens/home_screen/models/episode_model.dart';
 import 'package:zaitoon/screens/home_screen/models/story_model.dart';
 import 'package:zaitoon/screens/standalone_stories/models/single_story_model.dart';
@@ -97,13 +96,6 @@ class _HighlightedCardsState extends State<HighlightedCards> {
       children: [
         Padding(
           padding: const EdgeInsets.all(0),
-          child: Text(
-            'Featured Content',
-            style: TextStyleClass.openSans(
-              fontSize: 16,
-              color: ColorClass.white,
-            ),
-          ),
         ),
         SizedBox(
           width: 357,
@@ -225,7 +217,11 @@ class _HighlightedCardsState extends State<HighlightedCards> {
                     end: Alignment.centerRight,
                   )
                 : null,
-            color: isActive ? null : ColorClass.black87,
+            color: isActive
+                ? null
+                : (Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white
+                    : Colors.black),
             borderRadius: BorderRadius.circular(4.0),
             boxShadow: isActive
                 ? [

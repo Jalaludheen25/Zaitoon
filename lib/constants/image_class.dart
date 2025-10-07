@@ -25,6 +25,7 @@ class ImageClass {
 
   //quiz
   static const String quizBg = '${imageRoot}quizLanding.png';
+  static const String quizdark = '${imageRoot}quizdark.png';
   static const String quizHome = '${imageRoot}quizHome.png';
   static const String congo = '${imageRoot}congo.png';
 

@@ -67,6 +67,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           Provider.of<UserDataProvider>(context, listen: false);
       final brightBoxProvider =
           Provider.of<BrightBoxProvider>(context, listen: false);
+      final storiesProvider =
+          Provider.of<StoriesProvider>(context, listen: false);
 
       homeProvider.fetchStories().then((value) {
         homeProvider.fetchHighlightedContent();
@@ -75,6 +77,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       });
 
       brightBoxProvider.loadCategories();
+      storiesProvider.fetchStories(); // Initialize standalone stories
     });
   }
 
@@ -248,6 +251,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       child: _buildGreetingSection(
                           user.name ?? '', user, themeProvider.isDarkMode),
                     ),
+                    const SizedBox(height: 20),
                     Consumer<HomeProvider>(
                       builder: (context, provider, _) {
                         if (provider.isHighlightedLoading) {
@@ -782,7 +786,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         height: 126,
         clipBehavior: Clip.hardEdge,
         decoration: const BoxDecoration(
-          color: Colors.white,
+          //color: Colors.white,
         ),
         child: SizedBox(
           width: double.infinity,
