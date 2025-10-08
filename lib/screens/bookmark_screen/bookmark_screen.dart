@@ -255,7 +255,7 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                           List<BookmarkModel> filteredBookmarks = [];
 
                           if (selectedCategory == "Stories") {
-                            // Show single stories (exclude episodes)
+                            // Show single stories (exclude episodes and Bright Box content)
                             filteredBookmarks =
                                 provider.bookmarks.where((bookmark) {
                               final tag = bookmark.tag.toLowerCase();
@@ -278,7 +278,12 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                                   RegExp(r'chapter\s*\d+', caseSensitive: false)
                                       .hasMatch(title);
 
-                              return !isEpisode;
+                              // Exclude Bright Box content
+                              bool isBrightBox =
+                                  bookmark.contentType == 'bright_box_story' ||
+                                      tag == 'bright box';
+
+                              return !isEpisode && !isBrightBox;
                             }).toList();
                           } else if (selectedCategory == "Episode") {
                             // Show only episodes
