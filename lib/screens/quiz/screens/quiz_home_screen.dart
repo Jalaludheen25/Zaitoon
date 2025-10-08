@@ -12,6 +12,7 @@ import 'package:share_plus/share_plus.dart';
 import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:zaitoon/providers/theme_provider.dart';
 
 class QuizHomeScreen extends StatefulWidget {
   const QuizHomeScreen({super.key});
@@ -37,7 +38,7 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
       future: quizProvider.canAttemptQuiz(),
       builder: (context, snapshot) {
         final bool canAttempt = snapshot.data ?? false;
-
+        final isDark = context.read<ThemeProvider>().isDarkMode;
         // Determine button text based on different states
         String buttonText;
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -68,7 +69,7 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
               textAlign: TextAlign.center,
               style: TextStyleClass.fredoka(
                 fontSize: 24,
-                color: ColorClass.black,
+                color: isDark? Colors.white : ColorClass.black,
               ),
             ),
           );
@@ -108,7 +109,7 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
             child: Text(
               buttonText,
               style: TextStyleClass.fredoka(
-                color: canAttempt ? Colors.white : Colors.black,
+                color: canAttempt ? Colors.white : isDark? Colors.white : Colors.black,
                 fontSize: 18,
               ),
             ),
@@ -120,17 +121,21 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.read<ThemeProvider>().isDarkMode;
     SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
+      SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark,
-        statusBarBrightness: Brightness.light,
+        statusBarIconBrightness:
+            isDark ? Brightness.light : Brightness.dark,
+        statusBarBrightness:
+            isDark ? Brightness.dark : Brightness.light,
         systemNavigationBarColor: Colors.transparent,
-        systemNavigationBarIconBrightness: Brightness.dark,
+        systemNavigationBarIconBrightness:
+            isDark ? Brightness.light : Brightness.dark,
       ),
     );
     return Scaffold(
-      backgroundColor: ColorClass.white,
+      backgroundColor: isDark? ColorClass.black : ColorClass.white,
       body: SafeArea(
         child: Consumer<QuizProvider>(
           builder: (context, quizProvider, child) {
@@ -143,7 +148,7 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
             }
 
             return Scaffold(
-              backgroundColor: Colors.white,
+              backgroundColor: isDark? ColorClass.black : Colors.white,
               body: SafeArea(
                 child: SingleChildScrollView(
                   child: Column(
@@ -172,12 +177,13 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
   Widget _buildLoadingState() {
     return const Center(
       child: CircularProgressIndicator(
-        color: ColorClass.primaryColor,
+        color: ColorClass.violet30,
       ),
     );
   }
 
   Widget _buildErrorState(String error, QuizProvider quizProvider) {
+    final isDark = context.read<ThemeProvider>().isDarkMode;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -192,7 +198,7 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
             const SizedBox(height: 16),
             Text(
               'Oops! Something went wrong',
-              style: TextStyleClass.poppinsSemiBold(
+              style: TextStyleClass.openSansSemiBold(
                 fontSize: 18,
                 color: Colors.red,
               ),
@@ -200,16 +206,19 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
             const SizedBox(height: 8),
             Text(
               error,
-              style: TextStyleClass.poppinsRegular(
+              style: TextStyleClass.openSans(
                 fontSize: 14,
-                color: ColorClass.black.withOpacity(0.7),
+                color: isDark? Colors.white : ColorClass.black.withOpacity(0.7),
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () => quizProvider.startNewQuiz(),
-              child: const Text('Try Again'),
+              child: Text('Try Again', style: TextStyleClass.openSans(
+                fontSize: 14,
+                color: isDark? Colors.white : ColorClass.black,
+              ),),
             ),
           ],
         ),
@@ -219,6 +228,7 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
 
   Widget _buildHistoryItem(
       dynamic session, QuizProvider quizProvider, BuildContext context) {
+    final isDark = context.read<ThemeProvider>().isDarkMode;
     final percentage =
         session.correctAnswers != null && session.totalQuestions > 0
             ? (session.correctAnswers / session.totalQuestions * 100)
@@ -237,11 +247,11 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: ColorClass.black.withOpacity(0.05),
+          color: isDark? ColorClass.bg : ColorClass.black.withOpacity(0.05),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: ColorClass.primaryColor.withOpacity(0.2),
-            width: 1,
+            color: ColorClass.violet30.withOpacity(0.2),
+            width: 0.5,
           ),
         ),
         child: Row(
@@ -269,7 +279,7 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
                         '${percentage.toStringAsFixed(1)}%',
                         style: TextStyleClass.poppinsSemiBold(
                           fontSize: 16,
-                          color: ColorClass.black,
+                          color: isDark ? ColorClass.white : ColorClass.black,
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -282,10 +292,9 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
                         ),
                         child: Text(
                           _calculateGrade(percentage),
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
+                          style: TextStyleClass.openSansSemiBold(
+                            fontSize: 16,
+                            color: isDark? Colors.white : Colors.black,
                           ),
                         ),
                       ),
@@ -295,7 +304,7 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
                     '${session.correctAnswers}/${session.totalQuestions} correct • ${_formatTime(session.totalTimeTaken ?? 0)}',
                     style: TextStyleClass.poppinsRegular(
                       fontSize: 12,
-                      color: ColorClass.black.withOpacity(0.7),
+                      color: isDark? Colors.white : ColorClass.black.withOpacity(0.7),
                     ),
                   ),
                 ],
@@ -304,7 +313,7 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
             const SizedBox(width: 8),
             Icon(
               LucideIcons.chevronRight,
-              color: ColorClass.black.withOpacity(0.5),
+              color: isDark? Colors.white : ColorClass.black,
               size: 16,
             ),
           ],
@@ -368,6 +377,7 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
   }
 
   Widget _buildWelcomeSection(QuizProvider quizProvider) {
+    final isDark = context.read<ThemeProvider>().isDarkMode;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Column(
@@ -401,7 +411,7 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
                       child: Icon(
                         LucideIcons.brain,
                         size: 64,
-                        color: ColorClass.primaryColor,
+                        color: ColorClass.violet30,
                       ),
                     ),
                   );
@@ -430,7 +440,7 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
               textAlign: TextAlign.center,
               style: TextStyleClass.fredoka(
                 fontSize: 20,
-                color: ColorClass.black,
+                color: isDark? Colors.white : ColorClass.black,
               ),
             ),
           ),
@@ -464,8 +474,8 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
             child: Text(
               'Every question is a step closer to victory—are you ready?',
               textAlign: TextAlign.center,
-              style: GoogleFonts.openSans(
-                color: const Color(0xCC000000),
+              style: TextStyleClass.openSans(
+                color: isDark? Colors.white :  Color(0xCC000000),
                 fontSize: 16,
               ),
             ),
@@ -498,7 +508,7 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
 
   Widget _buildStatisticsSection(QuizProvider quizProvider) {
     final stats = quizProvider.quizStatistics;
-
+    final isDark = context.read<ThemeProvider>().isDarkMode;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Column(
@@ -508,7 +518,7 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
             'Your Statistics',
             textAlign: TextAlign.center,
             style: TextStyleClass.openSansSemiBold(
-              color: Colors.black,
+              color: isDark? Colors.white : Colors.black,
               fontSize: 20,
             ),
           ),
@@ -568,11 +578,12 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
     required String value,
     required Color iconColor,
   }) {
+    final isDark = context.read<ThemeProvider>().isDarkMode;
     return Container(
       width: 171,
       height: 102,
       decoration: BoxDecoration(
-        color: const Color(0xFFF9F9F9),
+        color: isDark? Colors.white : Color(0xFFF9F9F9),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Stack(
@@ -608,10 +619,10 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
             top: 19,
             child: Text(
               value,
-              style: GoogleFonts.fredoka(
+              style: TextStyleClass.fredoka(
                 color: iconColor == const Color(0xFFAC28DC)
                     ? const Color(0xFFAC28DC)
-                    : const Color(0x3F000000),
+                    : isDark? Colors.white.withOpacity(0.5) :Color(0x3F000000),
                 fontSize: 30,
               ),
             ),
@@ -623,8 +634,8 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
             child: Text(
               title,
               textAlign: TextAlign.center,
-              style: GoogleFonts.openSans(
-                color: Colors.black,
+              style: TextStyleClass.openSans(
+                color: isDark? Colors.white : Colors.black,
                 fontSize: 16,
               ),
             ),
@@ -637,6 +648,7 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
   Widget _buildQuizHistorySection(
       QuizProvider quizProvider, BuildContext context) {
     final history = quizProvider.quizHistory;
+    final isDark = context.read<ThemeProvider>().isDarkMode;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -651,7 +663,7 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
                 'Recent Quizzes',
                 style: TextStyleClass.openSansSemiBold(
                   fontSize: 20,
-                  color: ColorClass.black,
+                  color: isDark?Colors.white : ColorClass.black,
                 ),
               ),
               if (quizProvider.canDownloadCertificate)
@@ -705,7 +717,7 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
                                             'Certificate generated successfully!',
                                         style: TextStyleClass.openSans(
                                           fontSize: 14,
-                                          color: Colors.black,
+                                          color: isDark? Colors.white: Colors.black,
                                         ),
                                       ),
                                       const SizedBox(height: 16),
@@ -732,7 +744,7 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
                                         'Close',
                                         style: TextStyleClass.openSans(
                                           fontSize: 14,
-                                          color: ColorClass.black87,
+                                          color: isDark? Colors.white: ColorClass.black87,
                                         ),
                                       ),
                                     ),
@@ -769,11 +781,11 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
                                         },
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor:
-                                              ColorClass.primaryColor,
+                                              ColorClass.violet30,
                                         ),
                                         child: Text(
                                           'Share',
-                                          style: TextStyleClass.poppinsMedium(
+                                          style: TextStyleClass.openSans(
                                             fontSize: 14,
                                             color: Colors.white,
                                           ),
@@ -788,7 +800,7 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
                               showDialog(
                                 context: context,
                                 builder: (context) => AlertDialog(
-                                  backgroundColor: ColorClass.white,
+                                  backgroundColor: isDark? Colors.black : ColorClass.white,
                                   title: Row(
                                     children: [
                                       const Icon(LucideIcons.alertTriangle,
@@ -807,7 +819,7 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
                                     e.toString().replaceAll('Exception: ', ''),
                                     style: TextStyleClass.openSans(
                                       fontSize: 14,
-                                      color: ColorClass.black87,
+                                      color: isDark? Colors.white : ColorClass.black87,
                                     ),
                                   ),
                                   actions: [
@@ -817,7 +829,7 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
                                         'OK',
                                         style: TextStyleClass.openSans(
                                           fontSize: 14,
-                                          color: ColorClass.black87,
+                                          color: isDark? Colors.white : ColorClass.black87,
                                         ),
                                       ),
                                     ),
@@ -866,19 +878,20 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
   }
 
   Widget _buildEmptyHistory() {
+    final isDark = context.read<ThemeProvider>().isDarkMode;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: ColorClass.black.withOpacity(0.05),
+        color: isDark? Colors.white.withOpacity(0.1) : ColorClass.black.withOpacity(0.05),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         children: [
-          const Icon(
+          Icon(
             LucideIcons.history,
             size: 48,
-            color: Colors.grey,
+            color: isDark? Colors.white : Colors.grey,
           ),
           const SizedBox(height: 12),
           Text(
@@ -893,7 +906,7 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
             'Start your first quiz to see your progress!',
             style: TextStyleClass.openSans(
               fontSize: 14,
-              color: Colors.grey,
+              color: isDark? Colors.white : Colors.grey,
             ),
           ),
         ],
@@ -914,6 +927,7 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
 
   void _showLanguageSelectionDialog(
       BuildContext context, QuizProvider quizProvider) {
+    final isDark = context.read<ThemeProvider>().isDarkMode;
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -923,7 +937,7 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
         child: Container(
           padding: const EdgeInsets.all(24.0),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.9),
+            color: isDark? Colors.black.withOpacity(0.9) : Colors.white.withOpacity(0.9),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: ColorClass.violet30,
@@ -937,7 +951,7 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
                 'Select Quiz Language',
                 style: TextStyleClass.fredoka(
                   fontSize: 18,
-                  color: Colors.black,
+                  color: isDark? Colors.white : Colors.black,
                 ),
               ),
               const SizedBox(height: 24),
@@ -971,7 +985,7 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
                               showDialog(
                                 context: context,
                                 builder: (context) => AlertDialog(
-                                  backgroundColor: ColorClass.white,
+                                  backgroundColor: isDark? Colors.black : ColorClass.white,
                                   title: Row(
                                     children: [
                                       const Icon(LucideIcons.alertTriangle,
@@ -988,9 +1002,9 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
                                   ),
                                   content: Text(
                                     e.toString().replaceAll('Exception: ', ''),
-                                    style: TextStyleClass.poppinsRegular(
+                                    style: TextStyleClass.openSans(
                                       fontSize: 14,
-                                      color: ColorClass.black87,
+                                      color: isDark? Colors.white : ColorClass.black87,
                                     ),
                                   ),
                                   actions: [
@@ -1000,7 +1014,7 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
                                         'OK',
                                         style: TextStyleClass.poppinsMedium(
                                           fontSize: 14,
-                                          color: ColorClass.black,
+                                          color: isDark? Colors.white : ColorClass.black,
                                         ),
                                       ),
                                     ),
@@ -1022,7 +1036,7 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
                           'English',
                           style: TextStyleClass.fredoka(
                             fontSize: 16,
-                            color: Colors.white,
+                            color: isDark? Colors.white : Colors.black,
                           ),
                         ),
                       ),
@@ -1056,7 +1070,7 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
                               showDialog(
                                 context: context,
                                 builder: (context) => AlertDialog(
-                                  backgroundColor: ColorClass.white,
+                                  backgroundColor: isDark? Colors.black : ColorClass.white,
                                   title: Row(
                                     children: [
                                       const Icon(LucideIcons.alertTriangle,
@@ -1073,9 +1087,9 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
                                   ),
                                   content: Text(
                                     e.toString().replaceAll('Exception: ', ''),
-                                    style: TextStyleClass.poppinsRegular(
+                                    style: TextStyleClass.openSans(
                                       fontSize: 14,
-                                      color: ColorClass.black87,
+                                      color: isDark? Colors.white : ColorClass.black87,
                                     ),
                                   ),
                                   actions: [
@@ -1085,7 +1099,7 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
                                         'OK',
                                         style: TextStyleClass.poppinsMedium(
                                           fontSize: 14,
-                                          color: ColorClass.black,
+                                          color: isDark? Colors.white : ColorClass.black,
                                         ),
                                       ),
                                     ),
@@ -1107,7 +1121,7 @@ class _QuizHomeScreenState extends State<QuizHomeScreen> {
                           'മലയാളം',
                           style: TextStyleClass.fredoka(
                             fontSize: 16,
-                            color: Colors.white,
+                            color: isDark? Colors.black : Colors.white,
                           ),
                         ),
                       ),

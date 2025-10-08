@@ -3,7 +3,6 @@
 import 'dart:math' as math;
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:zaitoon/constants/app_urls.dart';
 import 'package:zaitoon/screens/home_screen/models/story_model.dart';
@@ -14,6 +13,10 @@ import 'package:zaitoon/screens/reading_screen/story_reader_page.dart';
 import 'package:zaitoon/screens/standalone_stories/provider/story_provider.dart';
 import 'package:zaitoon/screens/episode_screen.dart/episode_screen.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
+import 'package:flutter/services.dart';
+import 'package:zaitoon/providers/theme_provider.dart';
+import 'package:zaitoon/constants/textstyle_class.dart';
+import 'package:zaitoon/constants/color_class.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -69,81 +72,111 @@ class _SearchScreenState extends State<SearchScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Consumer3<SearchProvider, HomeProvider, StoriesProvider>(
-          builder: (context, search, home, storiesProvider, _) {
-            final List<StoryData> allStories = home.storyModel?.data ?? [];
-            final List<Datum> singleStories =
-                (storiesProvider.singleStoryModel?.data ?? <Datum>[]);
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        SystemChrome.setSystemUIOverlayStyle(
+          SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness:
+                themeProvider.isDarkMode ? Brightness.light : Brightness.dark,
+            statusBarBrightness:
+                themeProvider.isDarkMode ? Brightness.dark : Brightness.light,
+            systemNavigationBarColor: Colors.transparent,
+            systemNavigationBarIconBrightness:
+                themeProvider.isDarkMode ? Brightness.light : Brightness.dark,
+          ),
+        );
+        return Scaffold(
+          backgroundColor:
+              themeProvider.isDarkMode ? Colors.black : Colors.white,
+          body: SafeArea(
+            child: Consumer3<SearchProvider, HomeProvider, StoriesProvider>(
+              builder: (context, search, home, storiesProvider, _) {
+                final List<StoryData> allStories = home.storyModel?.data ?? [];
+                final List<Datum> singleStories =
+                    (storiesProvider.singleStoryModel?.data ?? <Datum>[]);
 
-            final String q = search.query.trim();
-            final bool hasQuery = q.isNotEmpty;
+                final String q = search.query.trim();
+                final bool hasQuery = q.isNotEmpty;
 
-            final List<StoryData> filteredAll = hasQuery
-                ? allStories.where((s) {
-                    final title = _titleForStoryData(s, home.selectedLanguage);
-                    return title.toLowerCase().contains(q.toLowerCase());
-                  }).toList()
-                : allStories;
+                final List<StoryData> filteredAll = hasQuery
+                    ? allStories.where((s) {
+                        final title =
+                            _titleForStoryData(s, home.selectedLanguage);
+                        return title.toLowerCase().contains(q.toLowerCase());
+                      }).toList()
+                    : allStories;
 
-            final List<Datum> filteredSingle = hasQuery
-                ? singleStories.where((s) {
-                    final title = home.selectedLanguage == 'en'
-                        ? (s.storyTitleEn ?? '')
-                        : (s.storyTitleMl ?? s.storyTitleEn ?? '');
-                    return title.toLowerCase().contains(q.toLowerCase());
-                  }).toList()
-                : singleStories;
+                final List<Datum> filteredSingle = hasQuery
+                    ? singleStories.where((s) {
+                        final title = home.selectedLanguage == 'en'
+                            ? (s.storyTitleEn ?? '')
+                            : (s.storyTitleMl ?? s.storyTitleEn ?? '');
+                        return title.toLowerCase().contains(q.toLowerCase());
+                      }).toList()
+                    : singleStories;
 
-            return ListView(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              children: [
-                _AnimatedSearchBar(
-                  controller: _controller,
-                  focusNode: _focusNode,
-                  slide: _searchBarSlide,
-                  fade: _searchBarFade,
-                  onChanged: search.setQuery,
-                  onSubmitted: (value) async {
-                    // Do not record raw query into history; history tracks selected items only
-                  },
-                  onBack: () => Navigator.of(context).pop(),
-                ),
-                const SizedBox(height: 12),
-                // Recent Searches (always visible)
-                _SectionTitle(title: 'Recent Searches'),
-                const SizedBox(height: 12),
-                _RecentItems(
-                  items: search.recentSearches,
-                  onTap: (title) {
-                    _controller.text = title;
-                    search.setQuery(title);
-                  },
-                  onRemove: search.removeFromHistory,
-                ),
+                return ListView(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  children: [
+                    _AnimatedSearchBar(
+                      controller: _controller,
+                      focusNode: _focusNode,
+                      slide: _searchBarSlide,
+                      fade: _searchBarFade,
+                      themeProvider: themeProvider,
+                      onChanged: search.setQuery,
+                      onSubmitted: (value) async {
+                        // Do not record raw query into history; history tracks selected items only
+                      },
+                      onBack: () => Navigator.of(context).pop(),
+                    ),
+                    const SizedBox(height: 12),
+                    // Recent Searches (only visible when there are items)
+                    if (search.recentSearches.isNotEmpty) ...[
+                      _SectionTitle(
+                          title: 'Recent Searches',
+                          themeProvider: themeProvider),
+                      const SizedBox(height: 12),
+                      _RecentItems(
+                        items: search.recentSearches,
+                        themeProvider: themeProvider,
+                        onTap: (title) {
+                          _controller.text = title;
+                          search.setQuery(title);
+                        },
+                        onRemove: search.removeFromHistory,
+                      ),
+                      const SizedBox(height: 12),
+                    ],
 
-                // Single Stories (always visible)
-                _SectionTitle(title: 'Single Stories'),
-                const SizedBox(height: 12),
-                _HorizontalCardsSingle(
-                  stories: filteredSingle,
-                  language: home.selectedLanguage,
-                ),
+                    // Single Stories (always visible)
+                    _SectionTitle(
+                        title: 'Single Stories', themeProvider: themeProvider),
+                    const SizedBox(height: 12),
+                    _HorizontalCardsSingle(
+                      stories: filteredSingle,
+                      language: home.selectedLanguage,
+                      themeProvider: themeProvider,
+                    ),
 
-                // All Stories (always visible)
-                _SectionTitle(title: 'All Stories'),
-                const SizedBox(height: 12),
-                _HorizontalCardsAll(
-                  stories: filteredAll,
-                  language: home.selectedLanguage,
-                ),
-              ],
-            );
-          },
-        ),
-      ),
+                    // All Stories (always visible)
+                    const SizedBox(height: 30),
+                    _SectionTitle(
+                        title: 'All Stories', themeProvider: themeProvider),
+                    const SizedBox(height: 12),
+                    _HorizontalCardsAll(
+                      stories: filteredAll,
+                      language: home.selectedLanguage,
+                      themeProvider: themeProvider,
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -167,6 +200,7 @@ class _AnimatedSearchBar extends StatelessWidget {
     required this.focusNode,
     required this.slide,
     required this.fade,
+    required this.themeProvider,
     required this.onChanged,
     required this.onSubmitted,
     required this.onBack,
@@ -176,6 +210,7 @@ class _AnimatedSearchBar extends StatelessWidget {
   final FocusNode focusNode;
   final Animation<double> slide;
   final Animation<double> fade;
+  final ThemeProvider themeProvider;
   final ValueChanged<String> onChanged;
   final ValueChanged<String> onSubmitted;
   final VoidCallback onBack;
@@ -201,7 +236,7 @@ class _AnimatedSearchBar extends StatelessWidget {
                 angle: 2 * math.pi / 180,
                 child: IconButton(
                   icon: const Icon(Icons.arrow_back_ios_new, size: 18),
-                  color: Colors.black,
+                  color: themeProvider.isDarkMode ? Colors.white : Colors.black,
                   onPressed: onBack,
                 ),
               ),
@@ -210,14 +245,21 @@ class _AnimatedSearchBar extends StatelessWidget {
                   height: 42,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(22),
-                    border:
-                        Border.all(width: 0.5, color: const Color(0x99000000)),
+                    border: Border.all(
+                        width: 0.5,
+                        color: themeProvider.isDarkMode
+                            ? Colors.white
+                            : Color(0x99000000)),
                   ),
                   padding: const EdgeInsets.symmetric(horizontal: 14),
                   alignment: Alignment.center,
                   child: Row(
                     children: [
-                      const Icon(Icons.search, size: 20, color: Colors.black54),
+                      Icon(Icons.search,
+                          size: 20,
+                          color: themeProvider.isDarkMode
+                              ? Colors.white
+                              : Colors.black54),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Align(
@@ -225,14 +267,18 @@ class _AnimatedSearchBar extends StatelessWidget {
                           child: TextField(
                             controller: controller,
                             focusNode: focusNode,
+                            cursorColor: themeProvider.isDarkMode
+                                ? Colors.white
+                                : Colors.black,
                             decoration: InputDecoration(
                               contentPadding:
                                   const EdgeInsets.symmetric(vertical: 10),
                               hintText: 'Search for stories...',
-                              hintStyle: GoogleFonts.openSans(
-                                color: const Color(0x4C000000),
+                              hintStyle: TextStyleClass.openSans(
+                                color: themeProvider.isDarkMode
+                                    ? Colors.white.withOpacity(0.7)
+                                    : Color(0x4C000000),
                                 fontSize: 14,
-                                height: 1.2,
                               ),
                               border: InputBorder.none,
                               isDense: true,
@@ -242,8 +288,11 @@ class _AnimatedSearchBar extends StatelessWidget {
                               focusedErrorBorder: InputBorder.none,
                               disabledBorder: InputBorder.none,
                             ),
-                            style:
-                                GoogleFonts.openSans(fontSize: 14, height: 1.2),
+                            style: TextStyleClass.openSans(
+                                fontSize: 14,
+                                color: themeProvider.isDarkMode
+                                    ? Colors.white
+                                    : Colors.black),
                             textInputAction: TextInputAction.search,
                             onChanged: onChanged,
                             onSubmitted: onSubmitted,
@@ -260,16 +309,22 @@ class _AnimatedSearchBar extends StatelessWidget {
                                 onChanged('');
                                 focusNode.requestFocus();
                               },
-                              child: const Icon(Icons.close,
-                                  size: 16, color: Colors.black54),
+                              child: Icon(Icons.close,
+                                  size: 16,
+                                  color: themeProvider.isDarkMode
+                                      ? Colors.white
+                                      : Colors.black54),
                             ),
                           const SizedBox(width: 8),
                           GestureDetector(
                             onTap: () {
                               // TODO: integrate voice search here
                             },
-                            child: const Icon(Icons.mic_none,
-                                size: 18, color: Colors.black54),
+                            child: Icon(Icons.mic_none,
+                                size: 18,
+                                color: themeProvider.isDarkMode
+                                    ? Colors.white
+                                    : Colors.black54),
                           ),
                         ],
                       ),
@@ -286,8 +341,9 @@ class _AnimatedSearchBar extends StatelessWidget {
 }
 
 class _SectionTitle extends StatelessWidget {
-  const _SectionTitle({required this.title});
+  const _SectionTitle({required this.title, required this.themeProvider});
   final String title;
+  final ThemeProvider themeProvider;
 
   @override
   Widget build(BuildContext context) {
@@ -298,10 +354,9 @@ class _SectionTitle extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: GoogleFonts.fredoka(
+              style: TextStyleClass.fredoka(
                 fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: Colors.black,
+                color: themeProvider.isDarkMode ? Colors.white : Colors.black,
               ),
             ),
           ),
@@ -317,25 +372,18 @@ class _SectionTitle extends StatelessWidget {
 class _RecentItems extends StatelessWidget {
   const _RecentItems({
     required this.items,
+    required this.themeProvider,
     required this.onTap,
     required this.onRemove,
   });
 
   final List<Map<String, String>> items;
+  final ThemeProvider themeProvider;
   final ValueChanged<String> onTap;
   final ValueChanged<String> onRemove;
 
   @override
   Widget build(BuildContext context) {
-    if (items.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Text(
-          'No recent searches',
-          style: GoogleFonts.openSans(fontSize: 12, color: Colors.black54),
-        ),
-      );
-    }
     return SizedBox(
       height: 124,
       child: ListView.separated(
@@ -367,9 +415,13 @@ class _RecentItems extends StatelessWidget {
                             : Container(
                                 width: 86,
                                 height: 86,
-                                color: const Color(0xFFF2F2F2),
-                                child: const Icon(Icons.image,
-                                    color: Colors.black45),
+                                color: themeProvider.isDarkMode
+                                    ? ColorClass.black.withOpacity(0.3)
+                                    : const Color(0xFFF2F2F2),
+                                child: Icon(Icons.image,
+                                    color: themeProvider.isDarkMode
+                                        ? Colors.white
+                                        : Colors.black45),
                               ),
                       ),
                       Positioned(
@@ -406,9 +458,11 @@ class _RecentItems extends StatelessWidget {
                       textAlign: TextAlign.center,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.openSans(
+                      style: TextStyleClass.openSans(
                         fontSize: 14,
-                        color: Colors.black,
+                        color: themeProvider.isDarkMode
+                            ? Colors.white
+                            : Colors.black,
                       ),
                     ),
                   ),
@@ -428,10 +482,12 @@ class _HorizontalCardsSingle extends StatelessWidget {
   const _HorizontalCardsSingle({
     required this.stories,
     required this.language,
+    required this.themeProvider,
   });
 
   final List<Datum> stories;
   final String language;
+  final ThemeProvider themeProvider;
 
   @override
   Widget build(BuildContext context) {
@@ -456,6 +512,7 @@ class _HorizontalCardsSingle extends StatelessWidget {
             title: title,
             subtitle: '${story.readTime ?? '0'} mnt',
             showClock: true,
+            themeProvider: themeProvider,
             onTap: () async {
               await context
                   .read<SearchProvider>()
@@ -485,10 +542,12 @@ class _HorizontalCardsAll extends StatelessWidget {
   const _HorizontalCardsAll({
     required this.stories,
     required this.language,
+    required this.themeProvider,
   });
 
   final List<StoryData> stories;
   final String language;
+  final ThemeProvider themeProvider;
 
   String _title(StoryData story) {
     switch (language) {
@@ -531,6 +590,7 @@ class _HorizontalCardsAll extends StatelessWidget {
             imageUrl: imageUrl,
             title: _title(story),
             subtitle: subtitleText,
+            themeProvider: themeProvider,
             onTap: () async {
               final title = _title(story);
               await context
@@ -561,6 +621,7 @@ class _TallCard extends StatelessWidget {
     required this.imageUrl,
     required this.title,
     required this.subtitle,
+    required this.themeProvider,
     required this.onTap,
     this.showClock = false,
   });
@@ -568,6 +629,7 @@ class _TallCard extends StatelessWidget {
   final String imageUrl;
   final String title;
   final String subtitle;
+  final ThemeProvider themeProvider;
   final VoidCallback onTap;
   final bool showClock;
 
@@ -578,7 +640,9 @@ class _TallCard extends StatelessWidget {
       child: Container(
         width: 169,
         decoration: BoxDecoration(
-          color: Color(0xFFF9F9F9),
+          color: themeProvider.isDarkMode
+              ? ColorClass.bg
+              : Color(0xFFF9F9F9),
           borderRadius: BorderRadius.circular(24),
         ),
         child: Column(
@@ -616,7 +680,8 @@ class _TallCard extends StatelessWidget {
             ),
             // const SizedBox(height: 8),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -624,20 +689,23 @@ class _TallCard extends StatelessWidget {
                     title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.openSans(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black,
+                    style: TextStyleClass.fredokaRegular(
+                      fontSize: 16,
+                      color: themeProvider.isDarkMode
+                          ? Colors.white
+                          : Colors.black,
                     ),
                   ),
-                  const SizedBox(height: 7),
+                  const SizedBox(height: 4),
                   if (showClock)
                     Row(
                       children: [
                         Icon(
                           LucideIcons.clock,
                           size: 14,
-                          color: Colors.black54,
+                          color: themeProvider.isDarkMode
+                              ? Colors.white
+                              : Colors.black54,
                         ),
                         const SizedBox(width: 6),
                         Expanded(
@@ -645,9 +713,11 @@ class _TallCard extends StatelessWidget {
                             subtitle,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.openSans(
+                            style: TextStyleClass.openSans(
                               fontSize: 12,
-                              color: Colors.black,
+                              color: themeProvider.isDarkMode
+                                  ? Colors.white
+                                  : Colors.black,
                             ),
                           ),
                         ),
@@ -658,9 +728,11 @@ class _TallCard extends StatelessWidget {
                       subtitle,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.openSans(
+                      style: TextStyleClass.openSans(
                         fontSize: 12,
-                        color: Colors.black,
+                        color: themeProvider.isDarkMode
+                            ? Colors.white
+                            : Colors.black,
                       ),
                     ),
                 ],

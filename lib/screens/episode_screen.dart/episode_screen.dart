@@ -3,7 +3,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:zaitoon/constants/app_urls.dart';
 import 'package:zaitoon/constants/textstyle_class.dart';
@@ -17,6 +16,7 @@ import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
 import 'package:zaitoon/screens/reading_screen/story_reader_page.dart';
 import 'package:zaitoon/utils/cache_manager.dart';
 import 'package:flutter/services.dart';
+import 'package:zaitoon/providers/theme_provider.dart';
 
 class EpisodeScreen extends StatefulWidget {
   const EpisodeScreen({
@@ -48,302 +48,332 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Hide system UI at bottom, keep top (status bar)
-    SystemChrome.setEnabledSystemUIMode(
-      SystemUiMode.edgeToEdge,
-      overlays: [SystemUiOverlay.top], // Only show top overlay (status bar)
-    );
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark,
-        systemNavigationBarColor: Colors.transparent,
-        systemNavigationBarIconBrightness: Brightness.dark,
-      ),
-    );
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        // Hide system UI at bottom, keep top (status bar)
+        SystemChrome.setEnabledSystemUIMode(
+          SystemUiMode.edgeToEdge,
+          overlays: [SystemUiOverlay.top], // Only show top overlay (status bar)
+        );
+        SystemChrome.setSystemUIOverlayStyle(
+          SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness:
+                themeProvider.isDarkMode ? Brightness.light : Brightness.dark,
+            statusBarBrightness:
+                themeProvider.isDarkMode ? Brightness.dark : Brightness.light,
+            systemNavigationBarColor: Colors.transparent,
+            systemNavigationBarIconBrightness:
+                themeProvider.isDarkMode ? Brightness.light : Brightness.dark,
+          ),
+        );
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Consumer<HomeProvider>(
-          builder: (context, snapshot, _) => snapshot.episodeModel == null
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const CupertinoActivityIndicator(
-                        color: Colors.black,
-                        radius: 16,
+        return Scaffold(
+          backgroundColor:
+              themeProvider.isDarkMode ? Colors.black : Colors.white,
+          body: SafeArea(
+            child: Consumer<HomeProvider>(
+              builder: (context, snapshot, _) => snapshot.episodeModel == null
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CupertinoActivityIndicator(
+                            color: themeProvider.isDarkMode
+                                ? ColorClass.violet30
+                                : Colors.black,
+                            radius: 16,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Loading episodes...',
+                            style: TextStyleClass.poppinsRegular(
+                              fontSize: 14,
+                              color: themeProvider.isDarkMode
+                                  ? Colors.white
+                                  : Colors.black,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Loading episodes...',
-                        style: TextStyleClass.poppinsRegular(
-                          fontSize: 14,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              : SingleChildScrollView(
-                  child: Container(
-                    width: double.infinity,
-                    color: Colors.white,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Header Section with Stack for overlay elements
-                        Container(
-                          margin: const EdgeInsets.all(18),
-                          child: Stack(
-                            children: [
-                              // Header Image
-                              Container(
-                                width: double.infinity,
-                                height: 244,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: CachedNetworkImageProvider(
-                                      widget.imageUrl,
-                                      cacheManager: CustomCacheManager.instance,
-                                    ),
-                                    fit: BoxFit.cover,
-                                  ),
-                                  borderRadius: BorderRadius.circular(24),
-                                ),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(24),
-                                    color: const Color(0x3F000000),
-                                  ),
-                                ),
-                              ),
-
-                              // Back Button
-                              Positioned(
-                                left: 10,
-                                top: 10,
-                                child: GestureDetector(
-                                  onTap: () =>
-                                      Navigator.of(context).pushReplacement(
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const BottomNavigationScreen(),
-                                    ),
-                                  ),
-                                  child: Container(
-                                    width: 40,
-                                    height: 40,
+                    )
+                  : SingleChildScrollView(
+                      child: Container(
+                        width: double.infinity,
+                        color: themeProvider.isDarkMode
+                            ? ColorClass.black
+                            : Colors.white,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Header Section with Stack for overlay elements
+                            Container(
+                              margin: const EdgeInsets.all(18),
+                              child: Stack(
+                                children: [
+                                  // Header Image
+                                  Container(
+                                    width: double.infinity,
+                                    height: 244,
                                     decoration: BoxDecoration(
-                                      color: const Color(0x3FFFFFFF),
-                                      borderRadius: BorderRadius.circular(20),
+                                      image: DecorationImage(
+                                        image: CachedNetworkImageProvider(
+                                          widget.imageUrl,
+                                          cacheManager:
+                                              CustomCacheManager.instance,
+                                        ),
+                                        fit: BoxFit.cover,
+                                      ),
+                                      borderRadius: BorderRadius.circular(24),
                                     ),
-                                    child: const Icon(
-                                      Icons.arrow_back_ios_new,
-                                      color: Colors.white,
-                                      size: 16,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(24),
+                                        color: themeProvider.isDarkMode
+                                            ? Colors.black.withOpacity(0.5)
+                                            : Color(0x3F000000),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ),
 
-                              // Tag Badge
-                              Positioned(
-                                right: 10,
-                                top: 15,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0x3EFFFFFF),
-                                    borderRadius: BorderRadius.circular(22),
+                                  // Back Button
+                                  Positioned(
+                                    left: 10,
+                                    top: 10,
+                                    child: GestureDetector(
+                                      onTap: () =>
+                                          Navigator.of(context).pushReplacement(
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const BottomNavigationScreen(),
+                                        ),
+                                      ),
+                                      child: Container(
+                                        width: 40,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0x3FFFFFFF),
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                        ),
+                                        child: const Icon(
+                                          Icons.arrow_back_ios_new,
+                                          color: Colors.black,
+                                          size: 16,
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                  child: Text(
-                                    widget.tag,
+
+                                  // Tag Badge
+                                  Positioned(
+                                    right: 10,
+                                    top: 15,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0x3EFFFFFF),
+                                        borderRadius: BorderRadius.circular(22),
+                                      ),
+                                      child: Text(
+                                        widget.tag,
+                                        style: TextStyleClass.fredoka(
+                                          color: Colors.black,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+
+                                  // Series Title
+                                  Positioned(
+                                    left: 17,
+                                    bottom: 30,
+                                    right: 27,
+                                    child: Text(
+                                      widget.title,
+                                      style: _getLanguageTextStyle(
+                                          snapshot.selectedLanguage),
+                                    ),
+                                  ),
+
+                                  // Episode Count
+                                  Positioned(
+                                    left: 17,
+                                    bottom: 8,
+                                    child: Text(
+                                      '${snapshot.episodeModel!.data!.length} Episodes',
+                                      style: TextStyleClass.openSansSemiBold(
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            // Description Section
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 17),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Description:',
                                     style: TextStyleClass.fredoka(
-                                      color: Colors.white,
+                                      color: themeProvider.isDarkMode
+                                          ? Colors.white
+                                          : Colors.black,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    // snapshot.episodeModel!.data!.isNotEmpty &&
+                                    //         snapshot.episodeModel!.data![0]
+                                    //                 .adBanner !=
+                                    //             null
+                                    //     ? snapshot.episodeModel!.data![0].adBanner!
+                                    //     :
+                                    'Discover amazing stories filled with adventure, friendship, and fun! Each episode brings new characters and exciting journeys that will spark your imagination.',
+                                    style: TextStyleClass.openSans(
+                                      color: themeProvider.isDarkMode
+                                          ? Colors.white
+                                          : Colors.black,
                                       fontSize: 14,
                                     ),
                                   ),
-                                ),
+                                ],
                               ),
-
-                              // Series Title
-                              Positioned(
-                                left: 17,
-                                bottom: 30,
-                                right: 27,
-                                child: Text(
-                                  widget.title,
-                                  style: _getLanguageTextStyle(
-                                      snapshot.selectedLanguage),
-                                ),
-                              ),
-
-                              // Episode Count
-                              Positioned(
-                                left: 17,
-                                bottom: 8,
-                                child: Text(
-                                  '${snapshot.episodeModel!.data!.length} Episodes',
-                                  style: TextStyleClass.openSansSemiBold(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Description Section
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 17),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Description:',
-                                style: TextStyleClass.fredoka(
-                                  color: Colors.black,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                // snapshot.episodeModel!.data!.isNotEmpty &&
-                                //         snapshot.episodeModel!.data![0]
-                                //                 .adBanner !=
-                                //             null
-                                //     ? snapshot.episodeModel!.data![0].adBanner!
-                                //     :
-                                'Discover amazing stories filled with adventure, friendship, and fun! Each episode brings new characters and exciting journeys that will spark your imagination.',
-                                style: GoogleFonts.openSans(
-                                  color: Colors.black,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        const SizedBox(height: 24),
-
-                        // Episodes Section
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 17),
-                          child: Text(
-                            'Episodes:',
-                            style: TextStyleClass.fredoka(
-                              color: Colors.black,
-                              fontSize: 20,
                             ),
-                          ),
-                        ),
 
-                        const SizedBox(height: 16),
+                            const SizedBox(height: 24),
 
-                        // Episodes List
-                        ...List.generate(
-                          snapshot.episodeModel!.data!.length,
-                          (index) {
-                            final episode = snapshot.episodeModel!.data![index];
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 18, vertical: 8),
-                              child: _buildEpisodeCard(
-                                episode: episode,
-                                index: index + 1,
-                                selectedLanguage: snapshot.selectedLanguage,
-                                onTap: () => navigatePR(
-                                  context: context,
-                                  screen: StoryReadingScreen(
-                                    id: episode.id.toString(),
-                                    title:
-                                        "${widget.title}: ${_getEpisodeTitle(episode, snapshot.selectedLanguage)}",
-                                    thumbnail:
-                                        '${ApiUrls.assetBaseUrl}${episode.coverImage}',
-                                    tag: widget.tag,
-                                    pdfUrl: ApiUrls.assetBaseUrl +
-                                        _getEpisodeFile(
-                                            episode, snapshot.selectedLanguage),
-                                  ),
+                            // Episodes Section
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 17),
+                              child: Text(
+                                'Episodes:',
+                                style: TextStyleClass.fredoka(
+                                  color: themeProvider.isDarkMode
+                                      ? Colors.white
+                                      : Colors.black,
+                                  fontSize: 20,
                                 ),
                               ),
-                            );
-                          },
-                        ),
+                            ),
 
-                        // Add bottom padding to account for floating button
-                        const SizedBox(height: 100),
-                      ],
+                            const SizedBox(height: 16),
+
+                            // Episodes List
+                            ...List.generate(
+                              snapshot.episodeModel!.data!.length,
+                              (index) {
+                                final episode =
+                                    snapshot.episodeModel!.data![index];
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 18, vertical: 8),
+                                  child: _buildEpisodeCard(
+                                    episode: episode,
+                                    index: index + 1,
+                                    selectedLanguage: snapshot.selectedLanguage,
+                                    themeProvider: themeProvider,
+                                    onTap: () => navigatePR(
+                                      context: context,
+                                      screen: StoryReadingScreen(
+                                        id: episode.id.toString(),
+                                        title:
+                                            "${widget.title}: ${_getEpisodeTitle(episode, snapshot.selectedLanguage)}",
+                                        thumbnail:
+                                            '${ApiUrls.assetBaseUrl}${episode.coverImage}',
+                                        tag: widget.tag,
+                                        pdfUrl: ApiUrls.assetBaseUrl +
+                                            _getEpisodeFile(episode,
+                                                snapshot.selectedLanguage),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+
+                            // Add bottom padding to account for floating button
+                            const SizedBox(height: 100),
+                          ],
+                        ),
+                      ),
+                    ),
+            ),
+          ),
+          // Floating Action Button for "Read first episode"
+          floatingActionButton: Consumer<HomeProvider>(
+            builder: (context, snapshot, _) {
+              if (snapshot.episodeModel == null ||
+                  snapshot.episodeModel!.data!.isEmpty) {
+                return const SizedBox.shrink();
+              }
+
+              return Container(
+                width: 200,
+                height: 50,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(28),
+                  gradient: const LinearGradient(
+                    colors: [
+                      Color(0xFFAC28DC),
+                      Color(0xFF7E1EB7),
+                      Color(0xFF501392)
+                    ],
+                    stops: [0, 0.50, 1],
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFFAC28DC).withOpacity(0.3),
+                      blurRadius: 6,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: FloatingActionButton.extended(
+                  onPressed: () {
+                    final firstEpisode = snapshot.episodeModel!.data![0];
+                    navigatePR(
+                      context: context,
+                      screen: StoryReadingScreen(
+                        id: firstEpisode.id.toString(),
+                        title:
+                            "${widget.title}: ${_getEpisodeTitle(firstEpisode, snapshot.selectedLanguage)}",
+                        thumbnail:
+                            '${ApiUrls.assetBaseUrl}${firstEpisode.coverImage}',
+                        tag: widget.tag,
+                        pdfUrl: ApiUrls.assetBaseUrl +
+                            _getEpisodeFile(
+                                firstEpisode, snapshot.selectedLanguage),
+                      ),
+                    );
+                  },
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  label: Text(
+                    'Read first episode',
+                    style: TextStyleClass.fredoka(
+                      color: Colors.white,
+                      fontSize: 16,
                     ),
                   ),
                 ),
-        ),
-      ),
-      // Floating Action Button for "Read first episode"
-      floatingActionButton: Consumer<HomeProvider>(
-        builder: (context, snapshot, _) {
-          if (snapshot.episodeModel == null ||
-              snapshot.episodeModel!.data!.isEmpty) {
-            return const SizedBox.shrink();
-          }
-
-          return Container(
-            width: 200,
-            height: 50,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(28),
-              gradient: const LinearGradient(
-                colors: [
-                  Color(0xFFAC28DC),
-                  Color(0xFF7E1EB7),
-                  Color(0xFF501392)
-                ],
-                stops: [0, 0.50, 1],
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFFAC28DC).withOpacity(0.3),
-                  blurRadius: 6,
-                  offset: const Offset(0, 6),
-                ),
-              ],
-            ),
-            child: FloatingActionButton.extended(
-              onPressed: () {
-                final firstEpisode = snapshot.episodeModel!.data![0];
-                navigatePR(
-                  context: context,
-                  screen: StoryReadingScreen(
-                    id: firstEpisode.id.toString(),
-                    title:
-                        "${widget.title}: ${_getEpisodeTitle(firstEpisode, snapshot.selectedLanguage)}",
-                    thumbnail:
-                        '${ApiUrls.assetBaseUrl}${firstEpisode.coverImage}',
-                    tag: widget.tag,
-                    pdfUrl: ApiUrls.assetBaseUrl +
-                        _getEpisodeFile(
-                            firstEpisode, snapshot.selectedLanguage),
-                  ),
-                );
-              },
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              label: Text(
-                'Read first episode',
-                style: TextStyleClass.fredoka(
-                  color: Colors.white,
-                  fontSize: 16,
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+              );
+            },
+          ),
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerFloat,
+        );
+      },
     );
   }
 
@@ -378,13 +408,14 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
     required EpisodeData episode,
     required int index,
     required String selectedLanguage,
+    required ThemeProvider themeProvider,
     required VoidCallback onTap,
   }) {
     return Container(
       width: double.infinity,
       height: 106,
       decoration: BoxDecoration(
-        color: const Color(0xFFF9F9F9),
+        color: themeProvider.isDarkMode ? ColorClass.black : Color(0xFFF9F9F9),
         borderRadius: BorderRadius.circular(24),
       ),
       child: Stack(
@@ -405,16 +436,22 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
                       height: 86,
                       fit: BoxFit.cover,
                       placeholder: (context, url) => Container(
-                        color: Colors.grey[300],
+                        color: themeProvider.isDarkMode
+                            ? ColorClass.black.withOpacity(0.3)
+                            : Colors.grey[300],
                         child: const Center(
                           child: CupertinoActivityIndicator(),
                         ),
                       ),
                       errorWidget: (context, url, error) => Container(
-                        color: Colors.grey[300],
-                        child: const Icon(
+                        color: themeProvider.isDarkMode
+                            ? ColorClass.black.withOpacity(0.3)
+                            : Colors.grey[300],
+                        child: Icon(
                           Icons.error_outline,
-                          color: Colors.grey,
+                          color: themeProvider.isDarkMode
+                              ? Colors.white
+                              : Colors.grey,
                         ),
                       ),
                     ),
@@ -431,7 +468,9 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
                         Text(
                           _getEpisodeTitle(episode, selectedLanguage),
                           style: TextStyleClass.fredoka(
-                            color: Colors.black,
+                            color: themeProvider.isDarkMode
+                                ? Colors.white
+                                : Colors.black,
                             fontSize: 16,
                           ),
                           maxLines: 2,
@@ -440,10 +479,11 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
                         const SizedBox(height: 4),
                         Text(
                           'Episode: $index',
-                          style: GoogleFonts.openSans(
-                            color: const Color(0x7F000000),
+                          style: TextStyleClass.openSans(
+                            color: themeProvider.isDarkMode
+                                ? Colors.white.withOpacity(0.7)
+                                : Color(0x7F000000),
                             fontSize: 14,
-                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
@@ -574,9 +614,10 @@ class _BookmarkButtonState extends State<BookmarkButton>
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: const Text(
+                    content: Text(
                       'Removed from bookmarks',
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyleClass.openSans(
+                          color: Colors.white, fontSize: 12),
                     ),
                     duration: const Duration(seconds: 1),
                     backgroundColor: Colors.red.withOpacity(0.8),
@@ -597,9 +638,10 @@ class _BookmarkButtonState extends State<BookmarkButton>
               if (success && context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: const Text(
+                    content: Text(
                       'Added to bookmarks',
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyleClass.openSans(
+                          color: Colors.white, fontSize: 12),
                     ),
                     duration: const Duration(seconds: 2),
                     action: SnackBarAction(

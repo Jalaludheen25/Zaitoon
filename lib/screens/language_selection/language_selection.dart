@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:zaitoon/providers/theme_provider.dart';
+import 'package:zaitoon/constants/textstyle_class.dart';
 
 class LanguageSelection extends StatelessWidget {
   const LanguageSelection({super.key});
@@ -26,11 +28,12 @@ class LanguageSelection extends StatelessWidget {
 
   void _showLanguageNotAvailableDialog(
       BuildContext context, String languageName) {
+        final isDark = context.read<ThemeProvider>().isDarkMode;
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: ColorClass.white,
+          backgroundColor: isDark ? ColorClass.black : ColorClass.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
             side: BorderSide(color: ColorClass.grad1),
@@ -72,7 +75,7 @@ class LanguageSelection extends StatelessWidget {
                 '$languageName content is not available yet.',
                 style: GoogleFonts.poppins(
                   fontSize: 14,
-                  color: ColorClass.black87,
+                  color: isDark ? ColorClass.white : ColorClass.black87,
                 ),
               ),
               const SizedBox(height: 12),
@@ -80,7 +83,7 @@ class LanguageSelection extends StatelessWidget {
                 'Please select English or Malayalam to enjoy our stories.',
                 style: GoogleFonts.poppins(
                   fontSize: 14,
-                  color: ColorClass.grad3,
+                  color: isDark? ColorClass.violet30 : ColorClass.grad3,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -106,27 +109,29 @@ class LanguageSelection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Set system UI overlay style for white status bar
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        statusBarBrightness: Brightness.light,
-        systemNavigationBarColor: Colors.transparent,
-        systemNavigationBarIconBrightness: Brightness.dark,
-      ),
-    );
-
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage(ImageClass.languageBg),
-            fit: BoxFit.cover,
-            filterQuality: FilterQuality.high,
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        // Set system UI overlay style for white status bar
+        SystemChrome.setSystemUIOverlayStyle(
+          SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness: themeProvider.isDarkMode ? Brightness.light : Brightness.dark,
+            statusBarBrightness: themeProvider.isDarkMode ? Brightness.dark : Brightness.light,
+            systemNavigationBarColor: Colors.transparent,
+            systemNavigationBarIconBrightness: themeProvider.isDarkMode ? Brightness.light : Brightness.dark,
           ),
-        ),
-        child: Stack(
+        );
+
+        return Scaffold(
+          body: Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(themeProvider.isDarkMode ? ImageClass.languageDark : ImageClass.languageBg),
+                fit: BoxFit.cover,
+                filterQuality: FilterQuality.high,
+              ),
+            ),
+            child: Stack(
           children: [
             // Content positioned at bottom
             Positioned(
@@ -165,7 +170,7 @@ class LanguageSelection extends StatelessWidget {
                         'Select your language for stories\nyou can change it anytime later',
                         style: GoogleFonts.openSans(
                           fontSize: 16,
-                          color: ColorClass.black87.withOpacity(0.4),
+                          color: themeProvider.isDarkMode ? ColorClass.white : ColorClass.black87.withOpacity(0.4),
                           height: 1.5,
                         ),
                         textAlign: TextAlign.center,
@@ -295,8 +300,10 @@ class LanguageSelection extends StatelessWidget {
               ),
             ),
           ],
-        ),
-      ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -307,6 +314,7 @@ class LanguageSelection extends StatelessWidget {
     required String label,
     required String? fontFamily,
   }) {
+    final isDark = context.read<ThemeProvider>().isDarkMode;
     return Expanded(
       child: SizedBox(
         width: 145.0,
@@ -322,7 +330,7 @@ class LanguageSelection extends StatelessWidget {
                 border: Border.all(
                   color: isSelected
                       ? ColorClass.violet30
-                      : ColorClass.black87.withOpacity(0.2),
+                      : Theme.of(context).brightness == Brightness.dark ? ColorClass.white : ColorClass.black87.withOpacity(0.2),
                   width: 1.5,
                 ),
                 boxShadow: isSelected
@@ -335,7 +343,7 @@ class LanguageSelection extends StatelessWidget {
                         ),
                       ]
                     : null,
-                color: Colors.white,
+                color: isDark ? Colors.black : Colors.white,
               ),
               child: Stack(
                 children: [
@@ -344,7 +352,7 @@ class LanguageSelection extends StatelessWidget {
                     Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
-                        color: ColorClass.violet30.withOpacity(0.15),
+                        color: isDark ? ColorClass.violet30.withOpacity(0.5) : ColorClass.violet30.withOpacity(0.15),
                       ),
                     ),
 
@@ -368,7 +376,7 @@ class LanguageSelection extends StatelessWidget {
                                 end: Alignment.bottomRight,
                               ),
                         color: isSelected
-                            ? ColorClass.violet30.withOpacity(0.15)
+                            ? isDark ? ColorClass.violet30 : ColorClass.violet30.withOpacity(0.15)
                             : null,
                         borderRadius: BorderRadius.circular(6.0),
                       ),
@@ -378,7 +386,7 @@ class LanguageSelection extends StatelessWidget {
                           style: GoogleFonts.inter(
                             fontWeight: FontWeight.w700,
                             color:
-                                isSelected ? ColorClass.black87 : Colors.white,
+                                isSelected ? isDark ? Colors.white : ColorClass.black87 : Colors.white,
                             fontSize: 15.0,
                           ),
                         ),
@@ -392,9 +400,8 @@ class LanguageSelection extends StatelessWidget {
                     top: 13.0,
                     child: Text(
                       label,
-                      style: GoogleFonts.inter(
-                        color: ColorClass.black87,
-                        fontWeight: FontWeight.w600,
+                      style: TextStyleClass.openSans(
+                        color: Theme.of(context).brightness == Brightness.dark ? ColorClass.white : ColorClass.black87,
                         fontSize: 13.0,
                       ),
                     ),
@@ -406,10 +413,10 @@ class LanguageSelection extends StatelessWidget {
                     top: 35.0,
                     child: Text(
                       _getLanguageSecondaryText(label),
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.openSans(
                         fontWeight: FontWeight.w400,
                         fontSize: 11.0,
-                        color: ColorClass.black87,
+                        color: Theme.of(context).brightness == Brightness.dark ? ColorClass.white : ColorClass.black87,
                       ),
                     ),
                   ),

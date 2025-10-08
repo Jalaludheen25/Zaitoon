@@ -559,11 +559,11 @@ class _RegistrationPopupState extends State<RegistrationPopup> {
 
   Future<void> _submitRegistration() async {
     if (!_formKey.currentState!.validate()) {
-      print('Form validation failed');
+      debugPrint('Form validation failed');
       return;
     }
 
-    print('Form validation passed, submitting...');
+    debugPrint('Form validation passed, submitting...');
     final provider = context.read<RegistrationProvider>();
     provider.clearError();
 

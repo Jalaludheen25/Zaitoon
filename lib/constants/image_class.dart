@@ -6,7 +6,9 @@ class ImageClass {
   static const String splashBgDark = '${imageRoot}LogoWhite.png';
   static const String whiteLogo = '${imageRoot}appicon_plain.png';
   static const String loginBg = '${imageRoot}loginbg.png';
+  static const String loginDark = '${imageRoot}logindark.png';
   static const String languageBg = '${imageRoot}languageBg.png';
+  static const String languageDark = '${imageRoot}languagedark.png';
   // Onboarding screens
   static const String onboard1 = '${imageRoot}onboard1.png';
   static const String onboard2 = '${imageRoot}onboard2.png';

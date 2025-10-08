@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/registration_model.dart';
+import 'package:flutter/material.dart';
 
 class RegistrationService {
   static const String baseUrl = 'https://cenloginbackend.d4dx.co';
@@ -21,7 +22,7 @@ class RegistrationService {
       );
 
       if (response.statusCode == 200) {
-        print('Districts API Response: ${response.body}');
+        debugPrint('Districts API Response: ${response.body}');
         final responseData = json.decode(response.body);
 
         // Handle different response structures
@@ -32,7 +33,7 @@ class RegistrationService {
         } else if (responseData is List<dynamic>) {
           data = responseData;
         } else {
-          print('Unexpected response format: $responseData');
+          debugPrint('Unexpected response format: $responseData');
           throw Exception('Unexpected response format');
         }
 
@@ -111,8 +112,8 @@ class RegistrationService {
   static Future<bool> submitRegistration(RegistrationModel registration) async {
     try {
       final requestBody = json.encode(registration.toJson());
-      print('Registration API URL: $registrationEndpoint');
-      print('Registration Request Body: $requestBody');
+      debugPrint('Registration API URL: $registrationEndpoint');
+      debugPrint('Registration Request Body: $requestBody');
 
       final response = await http.post(
         Uri.parse(registrationEndpoint),
@@ -120,8 +121,8 @@ class RegistrationService {
         body: requestBody,
       );
 
-      print('Registration Response Status: ${response.statusCode}');
-      print('Registration Response Body: ${response.body}');
+      debugPrint('Registration Response Status: ${response.statusCode}');
+      debugPrint('Registration Response Body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return true;

@@ -17,6 +17,7 @@ import '../../../constants/color_class.dart';
 import '../../../constants/image_class.dart';
 import '../../../constants/icon_class.dart';
 import '../../../helper/navigation_helper.dart';
+import '../../../providers/theme_provider.dart';
 
 class UserDataCollection extends StatefulWidget {
   final bool isFromOnboarding;
@@ -120,26 +121,28 @@ class _UserDataCollectionState extends State<UserDataCollection> {
 
   @override
   Widget build(BuildContext context) {
-    // Set system UI overlay style to dark
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark,
-        statusBarBrightness: Brightness.light,
-        systemNavigationBarColor: Colors.transparent,
-        systemNavigationBarIconBrightness: Brightness.dark,
-      ),
-    );
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        // Set system UI overlay style to dark
+        SystemChrome.setSystemUIOverlayStyle(
+          SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness: themeProvider.isDarkMode ? Brightness.light : Brightness.dark,
+            statusBarBrightness: themeProvider.isDarkMode ? Brightness.dark : Brightness.light,
+            systemNavigationBarColor: Colors.transparent,
+            systemNavigationBarIconBrightness: themeProvider.isDarkMode ? Brightness.light : Brightness.dark,
+          ),
+        );
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
+        return Scaffold(
+          backgroundColor: themeProvider.isDarkMode ? ColorClass.black : Colors.white,
+          resizeToAvoidBottomInset: true,
+          appBar: AppBar(
+            backgroundColor: themeProvider.isDarkMode ? ColorClass.black : Colors.white,
+            elevation: 0,
+            centerTitle: true,
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back_ios_new, color: themeProvider.isDarkMode ? ColorClass.white : Colors.black),
           onPressed: () {
             navigateAndRemove(
               context: context,
@@ -249,7 +252,7 @@ class _UserDataCollectionState extends State<UserDataCollection> {
                         "Swipe to choose avatar",
                         style: TextStyleClass.openSans(
                           fontSize: 16,
-                          color: Colors.black54,
+                          color: themeProvider.isDarkMode ? ColorClass.white : Colors.black54,
                         ),
                       ),
                       // Container(
@@ -334,10 +337,9 @@ class _UserDataCollectionState extends State<UserDataCollection> {
                                   children: [
                                     Text(
                                       "What's your Gender?",
-                                      style: GoogleFonts.openSans(
+                                      style: TextStyleClass.fredoka(
                                         fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                        color: ColorClass.black,
+                                        color: themeProvider.isDarkMode ? ColorClass.white : ColorClass.black,
                                       ),
                                     ),
                                     const SizedBox(height: 16),
@@ -413,7 +415,9 @@ class _UserDataCollectionState extends State<UserDataCollection> {
             ],
           );
         },
-      ),
+      )
+        );
+      },
     );
   }
 

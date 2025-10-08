@@ -18,6 +18,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:zaitoon/screens/home_screen/provider/home_provider.dart';
 import 'package:zaitoon/screens/user_data_collection_screen/provider/user_data_provider.dart';
+import 'package:zaitoon/providers/theme_provider.dart';
 
 class StoryReadingScreen extends StatefulWidget {
   final String pdfUrl;
@@ -297,7 +298,7 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
                     IconClass.frame,
                     width: 24,
                     height: 24,
-                    ),
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     'Keep Reading',
@@ -316,84 +317,90 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
   }
 
   Widget _buildLoadingOverlay() {
-    return Container(
-      color: Colors.white,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                color: ColorClass.primaryColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  TweenAnimationBuilder(
-                    duration: const Duration(seconds: 2),
-                    tween: Tween(begin: 0.0, end: 2.0 * 3.14159),
-                    builder: (context, double value, child) {
-                      return Transform.rotate(
-                        angle: value,
-                        child: const Icon(
-                          Icons.auto_stories,
-                          size: 40,
-                          color: ColorClass.primaryColor,
-                        ),
-                      );
-                    },
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return Container(
+          color: themeProvider.isDarkMode ? Colors.black : Colors.white,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    color: ColorClass.primaryColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  TweenAnimationBuilder(
-                    duration: const Duration(seconds: 1),
-                    tween: Tween(begin: 0.8, end: 1.2),
-                    builder: (context, double value, child) {
-                      return Transform.scale(
-                        scale: value,
-                        child: Container(
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      TweenAnimationBuilder(
+                        duration: const Duration(seconds: 2),
+                        tween: Tween(begin: 0.0, end: 2.0 * 3.14159),
+                        builder: (context, double value, child) {
+                          return Transform.rotate(
+                            angle: value,
+                            child: const Icon(
+                              Icons.auto_stories,
+                              size: 40,
                               color: ColorClass.primaryColor,
-                              width: 2,
                             ),
-                          ),
-                        ),
-                      );
-                    },
+                          );
+                        },
+                      ),
+                      TweenAnimationBuilder(
+                        duration: const Duration(seconds: 1),
+                        tween: Tween(begin: 0.8, end: 1.2),
+                        builder: (context, double value, child) {
+                          return Transform.scale(
+                            scale: value,
+                            child: Container(
+                              width: 80,
+                              height: 80,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: ColorClass.primaryColor,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 24),
+                const DefaultTextStyle(
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: ColorClass.violet20,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  child: LoadingText(),
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  width: 200,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: themeProvider.isDarkMode
+                        ? Colors.black.withOpacity(0.3)
+                        : Colors.white.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                  child: LinearProgressIndicator(
+                    backgroundColor: ColorClass.primaryColor.withOpacity(0.1),
+                    color: ColorClass.primaryColor,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 24),
-            const DefaultTextStyle(
-              style: TextStyle(
-                fontSize: 16,
-                color: ColorClass.violet20,
-                fontWeight: FontWeight.w500,
-              ),
-              child: LoadingText(),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              width: 200,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(2),
-              ),
-              child: LinearProgressIndicator(
-                backgroundColor: ColorClass.primaryColor.withOpacity(0.1),
-                color: ColorClass.primaryColor,
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -405,11 +412,11 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
       width: 40,
       height: 40,
       decoration: BoxDecoration(
-        color: ColorClass.white.withOpacity(0.2),
+        color: ColorClass.white.withOpacity(0.5),
         shape: BoxShape.circle,
       ),
       child: IconButton(
-        icon: Icon(icon, color: ColorClass.primaryColor, size: 20),
+        icon: Icon(icon, color: ColorClass.black, size: 20),
         onPressed: onPressed,
         padding: EdgeInsets.zero,
       ),
@@ -424,7 +431,7 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: ColorClass.white.withOpacity(0.2),
+            color: ColorClass.white.withOpacity(0.5),
             shape: BoxShape.circle,
           ),
           child: IconButton(
@@ -435,7 +442,7 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
                 key: ValueKey(isBookmarked),
                 color: isBookmarked
                     ? ColorClass.coquelicot
-                    : ColorClass.primaryColor,
+                    : ColorClass.black,
                 size: 20,
               ),
             ),

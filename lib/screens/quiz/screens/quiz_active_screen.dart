@@ -6,6 +6,7 @@ import 'package:zaitoon/constants/textstyle_class.dart';
 import 'package:zaitoon/screens/bottom_navigation/bottom_navigation.dart';
 import 'package:zaitoon/screens/quiz/provider/quiz_provider.dart';
 import 'package:flutter/services.dart';
+import 'package:zaitoon/providers/theme_provider.dart';
 
 class QuizActiveScreen extends StatefulWidget {
   const QuizActiveScreen({super.key});
@@ -30,6 +31,7 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
   }
 
   void _showTimeOverDialog() {
+    final themeProvider = context.read<ThemeProvider>();
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -41,10 +43,10 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
           child: Container(
             padding: const EdgeInsets.all(24.0),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: themeProvider.isDarkMode ? Colors.black : Colors.white,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: Colors.deepPurple,
+                color: ColorClass.violet30,
                 width: 0.3,
               ),
             ),
@@ -72,7 +74,7 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
                   'Time\'s Up!',
                   style: TextStyleClass.fredoka(
                     fontSize: 20,
-                    color: Colors.black,
+                    color: themeProvider.isDarkMode ? Colors.white : Colors.black,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -81,7 +83,7 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
                   'The quiz time is over. Your answers will be submitted automatically.',
                   style: TextStyleClass.openSans(
                     fontSize: 14,
-                    color: Colors.black54,
+                    color: themeProvider.isDarkMode ? ColorClass.white : Colors.black54,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -121,7 +123,7 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
                               context: context,
                               barrierDismissible: false,
                               builder: (context) => AlertDialog(
-                                backgroundColor: ColorClass.white,
+                                backgroundColor: themeProvider.isDarkMode ? Colors.black : ColorClass.white,
                                 title: Row(
                                   children: [
                                     const Icon(
@@ -133,16 +135,16 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
                                       'Submission Failed',
                                       style: TextStyleClass.fredoka(
                                         fontSize: 18,
-                                        color: ColorClass.black,
+                                        color: themeProvider.isDarkMode ? Colors.white : ColorClass.black,
                                       ),
                                     ),
                                   ],
                                 ),
                                 content: Text(
                                   e.toString().replaceAll('Exception: ', ''),
-                                  style: TextStyleClass.poppinsRegular(
+                                  style: TextStyleClass.openSans(
                                     fontSize: 14,
-                                    color: ColorClass.black87,
+                                    color: themeProvider.isDarkMode ? Colors.white : ColorClass.black87,
                                   ),
                                 ),
                                 actions: [
@@ -160,7 +162,7 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
                                       'Return to Home',
                                       style: TextStyleClass.fredokaRegular(
                                         fontSize: 14,
-                                        color: ColorClass.black87,
+                                        color: themeProvider.isDarkMode ? Colors.white : ColorClass.black87,
                                       ),
                                     ),
                                   ),
@@ -202,10 +204,13 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
                                               context: context,
                                               barrierDismissible: false,
                                               builder: (context) => AlertDialog(
-                                                backgroundColor: ColorClass
+                                                backgroundColor: themeProvider.isDarkMode ? Colors.black : ColorClass
                                                     .white, //check here the color, change it to black
-                                                title: const Text(
-                                                    'Submission Failed'),
+                                                title: Text(
+                                                    'Submission Failed', style: TextStyleClass.openSans(
+                                                      fontSize: 18,
+                                                      color: themeProvider.isDarkMode ? Colors.white : ColorClass.black,
+                                                    ),),
                                                 content: Text(e.toString()),
                                                 actions: [
                                                   TextButton(
@@ -220,8 +225,10 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
                                                                 )),
                                                       );
                                                     },
-                                                    child: const Text(
-                                                        'Return to Home'), //check the color here
+                                                    child: Text(
+                                                        'Return to Home', style: TextStyleClass.openSans(
+                                                      fontSize: 18,
+                                                      color: themeProvider.isDarkMode ? Colors.white : ColorClass.black),), //check the color here
                                                   ),
                                                 ],
                                               ),
@@ -233,7 +240,7 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
                                         backgroundColor: Colors.transparent,
                                         shadowColor: Colors.transparent,
                                         overlayColor:
-                                            Colors.white.withOpacity(0.2),
+                                            themeProvider.isDarkMode ? Colors.black.withOpacity(0.2) : Colors.white.withOpacity(0.2),
                                         shape: RoundedRectangleBorder(
                                           borderRadius:
                                               BorderRadius.circular(24),
@@ -243,7 +250,7 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
                                         'Try Again',
                                         style: TextStyleClass.fredoka(
                                           fontSize: 14,
-                                          color: Colors.white,
+                                          color: themeProvider.isDarkMode ? Colors.white : Colors.black,
                                         ),
                                       ),
                                     ),
@@ -257,7 +264,7 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.transparent,
                         shadowColor: Colors.transparent,
-                        overlayColor: Colors.white.withOpacity(0.2),
+                        overlayColor: themeProvider.isDarkMode ? Colors.black.withOpacity(0.2) : Colors.white.withOpacity(0.2),
                         padding: const EdgeInsets.symmetric(
                             vertical: 16, horizontal: 24),
                         shape: RoundedRectangleBorder(
@@ -268,7 +275,7 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
                         'Submit & Return',
                         style: TextStyleClass.fredoka(
                           fontSize: 16,
-                          color: Colors.white,
+                          color: themeProvider.isDarkMode ? Colors.white : Colors.black,
                         ),
                       ),
                     ),
@@ -284,58 +291,65 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark,
-        statusBarBrightness: Brightness.light,
-        systemNavigationBarColor: Colors.transparent,
-        systemNavigationBarIconBrightness: Brightness.dark,
-      ),
-    );
-    return Scaffold(
-      backgroundColor: ColorClass.white,
-      body: SafeArea(
-        child: Consumer<QuizProvider>(
-          builder: (context, quizProvider, child) {
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        SystemChrome.setSystemUIOverlayStyle(
+          SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness:
+                themeProvider.isDarkMode ? Brightness.light : Brightness.dark,
+            statusBarBrightness:
+                themeProvider.isDarkMode ? Brightness.dark : Brightness.light,
+            systemNavigationBarColor: Colors.transparent,
+            systemNavigationBarIconBrightness:
+                themeProvider.isDarkMode ? Brightness.light : Brightness.dark,
+          ),
+        );
+        return Scaffold(
+          backgroundColor: themeProvider.isDarkMode ? ColorClass.black : ColorClass.white,
+          body: SafeArea(
+            child: Consumer<QuizProvider>(
+              builder: (context, quizProvider, child) {
             final currentQuestion = quizProvider.currentQuestion;
 
             if (currentQuestion == null) {
-              return _buildLoadingState();
+              return _buildLoadingState(themeProvider);
             }
 
-            return Column(
-              children: [
-                _buildHeader(context, quizProvider),
-                _buildProgressIndicator(quizProvider),
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        children: [
-                          _buildQuestionCard(quizProvider, currentQuestion),
-                          const SizedBox(height: 24),
-                          _buildOptionsSection(quizProvider, currentQuestion),
-                          const SizedBox(height: 24),
-                        ],
+                return Column(
+                  children: [
+                    _buildHeader(context, quizProvider, themeProvider),
+                    _buildProgressIndicator(quizProvider, themeProvider),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            children: [
+                              _buildQuestionCard(quizProvider, currentQuestion, themeProvider),
+                              const SizedBox(height: 24),
+                              _buildOptionsSection(quizProvider, currentQuestion, themeProvider),
+                              const SizedBox(height: 24),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: _buildNavigationButtons(context, quizProvider),
-                ),
-              ],
-            );
-          },
-        ),
-      ),
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: _buildNavigationButtons(context, quizProvider, themeProvider),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildHeader(BuildContext context, QuizProvider quizProvider) {
+  Widget _buildHeader(BuildContext context, QuizProvider quizProvider, ThemeProvider themeProvider) {
     return Container(
       padding: const EdgeInsets.all(16),
       // decoration: BoxDecoration(
@@ -356,9 +370,9 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
                 onPressed: () {
                   Navigator.pop(context); // go back to previous screen
                 },
-                icon: const Icon(
+                icon: Icon(
                   LucideIcons.arrowLeft, // or Icons.arrow_back
-                  color: Colors.black,
+                  color:themeProvider.isDarkMode ? Colors.white : Colors.black,
                 ),
               ),
               const Spacer(),
@@ -366,16 +380,16 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
                 'Question ${quizProvider.currentQuestionIndex + 1} of ${quizProvider.currentQuizQuestions.length}',
                 style: TextStyleClass.fredoka(
                   fontSize: 20,
-                  color: Colors.black,
+                  color: themeProvider.isDarkMode ? Colors.white : Colors.black,
                 ),
               ),
               const Spacer(),
               IconButton(
                 onPressed: () =>
                     _showQuizMenuBottomSheet(context, quizProvider),
-                icon: const Icon(
+                icon: Icon(
                   LucideIcons.menu,
-                  color: Colors.deepPurpleAccent,
+                  color: themeProvider.isDarkMode ? ColorClass.violet30 : Colors.deepPurpleAccent,
                 ),
               ),
             ],
@@ -413,7 +427,7 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
   //   return '${time.hour}:${time.minute.toString().padLeft(2, '0')}';
   // }
 
-  Widget _buildProgressIndicator(QuizProvider quizProvider) {
+  Widget _buildProgressIndicator(QuizProvider quizProvider, ThemeProvider themeProvider) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
@@ -425,7 +439,7 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
                 'Progress',
                 style: TextStyleClass.openSans(
                   fontSize: 12,
-                  color: ColorClass.black.withOpacity(0.7),
+                  color: themeProvider.isDarkMode ? Colors.white : ColorClass.black.withOpacity(0.7),
                 ),
               ),
               const SizedBox.shrink(),
@@ -434,7 +448,7 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
                 text: TextSpan(
                   style: TextStyleClass.openSansSemiBold(
                     fontSize: 16,
-                    color: Colors.black,
+                    color: themeProvider.isDarkMode ? Colors.white : Colors.black,
                   ),
                   children: [
                     TextSpan(
@@ -475,7 +489,7 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
                         height: barHeight,
                         clipBehavior: Clip.hardEdge,
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
+                          color: themeProvider.isDarkMode ? Colors.white : Colors.grey.shade100,
                           borderRadius: BorderRadius.circular(24),
                         ),
                       ),
@@ -513,7 +527,7 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
   }
 
   Widget _buildQuestionCard(
-      QuizProvider quizProvider, dynamic currentQuestion) {
+      QuizProvider quizProvider, dynamic currentQuestion, ThemeProvider themeProvider) {
     final question = quizProvider.currentLanguage == 'en'
         ? currentQuestion.questionEn
         : currentQuestion.questionMl;
@@ -597,7 +611,7 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
           question,
           style: TextStyleClass.fredoka(
             fontSize: 24,
-            color: ColorClass.black,
+            color: themeProvider.isDarkMode ? Colors.white : ColorClass.black,
           ),
         ),
       ],
@@ -605,7 +619,7 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
   }
 
   Widget _buildOptionsSection(
-      QuizProvider quizProvider, dynamic currentQuestion) {
+      QuizProvider quizProvider, dynamic currentQuestion, ThemeProvider themeProvider) {
     final options = quizProvider.currentLanguage == 'en'
         ? currentQuestion.optionsEn
         : currentQuestion.optionsMl;
@@ -625,7 +639,7 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
             margin: const EdgeInsets.only(bottom: 12),
             //padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: ColorClass.containerBg2.withOpacity(0.2),
+              color: themeProvider.isDarkMode ? isSelected? Colors.black :  ColorClass.bg : ColorClass.containerBg2.withOpacity(0.2),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: isSelected
@@ -641,16 +655,15 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
                   width: 50,
                   height: 50,
                   decoration: BoxDecoration(
-                    color: ColorClass.violet30.withOpacity(0.1),
+                    color: themeProvider.isDarkMode ? ColorClass.violet30: ColorClass.violet30.withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Center(
                     child: Text(
                       String.fromCharCode(65 + (index as int)), // A, B, C, D
-                      style: TextStyle(
+                      style: TextStyleClass.fredoka(
                           fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black),
+                          color: themeProvider.isDarkMode ? Colors.white : Colors.black),
                     ),
                   ),
                 ),
@@ -659,7 +672,7 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
                   child: Text(
                     option,
                     style: TextStyleClass.openSans(
-                        fontSize: 16, color: ColorClass.black),
+                        fontSize: 16, color: themeProvider.isDarkMode ? Colors.white : ColorClass.black),
                   ),
                 ),
                 // if (isSelected)
@@ -677,7 +690,7 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
   }
 
   Widget _buildNavigationButtons(
-      BuildContext context, QuizProvider quizProvider) {
+      BuildContext context, QuizProvider quizProvider, ThemeProvider themeProvider) {
     return Row(
       children: [
         if (quizProvider.currentQuestionIndex > 0)
@@ -751,11 +764,11 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
                             showDialog(
                               context: context,
                               builder: (context) => AlertDialog(
-                                backgroundColor: ColorClass.white,
+                                backgroundColor: themeProvider.isDarkMode ? Colors.black : ColorClass.white,
                                 title: Row(
                                   children: [
-                                    const Icon(LucideIcons.alertTriangle,
-                                        color: ColorClass.primaryColor),
+                                    Icon(LucideIcons.alertTriangle,
+                                        color: themeProvider.isDarkMode ? ColorClass. violet30 : ColorClass.primaryColor),
                                     const SizedBox(width: 8),
                                     Text(
                                       quizProvider.error != null
@@ -763,7 +776,7 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
                                           : 'Submit Quiz?',
                                       style: TextStyleClass.fredoka(
                                         fontSize: 18,
-                                        color: ColorClass.black,
+                                        color: themeProvider.isDarkMode ? Colors.white : ColorClass.black,
                                       ),
                                     ),
                                   ],
@@ -774,7 +787,7 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
                                       : 'Are you sure you want to submit the quiz? This action cannot be undone.',
                                   style: TextStyleClass.openSans(
                                     fontSize: 14,
-                                    color: ColorClass.black87,
+                                    color: themeProvider.isDarkMode ? Colors.white : ColorClass.black87,
                                   ),
                                 ),
                                 actions: [
@@ -914,19 +927,20 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
     );
   }
 
-  Widget _buildLoadingState() {
-    return const Center(
+  Widget _buildLoadingState(ThemeProvider themeProvider) {
+    return Center(
       child: CircularProgressIndicator(
-        color: ColorClass.primaryColor,
+        color: themeProvider.isDarkMode ? ColorClass.violet30 : ColorClass.primaryColor,
       ),
     );
   }
 
   void _showQuizMenuBottomSheet(
       BuildContext context, QuizProvider quizProvider) {
+    final themeProvider = context.read<ThemeProvider>();
     showModalBottomSheet(
       context: context,
-      backgroundColor: ColorClass.white,
+      backgroundColor: themeProvider.isDarkMode ? ColorClass.bg : ColorClass.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -941,7 +955,7 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
                 'Quiz Menu',
                 style: TextStyleClass.fredoka(
                   fontSize: 20,
-                  color: ColorClass.black,
+                  color: themeProvider.isDarkMode ? Colors.white : ColorClass.black,
                 ),
               ),
               const SizedBox(height: 24),
@@ -1089,18 +1103,19 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
   }
 
   void _showSubmitDialog(BuildContext context, QuizProvider quizProvider) {
+    final themeProvider = context.read<ThemeProvider>();
     final unansweredCount = quizProvider.currentQuizQuestions.length -
         quizProvider.questionsAnswered;
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: ColorClass.white,
+        backgroundColor: themeProvider.isDarkMode ? Colors.black: ColorClass.white,
         title: Text(
           quizProvider.error != null ? 'Retry Submission?' : 'Submit Quiz?',
           style: TextStyleClass.fredoka(
             fontSize: 20,
-            color: ColorClass.black,
+            color: themeProvider.isDarkMode ? Colors.white : ColorClass.black,
           ),
         ),
         content: Column(
@@ -1120,7 +1135,7 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
                 'You have answered ${quizProvider.questionsAnswered} out of ${quizProvider.currentQuizQuestions.length} questions.',
                 style: TextStyleClass.openSans(
                   fontSize: 14,
-                  color: Colors.black54,
+                  color: themeProvider.isDarkMode ? Colors.white : Colors.black54,
                 ),
               ),
               if (unansweredCount > 0) ...[
@@ -1138,7 +1153,7 @@ class _QuizActiveScreenState extends State<QuizActiveScreen> {
                 'Are you sure you want to submit your quiz?',
                 style: TextStyleClass.fredokaRegular(
                   fontSize: 16,
-                  color: ColorClass.black,
+                  color: themeProvider.isDarkMode ? Colors.white : ColorClass.black,
                 ),
               ),
             ],

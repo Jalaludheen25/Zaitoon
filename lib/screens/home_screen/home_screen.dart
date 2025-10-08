@@ -588,7 +588,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return SizedBox(
       height: 230,
       child: ListView.separated(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 14),
         scrollDirection: Axis.horizontal,
         itemBuilder: (context, index) {
           final story = singleStories[index];
@@ -671,7 +671,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         return SizedBox(
           height: 230,
           child: ListView.separated(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 14),
             scrollDirection: Axis.horizontal,
             itemBuilder: (context, index) {
               final item = sorted[index];
@@ -786,8 +786,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         height: 126,
         clipBehavior: Clip.hardEdge,
         decoration: const BoxDecoration(
-          //color: Colors.white,
-        ),
+            //color: Colors.white,
+            ),
         child: SizedBox(
           width: double.infinity,
           child: Stack(
@@ -839,12 +839,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     String cardType =
         'single', // 'single' for single stories, 'all' for all stories
   }) {
+    final isDark =
+        Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         width: 169,
         decoration: BoxDecoration(
-          color: Color(0xFFF9F9F9),
+          color: isDark ? ColorClass.bg : Color(0xFFF9F9F9),
           borderRadius: BorderRadius.circular(24),
         ),
         child: Column(
@@ -892,26 +894,25 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.openSans(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black,
+                    style: TextStyleClass.fredokaRegular(
+                      fontSize: 16,
+                      color: isDark ? Colors.white : Colors.black,
                     ),
                   ),
-                  const SizedBox(height: 7),
+                  const SizedBox(height: 4),
                   Row(
                     children: [
                       if (cardType == 'single')
                         Icon(
                           LucideIcons.clock,
                           size: 14,
-                          color: Colors.black54,
+                          color: isDark ? Colors.white : Colors.black54,
                         ),
                       if (cardType == 'brightbox')
                         Icon(
                           LucideIcons.box,
                           size: 14,
-                          color: Colors.black54,
+                          color: isDark ? Colors.white : Colors.black54,
                         ),
                       const SizedBox(width: 6),
                       Expanded(
@@ -919,8 +920,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           subtitle,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.openSans(
-                              fontSize: 12, color: Colors.black),
+                          style: TextStyleClass.openSans(
+                              fontSize: 12,
+                              color: isDark ? Colors.white : Colors.black),
                         ),
                       ),
                     ],
@@ -1219,7 +1221,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return SizedBox(
       height: 230,
       child: ListView.separated(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 14),
         scrollDirection: Axis.horizontal,
         itemBuilder: (context, index) {
           final category = categories[index];

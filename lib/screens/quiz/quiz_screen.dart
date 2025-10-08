@@ -4,14 +4,15 @@ import 'package:zaitoon/screens/quiz/provider/quiz_provider.dart';
 import 'package:zaitoon/screens/quiz/screens/quiz_home_screen.dart';
 import 'package:zaitoon/screens/quiz/screens/quiz_active_screen.dart';
 import 'package:zaitoon/screens/quiz/screens/quiz_result_screen.dart';
+import 'package:zaitoon/providers/theme_provider.dart';
 
 class QuizScreen extends StatelessWidget {
   const QuizScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<QuizProvider>(
-      builder: (context, quizProvider, child) {
+    return Consumer2<QuizProvider, ThemeProvider>(
+      builder: (context, quizProvider, themeProvider, child) {
         try {
           debugPrint('QuizScreen: Building...');
           debugPrint(
@@ -37,7 +38,8 @@ class QuizScreen extends StatelessWidget {
         } catch (e) {
           debugPrint('QuizScreen: Error in build method: $e');
           return Scaffold(
-            backgroundColor: Colors.white,
+            backgroundColor:
+                themeProvider.isDarkMode ? Colors.black : Colors.white,
             body: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -60,9 +62,10 @@ class QuizScreen extends StatelessWidget {
                   Text(
                     'Error: $e',
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
-                      color: Colors.grey,
+                      color:
+                          themeProvider.isDarkMode ? Colors.white : Colors.grey,
                     ),
                   ),
                 ],

@@ -10,6 +10,7 @@ import '../../../constants/textstyle_class.dart';
 import '../../../screens/bottom_navigation/provider/bottom_navigation_provider.dart';
 import 'package:provider/provider.dart';
 import 'dart:ui';
+import '../../../providers/theme_provider.dart';
 
 class StudentFormScreen extends StatefulWidget {
   const StudentFormScreen({super.key});
@@ -137,196 +138,187 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: ShaderMask(
-          shaderCallback: (bounds) => const LinearGradient(
-            colors: [
-              ColorClass.grad1,
-              ColorClass.grad2,
-              ColorClass.grad3,
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ).createShader(bounds),
-          child: Text(
-            'Enter your Details',
-            style: TextStyleClass.fredoka(
-              fontSize: 24,
-              color: Colors.white,
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return Scaffold(
+          backgroundColor:
+              themeProvider.isDarkMode ? ColorClass.black : Colors.white,
+          resizeToAvoidBottomInset: true,
+          appBar: AppBar(
+            backgroundColor:
+                themeProvider.isDarkMode ? ColorClass.black : Colors.white,
+            elevation: 0,
+            centerTitle: true,
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back_ios_new,
+                  color:
+                      themeProvider.isDarkMode ? Colors.white : Colors.black),
+              onPressed: () => Navigator.pop(context),
+            ),
+            title: ShaderMask(
+              shaderCallback: (bounds) => const LinearGradient(
+                colors: [
+                  ColorClass.grad1,
+                  ColorClass.grad2,
+                  ColorClass.grad3,
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ).createShader(bounds),
+              child: Text(
+                'Enter your Details',
+                style: TextStyleClass.fredoka(
+                  fontSize: 24,
+                  color: Colors.white,
+                ),
+              ),
             ),
           ),
-        ),
-      ),
-      body: Stack(
-        children: [
-          // Background with blur effects
-          Container(),
+          body: Stack(
+            children: [
+              // Background with blur effects
+              Container(),
 
-          // Top left blur effect
-          Positioned(
-            top: 200,
-            left: -30,
-            child: Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                //shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFFAC28DC).withOpacity(0.25),
-                    Color(0xFF4E1BCF).withOpacity(0.25),
-                    Color(0xFF7E1EB7).withOpacity(0.25),
-                    Color(0xFF501392).withOpacity(0.25),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(150), // ellipse shape
-              ),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(
-                  sigmaX: 50,
-                  sigmaY: 50,
-                ),
+              // Top left blur effect
+              Positioned(
+                top: 200,
+                left: -30,
                 child: Container(
-                  color: Colors.white.withOpacity(0.0), // keeps blur visible
-                ),
-              ),
-            ),
-          ),
-
-          // Top right blur effect
-          Positioned(
-            top: 42,
-            // right: -50,
-            left: 304,
-            child: Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                //shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFFAC28DC).withOpacity(0.25),
-                    Color(0xFF4E1BCF).withOpacity(0.25),
-                    Color(0xFF7E1EB7).withOpacity(0.25),
-                    Color(0xFF501392).withOpacity(0.25),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(150), // ellipse shape
-              ),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(
-                  sigmaX: 50,
-                  sigmaY: 50,
-                ),
-                child: Container(
-                  color: Colors.white.withOpacity(0.0), // keeps blur visible
-                ),
-              ),
-            ),
-          ),
-
-          // Main content
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Column(
-                children: [
-                  //         const SizedBox(height: 20),
-
-                  //         // Welcome message
-                  //         Text(
-                  //           'Join the Quiz!',
-                  //           style: GoogleFonts.fredoka(
-                  //             fontSize: 24,
-                  //             fontWeight: FontWeight.w700,
-                  //             color: ColorClass.black,
-                  //           ),
-                  //         ),
-                  //         const SizedBox(height: 8),
-                  //         Text(
-                  //           'Please fill in your details to continue',
-                  //           style: GoogleFonts.openSans(
-                  //             fontSize: 14,
-                  //             color: Colors.black.withOpacity(0.6),
-                  //           ),
-                  //         ),
-
-                  //         const SizedBox(height: 25),
-
-                  // Form Fields
-                  Expanded(
-                    child: SingleChildScrollView(
-                      keyboardDismissBehavior:
-                          ScrollViewKeyboardDismissBehavior.onDrag,
-                      padding: EdgeInsets.only(
-                        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-                      ),
-                      child: Form(
-                        key: _formKey,
-                        child: Column(
-                          children: [
-                            SizedBox(height: 5),
-                            _buildTextField(
-                              'Student Name',
-                              _nameController,
-                              icon: LucideIcons.user2,
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return 'Please enter student name';
-                                }
-                                return null;
-                              },
-                            ),
-                            const SizedBox(height: 19),
-                            _buildTextField(
-                              'Mobile Number',
-                              _mobileController,
-                              icon: LucideIcons.phone,
-                              keyboardType: TextInputType.phone,
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return 'Please enter mobile number';
-                                }
-                                if (value.length < 10) {
-                                  return 'Please enter a valid mobile number';
-                                }
-                                return null;
-                              },
-                            ),
-                            const SizedBox(height: 19),
-                            _buildGenderSelection(),
-                            const SizedBox(height: 19),
-                            _buildDistrictDropdown(),
-                            const SizedBox(height: 19),
-                            _buildClassDropdown(),
-                            const SizedBox(height: 25),
-                            _buildSubmitButton(),
-                            const SizedBox(height: 10),
-                          ],
-                        ),
-                      ),
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    //shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Color(0xFFAC28DC).withOpacity(0.25),
+                        Color(0xFF4E1BCF).withOpacity(0.25),
+                        Color(0xFF7E1EB7).withOpacity(0.25),
+                        Color(0xFF501392).withOpacity(0.25),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(150), // ellipse shape
+                  ),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(
+                      sigmaX: 50,
+                      sigmaY: 50,
+                    ),
+                    child: Container(
+                      color:
+                          Colors.white.withOpacity(0.0), // keeps blur visible
                     ),
                   ),
-                ],
+                ),
               ),
-            ),
+
+              // Top right blur effect
+              Positioned(
+                top: 42,
+                // right: -50,
+                left: 304,
+                child: Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    //shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Color(0xFFAC28DC).withOpacity(0.25),
+                        Color(0xFF4E1BCF).withOpacity(0.25),
+                        Color(0xFF7E1EB7).withOpacity(0.25),
+                        Color(0xFF501392).withOpacity(0.25),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(150), // ellipse shape
+                  ),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(
+                      sigmaX: 50,
+                      sigmaY: 50,
+                    ),
+                    child: Container(
+                      color:
+                          Colors.white.withOpacity(0.0), // keeps blur visible
+                    ),
+                  ),
+                ),
+              ),
+
+              // Main content
+              SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Column(
+                    children: [
+                      // Form Fields
+                      Expanded(
+                        child: SingleChildScrollView(
+                          keyboardDismissBehavior:
+                              ScrollViewKeyboardDismissBehavior.onDrag,
+                          padding: EdgeInsets.only(
+                            bottom:
+                                MediaQuery.of(context).viewInsets.bottom + 24,
+                          ),
+                          child: Form(
+                            key: _formKey,
+                            child: Column(
+                              children: [
+                                SizedBox(height: 5),
+                                _buildTextField(
+                                  'Student Name',
+                                  _nameController,
+                                  icon: LucideIcons.user2,
+                                  themeProvider: themeProvider,
+                                  validator: (value) {
+                                    if (value == null || value.trim().isEmpty) {
+                                      return 'Please enter student name';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                const SizedBox(height: 19),
+                                _buildTextField(
+                                  'Mobile Number',
+                                  _mobileController,
+                                  icon: LucideIcons.phone,
+                                  keyboardType: TextInputType.phone,
+                                  themeProvider: themeProvider,
+                                  validator: (value) {
+                                    if (value == null || value.trim().isEmpty) {
+                                      return 'Please enter mobile number';
+                                    }
+                                    if (value.length < 10) {
+                                      return 'Please enter a valid mobile number';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                const SizedBox(height: 19),
+                                _buildGenderSelection(themeProvider),
+                                const SizedBox(height: 19),
+                                _buildDistrictDropdown(themeProvider),
+                                const SizedBox(height: 19),
+                                _buildClassDropdown(themeProvider),
+                                const SizedBox(height: 25),
+                                _buildSubmitButton(themeProvider),
+                                const SizedBox(height: 10),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -336,6 +328,7 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
     IconData? icon,
     TextInputType? keyboardType,
     String? Function(String?)? validator,
+    required ThemeProvider themeProvider,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -344,18 +337,24 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
           label,
           style: TextStyleClass.fredokaRegular(
             fontSize: 16,
-            color: ColorClass.black,
+            color:
+                themeProvider.isDarkMode ? ColorClass.white : ColorClass.black,
           ),
         ),
         const SizedBox(height: 12),
         TextFormField(
           controller: controller,
           keyboardType: keyboardType,
-          style: GoogleFonts.openSans(color: ColorClass.black),
+          style: GoogleFonts.openSans(
+              color: themeProvider.isDarkMode
+                  ? ColorClass.white
+                  : ColorClass.black),
           decoration: InputDecoration(
             hintText: 'Enter $label',
             hintStyle: GoogleFonts.openSans(
-              color: Colors.grey[500],
+              color: themeProvider.isDarkMode
+                  ? ColorClass.white.withOpacity(0.5)
+                  : Colors.grey[500],
               fontSize: 14,
             ),
             prefixIcon: Icon(
@@ -369,7 +368,11 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(24),
-              borderSide: BorderSide(color: Colors.grey[300]!, width: 0.5),
+              borderSide: BorderSide(
+                  color: themeProvider.isDarkMode
+                      ? ColorClass.white.withOpacity(0.5)
+                      : Colors.grey[300]!,
+                  width: 0.5),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(24),
@@ -384,7 +387,9 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
               borderSide: BorderSide(color: Colors.red[400]!, width: 2),
             ),
             filled: true,
-            fillColor: Colors.grey[50],
+            fillColor: themeProvider.isDarkMode
+                ? ColorClass.white.withOpacity(0.1)
+                : Colors.grey[50],
             errorStyle: GoogleFonts.openSans(
               color: Colors.red[600],
               fontSize: 12,
@@ -396,7 +401,7 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
     );
   }
 
-  Widget _buildGenderSelection() {
+  Widget _buildGenderSelection(ThemeProvider themeProvider) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -404,7 +409,8 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
           "Gender",
           style: TextStyleClass.fredokaRegular(
             fontSize: 16,
-            color: ColorClass.black,
+            color:
+                themeProvider.isDarkMode ? ColorClass.white : ColorClass.black,
           ),
         ),
         const SizedBox(height: 12),
@@ -441,7 +447,7 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
     );
   }
 
-  Widget _buildDistrictDropdown() {
+  Widget _buildDistrictDropdown(ThemeProvider themeProvider) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -449,19 +455,29 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
           'District',
           style: TextStyleClass.fredoka(
             fontSize: 16,
-            color: ColorClass.black,
+            color:
+                themeProvider.isDarkMode ? ColorClass.white : ColorClass.black,
           ),
         ),
         const SizedBox(height: 12),
         Container(
           decoration: BoxDecoration(
-            color: Colors.grey[50],
+            color: themeProvider.isDarkMode
+                ? ColorClass.white.withOpacity(0.1)
+                : Colors.grey[50],
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Colors.grey[300]!, width: 0.5),
+            border: Border.all(
+                color: themeProvider.isDarkMode
+                    ? ColorClass.white.withOpacity(0.5)
+                    : Colors.grey[300]!,
+                width: 0.5),
           ),
           child: DropdownButtonFormField<String>(
             value: _selectedDistrict,
-            style: GoogleFonts.openSans(color: ColorClass.black),
+            style: GoogleFonts.openSans(
+                color: themeProvider.isDarkMode
+                    ? ColorClass.white
+                    : ColorClass.black),
             decoration: InputDecoration(
               contentPadding: const EdgeInsets.symmetric(
                 vertical: 14,
@@ -476,7 +492,9 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
               enabledBorder: InputBorder.none,
               focusedBorder: InputBorder.none,
             ),
-            dropdownColor: Colors.white,
+            dropdownColor: themeProvider.isDarkMode
+                ? ColorClass.black
+                : ColorClass.violet30,
             icon: Icon(
               LucideIcons.chevronDown,
               color: ColorClass.primaryColor,
@@ -486,7 +504,10 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
                 value: district,
                 child: Text(
                   district,
-                  style: GoogleFonts.openSans(color: ColorClass.black),
+                  style: GoogleFonts.openSans(
+                      color: themeProvider.isDarkMode
+                          ? ColorClass.white
+                          : ColorClass.black),
                 ),
               );
             }).toList(),
@@ -501,7 +522,7 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
     );
   }
 
-  Widget _buildClassDropdown() {
+  Widget _buildClassDropdown(ThemeProvider themeProvider) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -509,19 +530,29 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
           'Class',
           style: TextStyleClass.fredoka(
             fontSize: 16,
-            color: ColorClass.black,
+            color:
+                themeProvider.isDarkMode ? ColorClass.white : ColorClass.black,
           ),
         ),
         const SizedBox(height: 12),
         Container(
           decoration: BoxDecoration(
-            color: Colors.grey[50],
+            color: themeProvider.isDarkMode
+                ? ColorClass.white.withOpacity(0.1)
+                : Colors.grey[50],
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Colors.grey[300]!, width: 0.5),
+            border: Border.all(
+                color: themeProvider.isDarkMode
+                    ? ColorClass.white.withOpacity(0.5)
+                    : Colors.grey[300]!,
+                width: 0.5),
           ),
           child: DropdownButtonFormField<String>(
             value: _selectedClass,
-            style: GoogleFonts.openSans(color: ColorClass.black),
+            style: GoogleFonts.openSans(
+                color: themeProvider.isDarkMode
+                    ? ColorClass.white
+                    : ColorClass.black),
             decoration: InputDecoration(
               contentPadding: const EdgeInsets.symmetric(
                 vertical: 14,
@@ -536,7 +567,9 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
               enabledBorder: InputBorder.none,
               focusedBorder: InputBorder.none,
             ),
-            dropdownColor: Colors.white,
+            dropdownColor: themeProvider.isDarkMode
+                ? ColorClass.black
+                : ColorClass.violet30,
             icon: Icon(
               LucideIcons.chevronDown,
               color: ColorClass.primaryColor,
@@ -546,7 +579,10 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
                 value: classLevel,
                 child: Text(
                   classLevel,
-                  style: GoogleFonts.openSans(color: ColorClass.black),
+                  style: GoogleFonts.openSans(
+                      color: themeProvider.isDarkMode
+                          ? ColorClass.white
+                          : ColorClass.black),
                 ),
               );
             }).toList(),
@@ -561,7 +597,7 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
     );
   }
 
-  Widget _buildSubmitButton() {
+  Widget _buildSubmitButton(ThemeProvider themeProvider) {
     return Container(
       width: 275,
       height: 45,
@@ -584,7 +620,8 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
         onPressed: _isLoading ? null : _saveStudent,
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
-          foregroundColor: Colors.white,
+          foregroundColor:
+              themeProvider.isDarkMode ? ColorClass.black : Colors.white,
           shadowColor: Colors.transparent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -592,12 +629,15 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
           elevation: 0,
         ),
         child: _isLoading
-            ? const SizedBox(
+            ? SizedBox(
                 height: 24,
                 width: 24,
                 child: CircularProgressIndicator(
                   strokeWidth: 2.5,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                      themeProvider.isDarkMode
+                          ? ColorClass.black
+                          : Colors.white),
                 ),
               )
             : Text(
@@ -605,7 +645,9 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
                 style: GoogleFonts.fredoka(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                  color: themeProvider.isDarkMode
+                      ? ColorClass.black
+                      : Colors.white,
                 ),
               ),
       ),

@@ -7,6 +7,7 @@ import 'package:zaitoon/screens/quiz/provider/quiz_provider.dart';
 import 'package:zaitoon/screens/quiz/models/quiz_models.dart';
 import 'package:flutter/services.dart';
 import 'package:zaitoon/screens/bottom_navigation/bottom_navigation.dart';
+import 'package:zaitoon/providers/theme_provider.dart';
 
 class QuizResultDetailScreen extends StatefulWidget {
   final QuizSession session;
@@ -55,47 +56,60 @@ class _QuizResultDetailScreenState extends State<QuizResultDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark,
-        statusBarBrightness: Brightness.light,
-        systemNavigationBarColor: Colors.transparent,
-        systemNavigationBarIconBrightness: Brightness.dark,
-      ),
-    );
-    return Scaffold(
-      backgroundColor: ColorClass.white,
-      body: SafeArea(
-        child: _isLoading
-        ? const Center(
-            child: CircularProgressIndicator(
-              color: ColorClass.primaryColor,
-            ),
-          )
-        : CustomScrollView(
-            slivers: [
-              _buildAppBar(),
-              //_buildResultSummary(),
-              _buildQuestionsList(),
-              SliverToBoxAdapter(
-                child: SizedBox(
-                    height: 100), // Add bottom padding for the floating button
-              ),
-            ],
-          ),    
-      ),
-      floatingActionButton: _buildBackToHomeButton(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        SystemChrome.setSystemUIOverlayStyle(
+          SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness:
+                themeProvider.isDarkMode ? Brightness.light : Brightness.dark,
+            statusBarBrightness:
+                themeProvider.isDarkMode ? Brightness.dark : Brightness.light,
+            systemNavigationBarColor:
+                themeProvider.isDarkMode ? ColorClass.black : Colors.white,
+            systemNavigationBarIconBrightness:
+                themeProvider.isDarkMode ? Brightness.light : Brightness.dark,
+          ),
+        );
+        return Scaffold(
+          backgroundColor:
+              themeProvider.isDarkMode ? ColorClass.black : ColorClass.white,
+          body: SafeArea(
+            child: _isLoading
+                ? Center(
+                    child: CircularProgressIndicator(
+                      color: themeProvider.isDarkMode
+                          ? ColorClass.violet30
+                          : ColorClass.primaryColor,
+                    ),
+                  )
+                : CustomScrollView(
+                    slivers: [
+                      _buildAppBar(themeProvider),
+                      //_buildResultSummary(),
+                      _buildQuestionsList(themeProvider),
+                      SliverToBoxAdapter(
+                        child: SizedBox(
+                            height:
+                                100), // Add bottom padding for the floating button
+                      ),
+                    ],
+                  ),
+          ),
+          floatingActionButton: _buildBackToHomeButton(),
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerFloat,
+        );
+      },
     );
   }
 
-  Widget _buildAppBar() {
+  Widget _buildAppBar(ThemeProvider themeProvider) {
     return SliverAppBar(
       leading: IconButton(
-        icon: const Icon(
+        icon: Icon(
           LucideIcons.chevronLeft,
-          color: ColorClass.black,
+          color: themeProvider.isDarkMode ? Colors.white : ColorClass.black,
         ),
         onPressed: () => Navigator.pop(context),
       ),
@@ -125,6 +139,7 @@ class _QuizResultDetailScreenState extends State<QuizResultDetailScreen> {
       elevation: 0,
     );
   }
+
   Widget _buildBackToHomeButton() {
     return Container(
       width: 217,
@@ -231,7 +246,7 @@ class _QuizResultDetailScreenState extends State<QuizResultDetailScreen> {
     );
   }
 
-  Widget _buildQuestionsList() {
+  Widget _buildQuestionsList(ThemeProvider themeProvider) {
     return SliverList(
       delegate: SliverChildBuilderDelegate(
         (context, index) {
@@ -250,22 +265,22 @@ class _QuizResultDetailScreenState extends State<QuizResultDetailScreen> {
             ),
           );
 
-          return _buildQuestionCard(question, answer, index + 1);
+          return _buildQuestionCard(question, answer, index + 1, themeProvider);
         },
         childCount: _answers.length,
       ),
     );
   }
 
-  Widget _buildQuestionCard(
-      QuizQuestion question, QuizAnswer answer, int questionNumber) {
+  Widget _buildQuestionCard(QuizQuestion question, QuizAnswer answer,
+      int questionNumber, ThemeProvider themeProvider) {
     final isCorrect = answer.isCorrect;
     final language = context.read<QuizProvider>().currentLanguage;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
       decoration: BoxDecoration(
-        color: ColorClass.grey3,
+        color: themeProvider.isDarkMode ? Colors.black : ColorClass.grey3,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: ColorClass.violet30,
@@ -284,7 +299,9 @@ class _QuizResultDetailScreenState extends State<QuizResultDetailScreen> {
                   'Question $questionNumber',
                   style: TextStyleClass.fredoka(
                     fontSize: 20,
-                    color: ColorClass.black,
+                    color: themeProvider.isDarkMode
+                        ? Colors.white
+                        : ColorClass.black,
                   ),
                 ),
                 const Spacer(),
@@ -319,7 +336,9 @@ class _QuizResultDetailScreenState extends State<QuizResultDetailScreen> {
               language == 'en' ? question.questionEn : question.questionMl,
               style: TextStyleClass.openSans(
                 fontSize: 16,
-                color: ColorClass.white,
+                color: themeProvider.isDarkMode
+                    ? ColorClass.white
+                    : Colors.black, // check the color here
               ),
             ),
           ),
@@ -339,6 +358,7 @@ class _QuizResultDetailScreenState extends State<QuizResultDetailScreen> {
                     optionIndex,
                     question.correctAnswer,
                     answer.selectedAnswer,
+                    themeProvider,
                   ),
                 ),
               ],
@@ -356,7 +376,7 @@ class _QuizResultDetailScreenState extends State<QuizResultDetailScreen> {
                     'Correct Answer:',
                     style: TextStyleClass.openSansSemiBold(
                       fontSize: 16,
-                      color: Colors.black,
+                      color: themeProvider.isDarkMode ? Colors.white : ColorClass.black,
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -367,7 +387,9 @@ class _QuizResultDetailScreenState extends State<QuizResultDetailScreen> {
                           : question.optionsMl[question.correctAnswer],
                       style: TextStyleClass.openSans(
                         fontSize: 16,
-                        color: Colors.black,
+                        color: themeProvider.isDarkMode
+                            ? Colors.white
+                            : Colors.black,
                       ),
                     ),
                   ),
@@ -405,26 +427,28 @@ class _QuizResultDetailScreenState extends State<QuizResultDetailScreen> {
     );
   }
 
-  Widget _buildOptionItem(
-      String option, int index, int correctIndex, int? selectedIndex) {
+  Widget _buildOptionItem(String option, int index, int correctIndex,
+      int? selectedIndex, ThemeProvider themeProvider) {
     bool isCorrect = index == correctIndex;
     bool isSelected = index == selectedIndex;
 
     Color backgroundColor;
     Color textColor;
-    IconData? icon;
+    // IconData? icon;
 
     if (isCorrect) {
       backgroundColor = ColorClass.green3.withOpacity(0.2);
-      textColor = Colors.black;
+      textColor = themeProvider.isDarkMode ? Colors.white : Colors.black;
       // icon = LucideIcons.check;
     } else if (isSelected && !isCorrect) {
       backgroundColor = Colors.red.withOpacity(0.1);
-      textColor = Colors.black;
+      textColor = themeProvider.isDarkMode ? Colors.white : Colors.black;
       // icon = LucideIcons.x;
     } else {
-      backgroundColor = ColorClass.grey33.withOpacity(0.15);
-      textColor = ColorClass.black;
+      backgroundColor = themeProvider.isDarkMode
+          ? ColorClass.bg
+          : ColorClass.grey33.withOpacity(0.15);
+      textColor = themeProvider.isDarkMode ? Colors.white : ColorClass.black;
     }
 
     return Container(
@@ -453,14 +477,14 @@ class _QuizResultDetailScreenState extends State<QuizResultDetailScreen> {
               ),
             ),
           ),
-          if (icon != null) ...[
-            const SizedBox(width: 8),
-            Icon(
-              icon,
-              color: textColor,
-              size: 16,
-            ),
-          ],
+          // if (icon != null) ...[
+          //   const SizedBox(width: 8),
+          //   Icon(
+          //     icon,
+          //     color: textColor,
+          //     size: 16,
+          //   ),
+          // ],
         ],
       ),
     );
