@@ -151,7 +151,7 @@ class StoryAppBottomNav extends StatelessWidget {
     if (showQuiz) {
       destinations.add(
         NavigationDestination(
-          icon: Icon(LucideIcons.brain,
+          icon: Icon(LucideIcons.brainCircuit,
               color: isDark
                   ? Colors.white70
                   : ColorClass.black87.withOpacity(0.5)),

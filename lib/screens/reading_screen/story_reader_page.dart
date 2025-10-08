@@ -537,7 +537,7 @@ class _StoryReadingScreenState extends State<StoryReadingScreen>
             duration: const Duration(seconds: 2),
             action: SnackBarAction(
               label: 'View',
-              backgroundColor: Colors.white,
+              backgroundColor: Colors.black,
               onPressed: () {
                 navigatePR(context: context, screen: const BookmarkScreen());
               },

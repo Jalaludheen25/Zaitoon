@@ -415,7 +415,7 @@ class _EpisodeScreenState extends State<EpisodeScreen> {
       width: double.infinity,
       height: 106,
       decoration: BoxDecoration(
-        color: themeProvider.isDarkMode ? ColorClass.black : Color(0xFFF9F9F9),
+        color: themeProvider.isDarkMode ? ColorClass.bg : Color(0xFFF9F9F9),
         borderRadius: BorderRadius.circular(24),
       ),
       child: Stack(
@@ -646,7 +646,7 @@ class _BookmarkButtonState extends State<BookmarkButton>
                     duration: const Duration(seconds: 2),
                     action: SnackBarAction(
                       label: 'View',
-                      backgroundColor: Colors.white,
+                      backgroundColor: Colors.black,
                       onPressed: () {
                         navigatePR(
                             context: context, screen: const BookmarkScreen());

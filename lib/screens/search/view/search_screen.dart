@@ -640,9 +640,7 @@ class _TallCard extends StatelessWidget {
       child: Container(
         width: 169,
         decoration: BoxDecoration(
-          color: themeProvider.isDarkMode
-              ? ColorClass.bg
-              : Color(0xFFF9F9F9),
+          color: themeProvider.isDarkMode ? ColorClass.bg : Color(0xFFF9F9F9),
           borderRadius: BorderRadius.circular(24),
         ),
         child: Column(

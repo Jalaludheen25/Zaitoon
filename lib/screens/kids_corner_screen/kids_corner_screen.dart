@@ -48,7 +48,7 @@ class _KidsCornerScreenState extends State<KidsCornerScreen>
           child: Text(
             'Highlights',
             style: GoogleFonts.poppins(
-              color: ColorClass.white,
+              color: ColorClass.black,
               fontSize: 24,
               fontWeight: FontWeight.w500,
             ),
@@ -131,7 +131,7 @@ class _KidsCornerScreenState extends State<KidsCornerScreen>
                               child: Text(
                                 highlight.kidName,
                                 style: GoogleFonts.poppins(
-                                  color: ColorClass.white,
+                                  color: ColorClass.violet30,
                                   fontSize: 14,
                                 ),
                                 overflow: TextOverflow.ellipsis,
@@ -157,7 +157,7 @@ class _KidsCornerScreenState extends State<KidsCornerScreen>
       return Center(
         child: Text(
           'No content available',
-          style: GoogleFonts.poppins(color: ColorClass.white),
+          style: GoogleFonts.poppins(color: ColorClass.violet30),
         ),
       );
     }
@@ -193,7 +193,7 @@ class _KidsCornerScreenState extends State<KidsCornerScreen>
           context,
           MaterialPageRoute(builder: (context) => const GetStartedScreen()),
         ),
-        backgroundColor: ColorClass.primaryColor,
+        backgroundColor: ColorClass.violet30,
         icon: const Icon(Icons.brush_outlined, color: ColorClass.white),
         label: Text(
           'Upload ✨',
@@ -209,7 +209,7 @@ class _KidsCornerScreenState extends State<KidsCornerScreen>
         title: Text(
           'Kids Corner',
           style: GoogleFonts.fredoka(
-            color: ColorClass.white,
+            color: ColorClass.violet30,
             fontSize: 24,
             fontWeight: FontWeight.bold,
           ),
@@ -290,7 +290,7 @@ class _KidsCornerScreenState extends State<KidsCornerScreen>
               height: 48,
               decoration: BoxDecoration(
                 color: _tabController.index == index
-                    ? ColorClass.primaryColor
+                    ? ColorClass.violet30
                     : Colors.grey[850],
                 borderRadius: BorderRadius.circular(24),
               ),

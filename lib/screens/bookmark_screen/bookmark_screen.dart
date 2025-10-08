@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 // ignore: unused_import
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 import 'package:provider/provider.dart';
 import 'package:zaitoon/constants/app_urls.dart';
@@ -78,7 +79,7 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
-                          Icons.bookmark_border_rounded,
+                          LucideIcons.bookmark,
                           size: 64,
                           color: themeProvider.isDarkMode
                               ? ColorClass.white
@@ -676,7 +677,7 @@ class BookmarkCard extends StatelessWidget {
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
-                              Icons.bookmark_remove,
+                              LucideIcons.bookmark,
                               color: ColorClass.white,
                               size: 18,
                             ),
@@ -701,7 +702,7 @@ class BookmarkCard extends StatelessWidget {
                   Text(
                     title,
                     style: TextStyleClass.fredoka(
-                      fontSize: 16,
+                      fontSize: 15,
                       color: isDarkMode ? ColorClass.white : ColorClass.black,
                     ),
                     maxLines: 2,
@@ -710,7 +711,7 @@ class BookmarkCard extends StatelessWidget {
                   // Read Story Button
                   Container(
                     width: double.infinity,
-                    height: 32,
+                    height: 30,
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
